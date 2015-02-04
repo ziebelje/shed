@@ -1,2 +1,3 @@
-start %CD%\..\build_tools\nw\nw.exe %CD%
+cd ../build/nw
+start nw ../../src
 exit
