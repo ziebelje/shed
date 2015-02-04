@@ -1,0 +1,15 @@
+.settings_path {
+  width: 100%;
+  padding-right: 30px !important;
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+  background-size: 25px 25px;
+}
+
+.settings_path_valid {
+  background-image: url('../img/green_check.png');
+}
+
+.settings_path_invalid {
+  background-image: url('../img/red_x.png');
+}

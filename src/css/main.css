@@ -1,0 +1,9 @@
+.main_footer {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+}
+
+.main_footer td {
+  padding: 20px;
+}

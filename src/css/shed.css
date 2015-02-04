@@ -1,0 +1,171 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+@font-face {
+  font-family: "Grobold";
+  src: url("../font/grobold.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Autour One";
+  src: url("../font/autour_one.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+h1 {
+  color: #ffc000;
+  font-size: 28px;
+  font-family: "Grobold";
+  font-weight: normal;
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
+}
+
+h2 {
+  color: #000;
+  font-size: 16px;
+  font-family: "Autour One";
+  font-weight: bold;
+}
+
+body {
+  background: url('../img/background.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  color: #fff;
+  font-family: "Autour One";
+}
+
+p {
+  text-shadow: 2px 2px #000;
+  margin: 0;
+  padding: 0;
+}
+
+th {
+  font-family: "Grobold";
+  font-weight: normal;
+}
+
+.content {
+  margin: 10px;
+}
+
+button {
+  outline: none;
+  cursor: pointer;
+
+  background: #7E8994;
+
+  border-image-source: url('../img/button.png');
+  border-image-slice: 8 8 13 8;
+  border-width: 8px 8px 13px 8px;
+
+  height: 50px;
+
+  font-family: "Grobold";
+}
+
+button:hover {
+  border-image-source: url('../img/button_hover.png');
+  background: #9E9E82;
+}
+
+.button_red {
+  border-image-source: url('../img/button_red.png');
+  background: #591F1F;
+
+  font-size: 32px;
+  color: #ffc000;
+
+  height: 80px;
+
+  width: 500px;
+  text-align: center;
+
+  /* Not perfect, but emulates a text-stroke pretty well since text-stroke was ugly */
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
+
+  display: block;
+  margin: auto;
+
+  margin-bottom: 10px;
+}
+
+.button_red:hover {
+  border-image-source: url('../img/button_red_hover.png');
+  background: #5C2222;
+}
+
+
+
+input[type='checkbox'] {
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url('../img/button.png');
+  width: 50px;
+  height: 50px;
+}
+
+input[type='checkbox']:hover {
+  background: url('../img/button_hover.png');
+}
+
+input[type='checkbox']:checked {
+  background: url('../img/ok_check.png'), url('../img/button_ok.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: 14px 12px, 0px 0px;
+}
+
+
+input[type='checkbox']:checked:hover {
+  background: url('../img/ok_check.png'), url('../img/button_ok_hover.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: 14px 12px, 0px 0px;
+/*input[type='checkbox']:not(:disabled):active*/
+}
+
+input[type=text] {
+  border: 2px solid #000;
+  background-color: #1c1b1b;
+  padding: 6px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #fff;
+}
+
+
+.box {
+  border-image-source: url('../img/box_background.png');
+  border-image-slice: 8 8 13 8;
+  border-width: 8px 8px 13px 8px;
+  background: #C3B288;
+  color: #000;
+  padding: 10px;
+  margin-bottom: 10px;
+}
