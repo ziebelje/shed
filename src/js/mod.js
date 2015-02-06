@@ -22,13 +22,14 @@ shed.mod.prototype.get_name = function() {
 /**
  * Zip up a mod folder. http://stackoverflow.com/a/16099450
  *
+ * TODO: See TODOs and comments on unpack.
+ *
  * @param {Function} callback
  */
 shed.mod.prototype.pack = function(callback) {
   if(this.is_disabled() === true) {
     throw "disable this";
   }
-  // TODO: handle error codes on exit (corrupt archives, etc)
 
   var folder_name = localStorage.path + '\\mods\\' + this.name_;
   var smod_name = localStorage.path + '\\mods\\' + this.name_ + '.smod';
@@ -44,8 +45,13 @@ shed.mod.prototype.pack = function(callback) {
     ]
   );
 
-  process.on('close', function (code) {
-    console.log('pack done ' + code);
+  process.stderr.setEncoding('utf8');
+  process.stderr.on('data', function(data) {}); // Prevents buffer overflow
+
+  process.stdout.setEncoding('utf8');
+  process.stdout.on('data', function(data) {}); // Prevents buffer overflow
+
+  process.on('close', function(code) {
     callback();
   });
 };
@@ -54,19 +60,26 @@ shed.mod.prototype.pack = function(callback) {
 /**
  * Unzip a smod archive. http://stackoverflow.com/a/16099450
  *
+ * TODO: Handle errors
+ * TODO: Handle overwriting
+ * TODO: Show spinner on frontend while this is working
+ * TODO: Optionally show 7zip output while it's extracting?
+ *
  * @param {Function} callback
  */
 shed.mod.prototype.unpack = function(callback) {
   if(this.is_disabled() === true) {
     throw "disable this";
   }
-  // TODO: handle error codes on exit (corrupt archives, etc)
 
   var folder_name = localStorage.path + '\\mods\\';
   var smod_name = localStorage.path + '\\mods\\' + this.name_ + '.smod';
 
-  console.log(smod_name);
-
+  // Spawn will run an asynchronous process (using the same nw module) and
+  // return a data stream. I'm not using the stream right now, but if I wanted
+  // to display live output from 7zip as it extracts then I could do so. I am
+  // calling the stderr and stdout functions here because it seems to overflow
+  // the buffer when operating on stonehearth.smod otherwise.
   var spawn = require('child_process').spawn;
   var process = spawn(
     'tool/7z/7z.exe',
@@ -77,8 +90,13 @@ shed.mod.prototype.unpack = function(callback) {
     ]
   );
 
-  process.on('close', function (code) {
-    console.log('unpack done ' + code);
+  process.stderr.setEncoding('utf8');
+  process.stderr.on('data', function(data) {}); // Prevents buffer overflow
+
+  process.stdout.setEncoding('utf8');
+  process.stdout.on('data', function(data) {}); // Prevents buffer overflow
+
+  process.on('close', function(code) {
     callback();
   });
 };
