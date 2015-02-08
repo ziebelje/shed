@@ -1,20 +1,16 @@
+
 shed.view.settings = function() {
   shed.view.apply(this, arguments);
 }
 $.inherits(shed.view.settings, shed.view);
 
+shed.view.settings.prototype.title_ = 'Settings';
+
 shed.view.settings.prototype.decorate_ = function(parent) {
   var self = this;
 
-  var content = $.createElement('div').addClass('content');
-
-  var header = new shed.component.header('Settings');
-  header.render(content);
-
-  var box = $.createElement('div').addClass('box');
-
   var path_header = $.createElement('h2').innerHTML('Stonehearth Installation Directory');
-  box.appendChild(path_header);
+  parent.appendChild(path_header);
 
   var path_table = new jex.table({'rows': 1, 'columns': 2});
   path_table.table().style('width', '100%');
@@ -49,10 +45,7 @@ shed.view.settings.prototype.decorate_ = function(parent) {
     gui.Shell.openExternal(path_input.value());
   });
 
-  box.appendChild(path_table.table());
-
-  content.appendChild(box);
-  parent.appendChild(content);
+  parent.appendChild(path_table.table());
 };
 
 shed.view.settings.prototype.path_is_valid_ = function() {

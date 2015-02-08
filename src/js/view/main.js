@@ -19,7 +19,7 @@ shed.view.main.prototype.decorate_ = function(parent) {
   parent.appendChild(stonehearth_logo);
 
   var manage_mods_button = $.createElement('button')
-    .addClass('button_red')
+    .addClass('button_main')
     .innerHTML('Manage Mods');
   parent.appendChild(manage_mods_button);
 
@@ -27,28 +27,23 @@ shed.view.main.prototype.decorate_ = function(parent) {
     new shed.view.mod_manager();
   });
 
+  var cubemitter_editor_button = $.createElement('button')
+    .addClass('button_main')
+    .innerHTML('Cubemitter Editor');
+  parent.appendChild(cubemitter_editor_button);
+
+  cubemitter_editor_button.addEventListener('click', function() {
+    new shed.view.cubemitter_editor();
+  });
+
   var settings_button = $.createElement('button')
-    .addClass('button_red')
+    .addClass('button_main')
     .innerHTML('Settings');
   parent.appendChild(settings_button);
 
   settings_button.addEventListener('click', function() {
     new shed.view.settings();
   });
-
-  // Footer
-  var table = new jex.table({'rows': 1, 'columns': 2});
-  table.table().addClass('main_footer');
-
-  var jonzoid_image = $.createElement('img')
-    .setAttribute('src', 'img/jonzoid.png');
-  table.td(0, 0).appendChild(jonzoid_image);
-
-  var message = $.createElement('p')
-    .innerHTML('Hi, I\'m Jonzoid! SHED is an unofficial tool pack for Stonehearth. Please let me know if you have any feedback or ideas by getting in touch with me on the Stonehearth Discourse. Thanks!');
-  table.td(1, 0).appendChild(message);
-
-  parent.appendChild(table.table());
 };
 
 

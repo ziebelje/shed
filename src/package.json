@@ -3,10 +3,11 @@
   "version": "2015.2.2",
   "main": "index.html",
   "window": {
+    "frame": false,
     "toolbar": false,
     "icon": "shed.png",
-    "width": 800,
-    "height": 550,
+    "width": 900,
+    "height": 600,
     "resizable": false
   }
 }

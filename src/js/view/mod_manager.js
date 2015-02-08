@@ -1,57 +1,28 @@
-// fails completely/no mods?
-// scrollbar styles / location?
-
 shed.view.mod_manager = function() {
   shed.view.apply(this, arguments);
 }
 $.inherits(shed.view.mod_manager, shed.view);
 
 shed.view.mod_manager.prototype.mods_;
+shed.view.mod_manager.prototype.title_ = 'Manage Mods';
 
 shed.view.mod_manager.prototype.decorate_ = function(parent) {
   var self = this;
 
-  var content = $.createElement('div').addClass('content');
-
-  var header = new shed.component.header('Manage Mods');
-  header.render(content);
-
   this.mods_ = this.get_mods_();
 
-  var box = $.createElement('div').addClass('box');
+  var mods_table = $.createElement('div').addClass('mods_table');
+
   if(this.mods_.length > 0) {
-    this.decorate_mods_table_(box);
+    this.decorate_mods_table_(mods_table);
   }
   else {
-    this.decorate_empty_mods_table_(box);
+    this.decorate_empty_mods_table_(mods_table);
   }
 
-  content.appendChild(box);
+  parent.appendChild(mods_table);
 
-  var path_table = new jex.table({'rows': 1, 'columns': 2});
-  path_table.table().style('width', '100%');
-
-  var path_input = $.createElement('input')
-    .style('width', '100%')
-    .value(localStorage.path + '\\mods')
-    .setAttribute({'type': 'text', 'disabled': 'disabled'});
-  path_table.td(0, 0).appendChild(path_input);
-
-  var open_path_icon = $.createElement('img')
-    .style('cursor', 'pointer')
-    .setAttribute('src', 'img/forward.png');
-  path_table.td(1, 0)
-    .style({'width': '50px', 'text-align': 'right'})
-    .appendChild(open_path_icon);
-
-  open_path_icon.addEventListener('click', function() {
-    var gui = require('nw.gui');
-    gui.Shell.openExternal(path_input.value());
-  });
-
-  content.appendChild(path_table.table());
-
-  parent.appendChild(content);
+  this.decorate_path_(parent);
 }
 
 shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
@@ -162,6 +133,31 @@ shed.view.mod_manager.prototype.decorate_empty_mods_table_ = function(parent) {
   container.appendChild(none_icon);
   container.appendChild($.createElement('h2').innerHTML('No mods found'));
   parent.appendChild(container);
+}
+
+shed.view.mod_manager.prototype.decorate_path_ = function(parent) {
+  var path_table = new jex.table({'rows': 1, 'columns': 2});
+  path_table.table().style('width', '100%');
+
+  var path_input = $.createElement('input')
+    .style('width', '100%')
+    .value(localStorage.path + '\\mods')
+    .setAttribute({'type': 'text', 'disabled': 'disabled'});
+  path_table.td(0, 0).appendChild(path_input);
+
+  var open_path_icon = $.createElement('img')
+    .style('cursor', 'pointer')
+    .setAttribute('src', 'img/forward.png');
+  path_table.td(1, 0)
+    .style({'width': '50px', 'text-align': 'right'})
+    .appendChild(open_path_icon);
+
+  open_path_icon.addEventListener('click', function() {
+    var gui = require('nw.gui');
+    gui.Shell.openExternal(path_input.value());
+  });
+
+  parent.appendChild(path_table.table());
 }
 
 shed.view.mod_manager.prototype.get_mods_ = function() {

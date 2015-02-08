@@ -1,3 +1,5 @@
+/* TODO: Switch this to sass... */
+
 *, *:before, *:after {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -35,20 +37,57 @@ h1 {
 }
 
 h2 {
-  color: #000;
   font-size: 16px;
-  font-family: "Autour One";
-  font-weight: bold;
+  font-family: "Grobold";
+  font-weight: normal;
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
 }
 
 body {
-  background: url('../img/background.jpg') no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
   color: #fff;
   font-family: "Autour One";
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+
+::-webkit-scrollbar {
+   width: 16px;
+   height: 16px;
+}
+::-webkit-scrollbar-track {
+   background-color: rgba(0,0,0,0.4);
+   -webkit-border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+   background: #322f28;
+   border: 2px solid #000;
+   -webkit-border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:vertical:hover,
+::-webkit-scrollbar-thumb:horizontal:hover {
+   background: #403b30;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+   background: #322f28;
+   border: 2px solid #000;
+   -webkit-border-radius: 0px;
 }
 
 p {
@@ -60,10 +99,15 @@ p {
 th {
   font-family: "Grobold";
   font-weight: normal;
-}
-
-.content {
-  margin: 10px;
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
 }
 
 button {
@@ -86,8 +130,8 @@ button:hover {
   background: #9E9E82;
 }
 
-.button_red {
-  border-image-source: url('../img/button_red.png');
+.button_main {
+  border-image-source: url('../img/button_main.png');
   background: #591F1F;
 
   font-size: 32px;
@@ -112,12 +156,22 @@ button:hover {
   display: block;
   margin: auto;
 
-  margin-bottom: 10px;
+  margin-bottom: -4px;
+}
+
+.button_main:hover {
+  border-image-source: url('../img/button_main_hover.png');
+  background: #5C2222;
+}
+
+.button_red {
+  border-image-source: url('../img/button_red.png');
+  background: #b33131;
 }
 
 .button_red:hover {
   border-image-source: url('../img/button_red_hover.png');
-  background: #5C2222;
+  background: #f93030;
 }
 
 
@@ -136,14 +190,14 @@ input[type='checkbox']:hover {
 }
 
 input[type='checkbox']:checked {
-  background: url('../img/ok_check.png'), url('../img/button_ok.png');
+  background: url('../img/ok_check.png'), url('../img/button_green.png');
   background-repeat: no-repeat, no-repeat;
   background-position: 14px 12px, 0px 0px;
 }
 
 
 input[type='checkbox']:checked:hover {
-  background: url('../img/ok_check.png'), url('../img/button_ok_hover.png');
+  background: url('../img/ok_check.png'), url('../img/button_green_hover.png');
   background-repeat: no-repeat, no-repeat;
   background-position: 14px 12px, 0px 0px;
 /*input[type='checkbox']:not(:disabled):active*/
@@ -162,10 +216,96 @@ input[type=text] {
 
 .box {
   border-image-source: url('../img/box_background.png');
-  border-image-slice: 8 8 13 8;
-  border-width: 8px 8px 13px 8px;
-  background: #C3B288;
-  color: #000;
+  border-image-slice: 6 6 12 6;
+  border-width: 6px 6px 12px 6px;
+  background: #403c33;
+  color: #fff;
   padding: 10px;
-  margin-bottom: 10px;
+
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
+
+.well {
+  border-image-source: url('../img/well_background.png');
+  border-image-slice: 11 6 6 6;
+  border-width: 11px 6px 6px 6px;
+  background: #1f1e1e;
+  color: #fff;
+  padding: 10px;
+}
+
+.title {
+  border-image-source: url('../img/title_background.png');
+  border-image-slice: 8 8 11 8;
+  border-width: 8px 8px 11px 8px;
+  background: #6c6045;
+
+  color: #ffc000;
+  font-size: 16px;
+  font-family: "Grobold";
+  font-weight: normal;
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
+
+  padding: 8px;
+  margin: -10px -10px 5px -10px;
+}
+
+.title_bar {
+  -webkit-app-region: drag;
+  color: #fff;
+  padding-left: 5px;
+  background-color:rgba(0, 0, 0, 0.5);
+
+  border-image-source: url('../img/title_background.png');
+  border-image-slice: 8 8 11 8;
+  border-width: 8px 8px 11px 8px;
+  background: #6c6045;
+
+  color: #ffc000;
+  font-size: 18px;
+  font-family: "Grobold";
+  font-weight: normal;
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
+
+  margin: -10px -10px 10px -10px;
+
+}
+
+.title_bar_button {
+  margin-left: 5px;
+  width: 40px;
+  height: 40px;
+  -webkit-app-region: no-drag;
+}
+
+.title_bar_back {
+  height: 25px;
+  margin-top: 3px;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
+.table_stripe tbody td {
+  padding: 5px;
+}
+/*.table_stripe tbody tr:nth-child(odd) {background: #312f30}*/
+.table_stripe tbody tr:nth-child(odd) {background: #333029}
+.table_stripe tbody tr:nth-child(odd) {}

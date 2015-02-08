@@ -4,15 +4,6 @@
  * should at the very least override the private decorate_() method which is
  * what should describe what goes on the page. Creating a new view will
  * automatically render it.
- *
- * TODO: Dive-ins are broken. I need to be able to dive from one view to
- * another view without destroying it, then go back to the previous view
- * having updated certain things like dropdowns (see create facility > create
- * new group) but keeping the rest of the data intact. Also, when going back I
- * should be able to pass arguments to the layer to auto-select what I just
- * created. Maybe solve the first problem by creating the element in the cache
- * and then going back to it so it 'loads?' that seems like a lot of extra
- * logic would be needed.
  */
 shed.view = function() {
   var self = this;
@@ -54,8 +45,13 @@ shed.view.prototype.render_ = function(opt_keep_event_listeners) {
     $.EventTarget.removeAllEventListeners();
   }
 
-  // Create the container and decorate it.
-  var new_container = $.createElement('div');
+  // Create the container and decorate it by adding the title bar and then
+  // decorating the view into it.
+  var new_container = $.createElement('div').addClass('box');
+
+  var title_bar = new shed.component.title_bar(this.title_);
+  title_bar.render(new_container);
+
   this.decorate_(new_container);
 
   // Attach the new view to the body (replace the old one if it exists).
