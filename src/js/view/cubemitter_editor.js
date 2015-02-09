@@ -8,7 +8,7 @@ shed.view.cubemitter_editor = function() {
   // speed is ONLY on the y-axis. So a y velocity of 0 means the particle will
   // still move in the y direction as long as speed is non-zero.
 
-  // TODO: add controls for showing/hiding ground, changing background colors, etc
+  // TODO: add controls for showing/hiding terrain, changing backterrain colors, etc
 
   // TODO: Emission angle appears to control the angle the particles emit at.
   // 360 means a particle will be created and then have an initial direction
@@ -35,7 +35,7 @@ shed.view.cubemitter_editor = function() {
   this.load_cubemitter_(localStorage.path + '\\mods\\stonehearth\\data\\horde\\particles\\fire\\fire.cubemitter.json');
 
   this.scene_ = new THREE.Scene();
-  this.scene_toggle_ground_(true);
+  this.scene_toggle_terrain_(true);
   this.scene_.add(this.cubemitter_.group);
 
   this.camera_ = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
@@ -58,7 +58,7 @@ shed.view.cubemitter_editor.prototype.camera_;
 shed.view.cubemitter_editor.prototype.renderer_;
 shed.view.cubemitter_editor.prototype.controls_;
 shed.view.cubemitter_editor.prototype.watcher_;
-shed.view.cubemitter_editor.prototype.scene_ground_;
+shed.view.cubemitter_editor.prototype.scene_terrain_;
 
 shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   var self = this;
@@ -76,18 +76,18 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   // Toolbar
   var toolbar = $.createElement('div')
     .addClass('toolbar');
-  var toggle_ground_container = $.createElement('span')
-    .dataset('hint', 'Toggle ground')
+  var toggle_terrain_container = $.createElement('span')
+    .dataset('hint', 'Toggle terrain')
     .addClass(['hint--bottom', 'hint--bounce']);
-  var toggle_ground = $.createElement('input')
+  var toggle_terrain = $.createElement('input')
     .setAttribute('type', 'checkbox')
-    .addClass('toggle_ground')
+    .addClass('toggle_terrain')
     .checked(true);
-  toggle_ground.addEventListener('change', function() {
-    self.scene_toggle_ground_(toggle_ground.checked());
+  toggle_terrain.addEventListener('change', function() {
+    self.scene_toggle_terrain_(toggle_terrain.checked());
   });
-  toggle_ground_container.appendChild(toggle_ground);
-  toolbar.appendChild(toggle_ground_container);
+  toggle_terrain_container.appendChild(toggle_terrain);
+  toolbar.appendChild(toggle_terrain_container);
   well.appendChild(toolbar);
 
   // Canvas
@@ -563,15 +563,15 @@ shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
   }
 }
 
-shed.view.cubemitter_editor.prototype.scene_toggle_ground_ = function(display) {
+shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) {
   if(display === false) {
-    if(this.scene_ground_) {
-      this.scene_.remove(this.scene_ground_);
-      this.scene_ground = null;
+    if(this.scene_terrain_) {
+      this.scene_.remove(this.scene_terrain_);
+      this.scene_terrain = null;
     }
   }
   else {
-    this.scene_ground_ = new THREE.Group();
+    this.scene_terrain_ = new THREE.Group();
 
     var geometry, material, mesh;
 
@@ -591,28 +591,28 @@ shed.view.cubemitter_editor.prototype.scene_toggle_ground_ = function(display) {
     material = new THREE.MeshBasicMaterial({'color': 0xa7e288 });
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.y = -0.5;
-    this.scene_ground_.add(mesh);
+    this.scene_terrain_.add(mesh);
 
     // Dirt
     geometry = new THREE.BoxGeometry(10, 2, 10);
     material = new THREE.MeshBasicMaterial({'color': 0x48402b }); // Light
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.y = -2;
-    this.scene_ground_.add(mesh);
+    this.scene_terrain_.add(mesh);
 
     geometry = new THREE.BoxGeometry(10, 2, 10);
     material = new THREE.MeshBasicMaterial({'color': 0x403823 }); // Dark
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.y = -4;
-    this.scene_ground_.add(mesh);
+    this.scene_terrain_.add(mesh);
 
     geometry = new THREE.BoxGeometry(10, 2, 10);
     material = new THREE.MeshBasicMaterial({'color': 0x48402b }); // Light
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.y = -6;
-    this.scene_ground_.add(mesh);
+    this.scene_terrain_.add(mesh);
 
-    this.scene_.add(this.scene_ground_);
+    this.scene_.add(this.scene_terrain_);
   }
 
 };
