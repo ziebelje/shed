@@ -1,0 +1,20 @@
+.toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.toggle_ground {
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url('../img/ground.png');
+  background-repeat: no-repeat;
+  width: 55px;
+  height: 55px;
+  -webkit-filter: grayscale(100%);
+}
+
+.toggle_ground:checked {
+  -webkit-filter: none;
+}

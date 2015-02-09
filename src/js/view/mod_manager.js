@@ -73,7 +73,7 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
 
     var enabled_checkbox = $.createElement('input')
       .setAttribute('type', 'checkbox')
-      .addClass('enabled_checkbox')
+      .addClass(['checkbox', 'enabled_checkbox'])
       .dataset('mod_id', i)
     ;
     table.td(3, i + 1)

@@ -18,6 +18,12 @@ shed.view.cubemitter_editor = function() {
 
   // TODO: Load multiple emitters at the same time? Maybe for displaying only and switch between editing them. Or load multiple of the same one and edit all instances at once.
 
+  // TODO: Launch default .json editor for any json file?
+
+  // TODO: Materials
+
+  // TODO: controls for playback in order to view effects that don't loop
+
   this.cubemitter_ = {
     'data': null,
     'dt': 0,
@@ -29,7 +35,7 @@ shed.view.cubemitter_editor = function() {
   this.load_cubemitter_(localStorage.path + '\\mods\\stonehearth\\data\\horde\\particles\\fire\\fire.cubemitter.json');
 
   this.scene_ = new THREE.Scene();
-  this.scene_add_ground_();
+  this.scene_toggle_ground_(true);
   this.scene_.add(this.cubemitter_.group);
 
   this.camera_ = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
@@ -51,6 +57,8 @@ shed.view.cubemitter_editor.prototype.scene_;
 shed.view.cubemitter_editor.prototype.camera_;
 shed.view.cubemitter_editor.prototype.renderer_;
 shed.view.cubemitter_editor.prototype.controls_;
+shed.view.cubemitter_editor.prototype.watcher_;
+shed.view.cubemitter_editor.prototype.scene_ground_;
 
 shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   var self = this;
@@ -62,11 +70,32 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   table.td(0, 0).setAttribute('valign', 'top').style('width', '370px');
   this.decorate_list_(table.td(0, 0));
 
-  var well = $.createElement('div').addClass('well');
+  // Well
+  var well = $.createElement('div').addClass('well').style('position', 'relative');
+
+  // Toolbar
+  var toolbar = $.createElement('div')
+    .addClass('toolbar');
+  var toggle_ground_container = $.createElement('span')
+    .dataset('hint', 'Toggle ground')
+    .addClass(['hint--bottom', 'hint--bounce']);
+  var toggle_ground = $.createElement('input')
+    .setAttribute('type', 'checkbox')
+    .addClass('toggle_ground')
+    .checked(true);
+  toggle_ground.addEventListener('change', function() {
+    self.scene_toggle_ground_(toggle_ground.checked());
+  });
+  toggle_ground_container.appendChild(toggle_ground);
+  toolbar.appendChild(toggle_ground_container);
+  well.appendChild(toolbar);
+
+  // Canvas
   well.appendChild(this.renderer_.domElement);
   table.td(1, 0).setAttribute('valign', 'top');
   table.td(1, 0).appendChild(well);
   parent.appendChild(table.table());
+
 
   // Add camera controls
   // http://threejs.org/examples/misc_controls_orbit.html
@@ -183,9 +212,23 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
 }
 
 shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
+  var self = this;
+
   var fs = require('fs');
-  this.cubemitter_.data = JSON.parse(fs.readFileSync(path));
-  // TODO: Handle parse errors.
+  try {
+    var data = JSON.parse(fs.readFileSync(path));
+    this.cubemitter_.data = data;
+  }
+  catch(e) {
+    alert('invalid json'); // TODO: Make this nicer
+  }
+
+  if(this.watcher_) {
+    this.watcher_.close();
+  }
+  this.watcher_ = fs.watch(path, {}, function(event, filename) {
+    self.load_cubemitter_(path);
+  });
 }
 
 shed.view.cubemitter_editor.prototype.update_ = function(dt) {
@@ -520,44 +563,56 @@ shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
   }
 }
 
+shed.view.cubemitter_editor.prototype.scene_toggle_ground_ = function(display) {
+  if(display === false) {
+    if(this.scene_ground_) {
+      this.scene_.remove(this.scene_ground_);
+      this.scene_ground = null;
+    }
+  }
+  else {
+    this.scene_ground_ = new THREE.Group();
 
-shed.view.cubemitter_editor.prototype.scene_add_ground_ = function() {
-  var geometry, material, mesh;
+    var geometry, material, mesh;
 
-  // TODO: Add axis markers
-  // Origin marker for debugging
-  // geometry = new THREE.BoxGeometry(1, 1, 1);
-  // material = new THREE.MeshBasicMaterial({'color': 0xff0000 });
-  // mesh = new THREE.Mesh(geometry, material);
-  // mesh.position.y = 0;
-  // mesh.position.z = 0;
-  // mesh.position.x = 0;
-  // this.scene_.add(mesh);
-  // return;
+    // TODO: Add axis markers
+    // Origin marker for debugging
+    // geometry = new THREE.BoxGeometry(1, 1, 1);
+    // material = new THREE.MeshBasicMaterial({'color': 0xff0000 });
+    // mesh = new THREE.Mesh(geometry, material);
+    // mesh.position.y = 0;
+    // mesh.position.z = 0;
+    // mesh.position.x = 0;
+    // this.scene_.add(mesh);
+    // return;
 
-  // Grass
-  geometry = new THREE.BoxGeometry(10, 1, 10);
-  material = new THREE.MeshBasicMaterial({'color': 0xa7e288 });
-  mesh = new THREE.Mesh(geometry, material);
-  mesh.position.y = -0.5;
-  this.scene_.add(mesh);
+    // Grass
+    geometry = new THREE.BoxGeometry(10, 1, 10);
+    material = new THREE.MeshBasicMaterial({'color': 0xa7e288 });
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = -0.5;
+    this.scene_ground_.add(mesh);
 
-  // Dirt
-  geometry = new THREE.BoxGeometry(10, 2, 10);
-  material = new THREE.MeshBasicMaterial({'color': 0x48402b }); // Light
-  mesh = new THREE.Mesh(geometry, material);
-  mesh.position.y = -2;
-  this.scene_.add(mesh);
+    // Dirt
+    geometry = new THREE.BoxGeometry(10, 2, 10);
+    material = new THREE.MeshBasicMaterial({'color': 0x48402b }); // Light
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = -2;
+    this.scene_ground_.add(mesh);
 
-  geometry = new THREE.BoxGeometry(10, 2, 10);
-  material = new THREE.MeshBasicMaterial({'color': 0x403823 }); // Dark
-  mesh = new THREE.Mesh(geometry, material);
-  mesh.position.y = -4;
-  this.scene_.add(mesh);
+    geometry = new THREE.BoxGeometry(10, 2, 10);
+    material = new THREE.MeshBasicMaterial({'color': 0x403823 }); // Dark
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = -4;
+    this.scene_ground_.add(mesh);
 
-  geometry = new THREE.BoxGeometry(10, 2, 10);
-  material = new THREE.MeshBasicMaterial({'color': 0x48402b }); // Light
-  mesh = new THREE.Mesh(geometry, material);
-  mesh.position.y = -6;
-  this.scene_.add(mesh);
+    geometry = new THREE.BoxGeometry(10, 2, 10);
+    material = new THREE.MeshBasicMaterial({'color': 0x48402b }); // Light
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = -6;
+    this.scene_ground_.add(mesh);
+
+    this.scene_.add(this.scene_ground_);
+  }
+
 };
