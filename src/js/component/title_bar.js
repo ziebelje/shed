@@ -44,8 +44,8 @@ shed.component.title_bar.prototype.decorate_ = function(parent) {
   table.td(1, 0).appendChild(title);;
 
   table.td(2, 0).style('text-align', 'right');
-  table.td(2, 0).appendChild(refresh);
-  table.td(2, 0).appendChild(dev_tools);
+  // table.td(2, 0).appendChild(refresh);
+  // table.td(2, 0).appendChild(dev_tools);
   table.td(2, 0).appendChild(minimize);
   table.td(2, 0).appendChild(close);
 

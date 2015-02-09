@@ -28,7 +28,7 @@ shed.view.cubemitter_editor = function() {
     'data': null,
     'dt': 0,
     'meshes': [],
-    'group': new THREE.Group()
+    'group': new THREE.Object3D()
   };
 
   // For now...
@@ -234,7 +234,7 @@ shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
 
 shed.view.cubemitter_editor.prototype.update_ = function(dt) {
   this.cubemitter_.dt += dt;
-  if(
+  if( // Decide whether or not to create a new cube
     this.cubemitter_.dt >= (1000 / this.cubemitter_.data.emission.rate.values[0]) &&
     this.cubemitter_.group.children.length < this.cube_limit_
   ) {
@@ -339,7 +339,11 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
     }
 
     var geometry = new THREE.BoxGeometry(scale, scale, scale);
-    var material = new THREE.MeshBasicMaterial( { 'color': color.getHex(), 'transparent': true, 'opacity': opacity } );
+    var material = new THREE.MeshBasicMaterial({
+      'color': color.getHex(),
+      'transparent': true,
+      'opacity': opacity
+    });
     var mesh = new THREE.Mesh(geometry, material);
     mesh.userData = {
       'lifetime': lifetime, // How long it gets to live
@@ -352,9 +356,6 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
       }
     };
 
-    // geometry.dispose(); // This doesn't break it and it doesn't fix it either.
-    // material.dispose();
-
     mesh.position.x = origin.x;
     mesh.position.z = origin.z;
     mesh.position.y = 0;
@@ -363,17 +364,12 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
   }
 
   // Delete old stuff
-  for(var i = 0; i < this.cubemitter_.group.children.length; i++) {
+  // TODO: I think I can merge this with the main loop and just do it at the end as long as it's going backwards?
+  for(var i = this.cubemitter_.group.children.length - 1; i >= 0; i--) {
     if(this.cubemitter_.group.children[i].userData.age >= this.cubemitter_.group.children[i].userData.lifetime) {
-      // this.cubemitter_.group.children[i].geometry.deallocate();
-      // this.cubemitter_.group.children[i].material.deallocate();
-      // this.cubemitter_.group.children[i].deallocate();
+      this.cubemitter_.group.children[i].geometry.dispose();
+      this.cubemitter_.group.children[i].material.dispose();
       this.cubemitter_.group.remove(this.cubemitter_.group.children[i]);
-      // this.cubemitter_.group.children[i].geometry.dispose(); // disposing doesn't seem to make a difference
-      // this.cubemitter_.group.children[i].material.dispose();
-      // this.cubemitter_.meshes[i] = undefined; // doesn't work
-      // also tried only adding to the scene, not the group. Didn't work.
-      // this.cubemitter_.meshes.splice(i, 1); // TODO: I think this is leaking somehow...
     }
   }
 
@@ -558,15 +554,22 @@ shed.view.cubemitter_editor.prototype.draw_ = function() {
 shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
   // Add a fake point at the end of the curve to make evaluating this not
   // require a conditional.
-  curve.push([10, 0]); // TODO: Not really liking this...
+
+  // Ok yeah, need to fix this. Adding this to the end of the curve array was
+  // actually adding it to the data object EVERY SINGLE TIME THIS FUNCTION WAS
+  // CALLED. That pretty much just leaked memory out the wazoo since curve is
+  // passed by reference. Oops...I'll fix this proper later when I rethink this,
+  // for now just getting the bugfix done.
+  var clone_curve = curve.slice(0);
+  clone_curve.push([10, 0]); // TODO: Not really liking this...
 
   var x, y, x0, x1, y0, y1;
-  for(var i = 0; i < curve.length; i++) {
-    if(t >= curve[i][0] && t < curve[i + 1][0]) {
-      x0 = curve[i][0];
-      x1 = curve[i + 1][0];
-      y0 = curve[i][1];
-      y1 = curve[i + 1][1];
+  for(var i = 0; i < clone_curve.length; i++) {
+    if(t >= clone_curve[i][0] && t < clone_curve[i + 1][0]) {
+      x0 = clone_curve[i][0];
+      x1 = clone_curve[i + 1][0];
+      y0 = clone_curve[i][1];
+      y1 = clone_curve[i + 1][1];
       x = t;
       y = y0 + ((y1 - y0) * ((x - x0) / (x1 - x0))); // Linear interpolation. TODO: Use a sine function here?
       return y;
@@ -583,7 +586,7 @@ shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) 
     }
   }
   else {
-    this.scene_terrain_ = new THREE.Group();
+    this.scene_terrain_ = new THREE.Object3D();
 
     var geometry, material, mesh;
 

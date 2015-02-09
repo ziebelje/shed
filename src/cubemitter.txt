@@ -1,0 +1,9 @@
+Understanding the Cubemitter
+
+"name"
+---
+This is nothing more than the name of the cubemitter system. Typically this would be named after the filename. Ex: fire.cubemitter.json has a name of "fire".
+
+"duration"
+---
+???

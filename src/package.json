@@ -1,6 +1,6 @@
 {
   "name": "SHED",
-  "version": "2015.2.8",
+  "version": "2015.2.9",
   "main": "index.html",
   "window": {
     "frame": false,
