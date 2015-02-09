@@ -59,6 +59,7 @@ shed.view.cubemitter_editor.prototype.renderer_;
 shed.view.cubemitter_editor.prototype.controls_;
 shed.view.cubemitter_editor.prototype.watcher_;
 shed.view.cubemitter_editor.prototype.scene_terrain_;
+shed.view.cubemitter_editor.prototype.cube_limit_ = 100;
 
 shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   var self = this;
@@ -95,7 +96,6 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   table.td(1, 0).setAttribute('valign', 'top');
   table.td(1, 0).appendChild(well);
   parent.appendChild(table.table());
-
 
   // Add camera controls
   // http://threejs.org/examples/misc_controls_orbit.html
@@ -138,12 +138,13 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
     };
   })();
 
-  var onEachFrame = function(cb) {
-    var _cb = function() { cb(); requestAnimationFrame(_cb); }
-    _cb();
+  var onEachFrame = function(callback) {
+    var callback_ = function() { callback(); requestAnimationFrame(callback_); }
+    callback_();
   };
 
   onEachFrame(run);
+  // TODO: This is never actually stopped when I leave the layer.
 };
 
 shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
@@ -233,8 +234,11 @@ shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
 
 shed.view.cubemitter_editor.prototype.update_ = function(dt) {
   this.cubemitter_.dt += dt;
-  if(this.cubemitter_.dt >= (1000 / this.cubemitter_.data.emission.rate.values[0])) {
-    this.cubemitter_.dt = 0;
+  if(
+    this.cubemitter_.dt >= (1000 / this.cubemitter_.data.emission.rate.values[0]) &&
+    this.cubemitter_.group.children.length < this.cube_limit_
+  ) {
+    this.cubemitter_.dt = 0; // Reset this so we wait before adding another cube.
 
     // TODO: Create more generalized functions for this kind of stuff instead of all the copy/paste
     var lifetime;
@@ -337,8 +341,7 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
     var geometry = new THREE.BoxGeometry(scale, scale, scale);
     var material = new THREE.MeshBasicMaterial( { 'color': color.getHex(), 'transparent': true, 'opacity': opacity } );
     var mesh = new THREE.Mesh(geometry, material);
-    this.cubemitter_.meshes.push({
-      'mesh': mesh,
+    mesh.userData = {
       'lifetime': lifetime, // How long it gets to live
       'age': 0, // How old it currently is
       'speed': speed,
@@ -347,7 +350,10 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
         'y': 0,
         'z': 0
       }
-    });
+    };
+
+    // geometry.dispose(); // This doesn't break it and it doesn't fix it either.
+    // material.dispose();
 
     mesh.position.x = origin.x;
     mesh.position.z = origin.z;
@@ -357,17 +363,22 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
   }
 
   // Delete old stuff
-  for(var i = 0; i < this.cubemitter_.meshes.length; i++) {
-    if(this.cubemitter_.meshes[i].age >= this.cubemitter_.meshes[i].lifetime) {
-      this.cubemitter_.meshes[i].mesh.geometry.dispose();
-      this.cubemitter_.meshes[i].mesh.material.dispose();
-      this.cubemitter_.group.remove(this.cubemitter_.meshes[i].mesh);
-      this.cubemitter_.meshes.splice(i, 1); // TODO: I think this is leaking somehow...
+  for(var i = 0; i < this.cubemitter_.group.children.length; i++) {
+    if(this.cubemitter_.group.children[i].userData.age >= this.cubemitter_.group.children[i].userData.lifetime) {
+      // this.cubemitter_.group.children[i].geometry.deallocate();
+      // this.cubemitter_.group.children[i].material.deallocate();
+      // this.cubemitter_.group.children[i].deallocate();
+      this.cubemitter_.group.remove(this.cubemitter_.group.children[i]);
+      // this.cubemitter_.group.children[i].geometry.dispose(); // disposing doesn't seem to make a difference
+      // this.cubemitter_.group.children[i].material.dispose();
+      // this.cubemitter_.meshes[i] = undefined; // doesn't work
+      // also tried only adding to the scene, not the group. Didn't work.
+      // this.cubemitter_.meshes.splice(i, 1); // TODO: I think this is leaking somehow...
     }
   }
 
-  for(var i = 0; i < this.cubemitter_.meshes.length; i++) {
-    this.cubemitter_.meshes[i].age += (dt / 1000);
+  for(var i = 0; i < this.cubemitter_.group.children.length; i++) {
+    this.cubemitter_.group.children[i].userData.age += (dt / 1000);
 
     var self = this;
     ['r', 'g', 'b'].forEach(function(which_rgb) {
@@ -376,10 +387,10 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
           case 'CURVE':
             var which_rgb_value = self.evaluate_curve_(
               self.cubemitter_.data.particle.color['over_lifetime_' + which_rgb].values,
-              self.cubemitter_.meshes[i].age / self.cubemitter_.meshes[i].lifetime
+              self.cubemitter_.group.children[i].userData.age / self.cubemitter_.group.children[i].userData.lifetime
             );
 
-            self.cubemitter_.meshes[i].mesh.material.color[which_rgb] = which_rgb_value;
+            self.cubemitter_.group.children[i].material.color[which_rgb] = which_rgb_value;
           break;
           default:
             throw 'self.cubemitter_.data.particle.color.over_lifetime_which_rgb.kind ' + self.cubemitter_.data.particle.color['over_lifetime_' + which_rgb].kind + ' not supported';
@@ -396,33 +407,33 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
             case 'CURVE':
               var which_xyz_value = self.evaluate_curve_(
                 self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].values,
-                self.cubemitter_.meshes[i].age / self.cubemitter_.meshes[i].lifetime
+                self.cubemitter_.group.children[i].userData.age / self.cubemitter_.group.children[i].userData.lifetime
               );
 
-              self.cubemitter_.meshes[i].velocity[which_xyz] = which_xyz_value;
+              self.cubemitter_.group.children[i].userData.velocity[which_xyz] = which_xyz_value;
             break;
             case 'RANDOM_BETWEEN_CURVES':
               var which_xyz_value1 = self.evaluate_curve_(
                 self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].values[0],
-                self.cubemitter_.meshes[i].age / self.cubemitter_.meshes[i].lifetime
+                self.cubemitter_.group.children[i].userData.age / self.cubemitter_.group.children[i].userData.lifetime
               );
               var which_xyz_value2 = self.evaluate_curve_(
                 self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].values[1],
-                self.cubemitter_.meshes[i].age / self.cubemitter_.meshes[i].lifetime
+                self.cubemitter_.group.children[i].userData.age / self.cubemitter_.group.children[i].userData.lifetime
               );
 
               var which_xyz_value = Math.random() * (which_xyz_value1 - which_xyz_value2) + which_xyz_value2;
-              self.cubemitter_.meshes[i].velocity[which_xyz] = which_xyz_value;
+              self.cubemitter_.group.children[i].userData.velocity[which_xyz] = which_xyz_value;
             break;
             case 'RANDOM_BETWEEN':
               var which_xyz_value1 = self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].values[0]
               var which_xyz_value2 = self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].values[1]
 
               var which_xyz_value = Math.random() * (which_xyz_value1 - which_xyz_value2) + which_xyz_value2;
-              self.cubemitter_.meshes[i].velocity[which_xyz] = which_xyz_value;
+              self.cubemitter_.group.children[i].userData.velocity[which_xyz] = which_xyz_value;
             break;
             case 'CONSTANT':
-              self.cubemitter_.meshes[i].velocity[which_xyz] = self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].values[0];
+              self.cubemitter_.group.children[i].userData.velocity[which_xyz] = self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].values[0];
             break;
             default:
               throw 'self.cubemitter_.data.particle.velocity.over_lifetime_which_xyz.kind ' + self.cubemitter_.data.particle.velocity['over_lifetime_' + which_xyz].kind + ' not supported';
@@ -438,10 +449,10 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
         case 'CURVE':
           var speed = this.evaluate_curve_(
             this.cubemitter_.data.particle.speed.over_lifetime.values,
-            this.cubemitter_.meshes[i].age / this.cubemitter_.meshes[i].lifetime
+            this.cubemitter_.group.children[i].userData.age / this.cubemitter_.group.children[i].userData.lifetime
           );
 
-          this.cubemitter_.meshes[i].speed = speed;
+          this.cubemitter_.group.children[i].userData.speed = speed;
         break;
         default:
           throw 'this.cubemitter_.data.particle.speed.over_lifetime.kind ' + this.cubemitter_.data.particle.speed.over_lifetime.kind + ' not supported';
@@ -452,9 +463,9 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
     // This is kind of weird and I'm not sure I like how it works. By default,
     // speed is ONLY on the y-axis. So a y velocity of 0 means the particle will
     // still move in the y direction as long as speed is non-zero.
-    this.cubemitter_.meshes[i].mesh.position.x += 0.01 * (this.cubemitter_.meshes[i].velocity.x);
-    this.cubemitter_.meshes[i].mesh.position.y += 0.01 * (this.cubemitter_.meshes[i].velocity.y + this.cubemitter_.meshes[i].speed);
-    this.cubemitter_.meshes[i].mesh.position.z += 0.01 * (this.cubemitter_.meshes[i].velocity.z);
+    this.cubemitter_.group.children[i].position.x += 0.01 * (this.cubemitter_.group.children[i].userData.velocity.x);
+    this.cubemitter_.group.children[i].position.y += 0.01 * (this.cubemitter_.group.children[i].userData.velocity.y + this.cubemitter_.group.children[i].userData.speed);
+    this.cubemitter_.group.children[i].position.z += 0.01 * (this.cubemitter_.group.children[i].userData.velocity.z);
 
     if(self.cubemitter_.data.particle.rotation) {
       var self = this;
@@ -464,19 +475,19 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
             case 'RANDOM_BETWEEN_CURVES':
               var which_xyz_value1 = self.evaluate_curve_(
                 self.cubemitter_.data.particle.rotation['over_lifetime_' + which_xyz].values[0],
-                self.cubemitter_.meshes[i].age / self.cubemitter_.meshes[i].lifetime
+                self.cubemitter_.group.children[i].userData.age / self.cubemitter_.group.children[i].userData.lifetime
               );
               var which_xyz_value2 = self.evaluate_curve_(
                 self.cubemitter_.data.particle.rotation['over_lifetime_' + which_xyz].values[1],
-                self.cubemitter_.meshes[i].age / self.cubemitter_.meshes[i].lifetime
+                self.cubemitter_.group.children[i].userData.age / self.cubemitter_.group.children[i].userData.lifetime
               );
 
               var which_xyz_value = Math.random() * (which_xyz_value1 - which_xyz_value2) + which_xyz_value2;
 
-              self.cubemitter_.meshes[i].mesh.rotation[which_xyz] += which_xyz_value * (Math.PI / 180);
+              self.cubemitter_.group.children[i].rotation[which_xyz] += which_xyz_value * (Math.PI / 180);
             break;
             case 'CONSTANT':
-              self.cubemitter_.meshes[i].mesh.rotation[which_xyz] = self.cubemitter_.data.particle.rotation['over_lifetime_' + which_xyz].values[0] * (Math.PI / 180);
+              self.cubemitter_.group.children[i].rotation[which_xyz] = self.cubemitter_.data.particle.rotation['over_lifetime_' + which_xyz].values[0] * (Math.PI / 180);
             break;
             default:
               throw 'self.cubemitter_.data.particle.rotation.over_lifetime_which_xyz.kind ' + self.cubemitter_.data.particle.rotation['over_lifetime_' + which_xyz].kind + ' not supported';
@@ -491,10 +502,10 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
         case 'CURVE':
           var opacity = this.evaluate_curve_(
             this.cubemitter_.data.particle.color.over_lifetime_a.values,
-            this.cubemitter_.meshes[i].age / this.cubemitter_.meshes[i].lifetime
+            this.cubemitter_.group.children[i].userData.age / this.cubemitter_.group.children[i].userData.lifetime
           );
 
-          this.cubemitter_.meshes[i].mesh.material.opacity = opacity;
+          this.cubemitter_.group.children[i].material.opacity = opacity;
         break;
         default:
           throw 'this.cubemitter_.data.particle.color.over_lifetime_a.kind ' + this.cubemitter_.data.particle.color.over_lifetime_a.kind + ' not supported';
@@ -507,28 +518,28 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
         case 'CURVE':
           var scale = this.evaluate_curve_(
             this.cubemitter_.data.particle.scale.over_lifetime.values,
-            this.cubemitter_.meshes[i].age / this.cubemitter_.meshes[i].lifetime
+            this.cubemitter_.group.children[i].userData.age / this.cubemitter_.group.children[i].userData.lifetime
           );
 
-          this.cubemitter_.meshes[i].mesh.scale.x = scale;
-          this.cubemitter_.meshes[i].mesh.scale.y = scale;
-          this.cubemitter_.meshes[i].mesh.scale.z = scale;
+          this.cubemitter_.group.children[i].scale.x = scale;
+          this.cubemitter_.group.children[i].scale.y = scale;
+          this.cubemitter_.group.children[i].scale.z = scale;
         break;
         case 'RANDOM_BETWEEN_CURVES':
           var scale1 = this.evaluate_curve_(
             this.cubemitter_.data.particle.scale.over_lifetime.values[0],
-            this.cubemitter_.meshes[i].age / this.cubemitter_.meshes[i].lifetime
+            this.cubemitter_.group.children[i].userData.age / this.cubemitter_.group.children[i].userData.lifetime
           );
           var scale2 = this.evaluate_curve_(
             this.cubemitter_.data.particle.scale.over_lifetime.values[0],
-            this.cubemitter_.meshes[i].age / this.cubemitter_.meshes[i].lifetime
+            this.cubemitter_.group.children[i].userData.age / this.cubemitter_.group.children[i].userData.lifetime
           );
 
           var scale = Math.random() * (scale1 - scale2) + scale2;
 
-          this.cubemitter_.meshes[i].mesh.scale.x = scale;
-          this.cubemitter_.meshes[i].mesh.scale.y = scale;
-          this.cubemitter_.meshes[i].mesh.scale.z = scale;
+          this.cubemitter_.group.children[i].scale.x = scale;
+          this.cubemitter_.group.children[i].scale.y = scale;
+          this.cubemitter_.group.children[i].scale.z = scale;
         break;
         default:
           throw 'this.cubemitter_.data.particle.scale.over_lifetime.kind ' + this.cubemitter_.data.particle.scale.over_lifetime.kind + ' not supported';
@@ -568,6 +579,7 @@ shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) 
     if(this.scene_terrain_) {
       this.scene_.remove(this.scene_terrain_);
       this.scene_terrain = null;
+      // TODO: Dispose
     }
   }
   else {
