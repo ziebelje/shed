@@ -24,7 +24,6 @@ shed.view.cubemitter_editor = function() {
 
   // TODO: controls for playback in order to view effects that don't loop
 
-  // TODO: Not all JSON files are named .cubemitter.json
   // TODO: Add mod switcher
   // TODO: Add a quick view/share that allows you to import or export JSON quickly
   // TODO: Add a way to record a gif?
@@ -88,21 +87,9 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   var well = $.createElement('div')
     .addClass('well');
 
-  // Toolbar
-  var toolbar = $.createElement('div')
-    .addClass('toolbar');
-  var toggle_terrain_container = $.createElement('span')
-    .dataset('hint', 'Toggle terrain')
-    .addClass(['hint--bottom', 'hint--bounce']);
-  var toggle_terrain = $.createElement('input')
-    .setAttribute('type', 'checkbox')
-    .addClass('toggle_terrain')
-    .checked(true);
-  toggle_terrain.addEventListener('change', function() {
-    self.scene_toggle_terrain_(toggle_terrain.checked());
-  });
-  toggle_terrain_container.appendChild(toggle_terrain);
-  toolbar.appendChild(toggle_terrain_container);
+
+  this.decorate_toolbar_(well);
+
   well.appendChild(toolbar);
 
   // Canvas
@@ -171,6 +158,42 @@ shed.view.cubemitter_editor.prototype.add_camera_controls_ = function() {
   this.controls_.maxDistance = 30;
   this.controls_.noKeys = true;
 }
+
+shed.view.cubemitter_editor.prototype.decorate_toolbar_ = function(parent) {
+  var self = this;
+
+  // Toolbar
+  var toolbar = $.createElement('div')
+    .addClass('toolbar');
+
+  var toggle_terrain_container = $.createElement('span')
+    .dataset('hint', 'Toggle terrain')
+    .addClass(['hint--bottom', 'hint--bounce']);
+  var toggle_terrain = $.createElement('input')
+    .setAttribute('type', 'checkbox')
+    .addClass('toggle_terrain')
+    .checked(true);
+  toggle_terrain.addEventListener('change', function() {
+    self.scene_toggle_terrain_(toggle_terrain.checked());
+  });
+  toggle_terrain_container.appendChild(toggle_terrain);
+  toolbar.appendChild(toggle_terrain_container);
+
+  // Not sure this is useful. Loading one probably is though.
+/*  var share_container = $.createElement('span')
+    .dataset('hint', 'Share')
+    .addClass(['hint--bottom', 'hint--bounce']);
+  var share = $.createElement('img')
+    .setAttribute('src', 'img/scroll.png')
+    .addClass('share')
+  share.addEventListener('click', function() {
+  });
+  share_container.appendChild(share);
+  toolbar.appendChild(share_container);*/
+
+  parent.appendChild(toolbar);
+}
+
 
 shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
   // TODO: Major cleaning on this.

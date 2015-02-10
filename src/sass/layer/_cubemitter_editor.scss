@@ -19,21 +19,32 @@
     margin: 10px;
     background: rgba(0, 0, 0, 0.5);
     width: calc(100% - 20px);
+
+    .toggle_terrain {
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      background-image: url('../img/terrain.png');
+      background-repeat: no-repeat;
+      background-size: 42px 42px;
+      width: 42px;
+      height: 42px;
+      -webkit-filter: grayscale(100%);
+    }
+
+    .toggle_terrain:checked {
+      -webkit-filter: none;
+    }
+
+    // .share {
+    //   width: 42px;
+    //   height: 42px;
+    //   cursor: pointer;
+    // }
+
   }
 
-  .toggle_terrain {
-    outline: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    background-image: url('../img/terrain.png');
-    background-repeat: no-repeat;
-    width: 55px;
-    height: 55px;
-    -webkit-filter: grayscale(100%);
-  }
 
-  .toggle_terrain:checked {
-    -webkit-filter: none;
-  }
+
 
 }
