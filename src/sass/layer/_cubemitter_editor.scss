@@ -1,20 +1,39 @@
-.toolbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
+.cubemitter_editor {
 
-.toggle_terrain {
-  outline: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  background-image: url('../img/terrain.png');
-  background-repeat: no-repeat;
-  width: 55px;
-  height: 55px;
-  -webkit-filter: grayscale(100%);
-}
+  .list {
+    height: calc(100vh - #{$non_content_height});
+    overflow: auto;
+    font-size: 13px;
+  }
 
-.toggle_terrain:checked {
-  -webkit-filter: none;
+  .well {
+    height: calc(100vh - #{$non_content_height});
+    position: relative;
+    padding: 0;
+  }
+
+  .toolbar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    margin: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    width: calc(100% - 20px);
+  }
+
+  .toggle_terrain {
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url('../img/terrain.png');
+    background-repeat: no-repeat;
+    width: 55px;
+    height: 55px;
+    -webkit-filter: grayscale(100%);
+  }
+
+  .toggle_terrain:checked {
+    -webkit-filter: none;
+  }
+
 }

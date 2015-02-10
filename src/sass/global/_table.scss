@@ -12,9 +12,10 @@ th {
     0px -2px #000;
 }
 
-.table_stripe tbody td {
+.zebra tbody td {
   padding: 5px;
 }
-/*.table_stripe tbody tr:nth-child(odd) {background: #312f30}*/
-.table_stripe tbody tr:nth-child(odd) {background: #333029}
-.table_stripe tbody tr:nth-child(odd) {}
+
+.zebra tbody tr:nth-child(odd) {
+  background: #333029;
+}

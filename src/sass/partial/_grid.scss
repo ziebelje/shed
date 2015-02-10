@@ -1,0 +1,99 @@
+/**
+ * Grid mixins. Supports both fixed and fluid grids and has fixed width gutters.
+ *
+ * Thanks to the following grid layouts for inspiration/examples:
+ * http://www.jasonbuckboyer.com/playground/best-css-grid/example.html
+ * http://csswizardry.com/csswizardry-grids/
+ * http://semantic.gs/
+ */
+
+// Number of columns in your grid.
+$grid_number_columns: 12;
+
+// Width of the grid. Set to an amount of pixels or 100%
+// $grid_width: 960px; // Fixed layout
+$grid_width: 100%; // Fluid layout
+
+// Distance between each row and column.
+$grid_gutter_width: 10px;
+
+//
+// Do not modify below this point.
+//
+
+// Make the grid one gutter wider because the leftmost gutter is shifted out.
+// Not needed for a fluid layout.
+@if($grid_width != 100%) {
+  $grid_width: $grid_width + $grid_gutter_width;
+}
+
+/**
+ * A horizontal row that contains any number of columns.
+ */
+@mixin grid_row() {
+  // All elements (columns) inside this row are floated, so clear this
+  // container.
+  @include clearfix();
+
+  // Only set the grid width for fixed grids. It's required so that the grid is
+  // as wide as you want it but if you set this to 100% the negative margin
+  // screws things up and your grid doesn't extend far enough to the right by
+  // one gutter.
+  @if($grid_width != 100%) {
+    width: $grid_width;
+  }
+
+  // Shift the leftmost gutter outside of the row
+  margin-left: -$grid_gutter_width;
+
+  // Nice spacing
+  margin-bottom: $grid_gutter_width;
+}
+
+/**
+ * A grid column. Simple enough.
+ */
+@mixin grid_column($colspan) {
+  // Float to left so columns stack up next to each other
+  float: left;
+
+  // Left padding for spacing between columns
+  padding-left: $grid_gutter_width;
+
+  // Width of this column. The left padding is automatically part of this width.
+  width: $grid_width / $grid_number_columns * $colspan;
+}
+
+@mixin grid_offset($offset) {
+  margin-left: $grid_width / $grid_number_columns * $offset;
+}
+
+/**
+ * Not everything has to be all fancy semantic. This is very useful.
+ */
+.grid_row { @include grid_row(); }
+
+.grid_column_1 { @include grid_column(1); }
+.grid_column_2 { @include grid_column(2); }
+.grid_column_3 { @include grid_column(3); }
+.grid_column_4 { @include grid_column(4); }
+.grid_column_5 { @include grid_column(5); }
+.grid_column_6 { @include grid_column(6); }
+.grid_column_7 { @include grid_column(7); }
+.grid_column_8 { @include grid_column(8); }
+.grid_column_9 { @include grid_column(9); }
+.grid_column_10 { @include grid_column(10); }
+.grid_column_11 { @include grid_column(11); }
+.grid_column_12 { @include grid_column(12); }
+
+.grid_offset_1 { @include grid_offset(1); }
+.grid_offset_2 { @include grid_offset(2); }
+.grid_offset_3 { @include grid_offset(3); }
+.grid_offset_4 { @include grid_offset(4); }
+.grid_offset_5 { @include grid_offset(5); }
+.grid_offset_6 { @include grid_offset(6); }
+.grid_offset_7 { @include grid_offset(7); }
+.grid_offset_8 { @include grid_offset(8); }
+.grid_offset_9 { @include grid_offset(9); }
+.grid_offset_10 { @include grid_offset(10); }
+.grid_offset_11 { @include grid_offset(11); }

@@ -30,28 +30,33 @@ shed.view.cubemitter_editor = function() {
   // TODO: Add a quick view/share that allows you to import or export JSON quickly
   // TODO: Add a way to record a gif?
   // TODO: Import QB files
+  // TODO: Fix bug where leaving this view does not stop the requestAnimFrame call
+  // TODO: Effects
+  // TODO: Smooth zooming
 
   this.cubemitter_ = {
     'data': null,
     'dt': 0,
-    'meshes': [],
     'group': new THREE.Object3D()
   };
 
   // For now...
-  this.load_cubemitter_(localStorage.path + '\\mods\\stonehearth\\data\\horde\\particles\\fire\\fire.cubemitter.json');
+  this.load_cubemitter_(localStorage.path + '\\mods\\stonehearth\\data\\horde\\particles\\sparkle\\treasure_sparkle.cubemitter.json');
+
+  var width = 486;
+  var height = 450;
 
   this.scene_ = new THREE.Scene();
   this.scene_toggle_terrain_(true);
   this.scene_.add(this.cubemitter_.group);
 
-  this.camera_ = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
+  this.camera_ = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
   this.camera_.position.z = 12;
   this.camera_.position.y = 7;
   this.camera_.position.x = 12;
 
   this.renderer_ = new THREE.WebGLRenderer({'antialias': true, 'alpha': true});
-  this.renderer_.setSize(465, 465);
+  this.renderer_.setSize(width, height);
   this.renderer_.setClearColor(0x000000, 0);
 
   shed.view.apply(this, arguments);
@@ -69,17 +74,20 @@ shed.view.cubemitter_editor.prototype.scene_terrain_;
 shed.view.cubemitter_editor.prototype.cube_limit_ = 100;
 
 shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
+  var testing_this_container = $.createElement('div').addClass('cubemitter_editor');
+
   var self = this;
 
-  var table = new jex.table({'rows': 1, 'columns': 2});
-  table.table().style('width', '100%');
+  var grid_row = $.createElement('div').addClass('grid_row');
+  var left = $.createElement('div').addClass(['list', 'grid_column_5']);
+  var right = $.createElement('div').addClass('grid_column_7');
 
   // Cubemitter list
-  table.td(0, 0).setAttribute('valign', 'top').style('width', '370px');
-  this.decorate_list_(table.td(0, 0));
+  this.decorate_list_(left);
 
   // Well
-  var well = $.createElement('div').addClass('well').style('position', 'relative');
+  var well = $.createElement('div')
+    .addClass('well');
 
   // Toolbar
   var toolbar = $.createElement('div')
@@ -99,20 +107,19 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   well.appendChild(toolbar);
 
   // Canvas
+  // For some reason, the canvas won't extend all the way to the bottom of the well. TODO?
+  $(this.renderer_.domElement).style('margin-bottom', '-4px');
   well.appendChild(this.renderer_.domElement);
-  table.td(1, 0).setAttribute('valign', 'top');
-  table.td(1, 0).appendChild(well);
-  parent.appendChild(table.table());
+  right.appendChild(well);
 
-  // Add camera controls
-  // http://threejs.org/examples/misc_controls_orbit.html
-  // http://stackoverflow.com/questions/18581225/orbitcontrol-or-trackballcontrol
-  this.controls_ = new THREE.OrbitControls(this.camera_, this.renderer_.domElement);
-  this.controls_.zoomSpeed = 3;
-  this.controls_.noPan = true;
-  this.controls_.minDistance = 3;
-  this.controls_.maxDistance = 30;
-  this.controls_.noKeys = true;
+  grid_row.appendChild(left);
+  grid_row.appendChild(right);
+  testing_this_container.appendChild(grid_row);
+
+  parent.appendChild(testing_this_container);
+
+  this.add_camera_controls_();
+
 
   // http://gameprogrammingpatterns.com/game-loop.html
   // http://nokarma.org/2011/02/02/javascript-game-development-the-game-loop/
@@ -154,16 +161,24 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   // TODO: This is never actually stopped when I leave the layer.
 };
 
+shed.view.cubemitter_editor.prototype.add_camera_controls_ = function() {
+  // Add camera controls
+  // http://threejs.org/examples/misc_controls_orbit.html
+  // http://stackoverflow.com/questions/18581225/orbitcontrol-or-trackballcontrol
+  this.controls_ = new THREE.OrbitControls(this.camera_, this.renderer_.domElement);
+  this.controls_.zoomSpeed = 3;
+  this.controls_.noPan = true;
+  this.controls_.minDistance = 3;
+  this.controls_.maxDistance = 30;
+  this.controls_.noKeys = true;
+}
+
 shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
   var self = this;
 
-  var table_container = $.createElement('div')
-    .style({'overflow': 'auto', 'height': '506px'});
-  var table = new jex.table({'rows': 0, 'columns': 1});
-  table.table().addClass('table_stripe').style('width', '100%');
-  table_container.appendChild(table.table());
-
-  parent.appendChild(table_container);
+  var table = new jex.table({'rows': 0, 'columns': 2});
+  table.table().addClass('zebra').style('width', '100%');
+  parent.appendChild(table.table());
 
   var fs = require('fs');
 
@@ -199,10 +214,21 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
               table.add_row();
               table.td(0, count)
                 .innerHTML(name)
-                .addEventListener('click', function() {
-                  self.load_cubemitter_(file);
-                })
-                .style('cursor', 'pointer');
+                .dataset('file', file);
+
+              // table.td(1, count)
+              //   .dataset('file', file)
+              //   .style('text-align', 'right')
+              //   .style('width', '50px')
+              //   .appendChild(
+              //     $.createElement('img')
+              //       .setAttribute('src', 'img/forward.png')
+              //       .style('height', '20px')
+              //   )
+                // .addEventListener('click', function() {
+                //   self.load_cubemitter_(file);
+                // })
+                // .style('cursor', 'pointer');
               count++;
             }
             next();

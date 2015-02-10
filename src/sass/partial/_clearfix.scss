@@ -1,0 +1,12 @@
+/**
+ * This supports all browsers except for IE6/7.
+ *
+ * @link http://www.css-101.org/articles/clearfix/latest-new-clearfix-so-far.php
+ */
+@mixin clearfix() {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
