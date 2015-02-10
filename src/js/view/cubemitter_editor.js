@@ -173,6 +173,7 @@ shed.view.cubemitter_editor.prototype.add_camera_controls_ = function() {
 }
 
 shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
+  // TODO: Major cleaning on this.
   var self = this;
 
   var table = new jex.table({'rows': 0, 'columns': 2});
@@ -182,9 +183,10 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
 
   var fs = require('fs');
 
-  var path = localStorage.path + '\\mods\\stonehearth';
+  // For now just grabbing all .json files from this directory. Needs more work
+  // but I may try to force people to use this directory.
+  var path = localStorage.path + '\\mods\\stonehearth\\data\\horde\\particles';
 
-  // TODO: Clean this up a little better.
   var count = 0;
   var walk = function(directory, done) {
     fs.readdir(directory, function(error, list) {
@@ -209,8 +211,9 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
               next();
             });
           } else {
-            if(file.substr(-16) === '.cubemitter.json') {
-              var name = file.substr(file.lastIndexOf('/') + 1).replace('.cubemitter.json', '');
+              console.log(file);
+            if(file.substr(-5) === '.json') {
+              var name = file.substr(file.lastIndexOf('/') + 1).replace('.json', '').replace('.cubemitter', '');
               table.add_row();
               table.td(0, count)
                 .innerHTML(name)
