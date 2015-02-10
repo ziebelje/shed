@@ -1,0 +1,20 @@
+th {
+  font-family: "Grobold";
+  font-weight: normal;
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
+}
+
+.table_stripe tbody td {
+  padding: 5px;
+}
+/*.table_stripe tbody tr:nth-child(odd) {background: #312f30}*/
+.table_stripe tbody tr:nth-child(odd) {background: #333029}
+.table_stripe tbody tr:nth-child(odd) {}

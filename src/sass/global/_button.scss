@@ -1,0 +1,63 @@
+button {
+  outline: none;
+  cursor: pointer;
+
+  background: #7E8994;
+
+  border-image-source: url('../img/button.png');
+  border-image-slice: 8 8 13 8;
+  border-width: 8px 8px 13px 8px;
+
+  height: 50px;
+
+  font-family: "Grobold";
+}
+
+button:hover {
+  border-image-source: url('../img/button_hover.png');
+  background: #9E9E82;
+}
+
+.button_main {
+  border-image-source: url('../img/button_main.png');
+  background: #591F1F;
+
+  font-size: 32px;
+  color: #ffc000;
+
+  height: 80px;
+
+  width: 500px;
+  text-align: center;
+
+  /* Not perfect, but emulates a text-stroke pretty well since text-stroke was ugly */
+  text-shadow:
+    2px 2px #000,
+    -2px 2px #000,
+    2px -2px #000,
+    -2px -2px #000,
+    2px 0px #000,
+    0px 2px #000,
+    -2px 0px #000,
+    0px -2px #000;
+
+  display: block;
+  margin: auto;
+
+  margin-bottom: -4px;
+}
+
+.button_main:hover {
+  border-image-source: url('../img/button_main_hover.png');
+  background: #5C2222;
+}
+
+.button_red {
+  border-image-source: url('../img/button_red.png');
+  background: #b33131;
+}
+
+.button_red:hover {
+  border-image-source: url('../img/button_red_hover.png');
+  background: #f93030;
+}

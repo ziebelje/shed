@@ -24,6 +24,13 @@ shed.view.cubemitter_editor = function() {
 
   // TODO: controls for playback in order to view effects that don't loop
 
+  // TODO: Not all JSON files are named .cubemitter.json
+  // TODO: Add way to open a listed json file with the default external editor
+  // TODO: Add mod switcher
+  // TODO: Add a quick view/share that allows you to import or export JSON quickly
+  // TODO: Add a way to record a gif?
+  // TODO: Import QB files
+
   this.cubemitter_ = {
     'data': null,
     'dt': 0,

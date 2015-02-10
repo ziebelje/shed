@@ -1,0 +1,36 @@
+input[type=text] {
+  border: 2px solid #000;
+  background-color: #1c1b1b;
+  padding: 6px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #fff;
+}
+
+.checkbox {
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url('../img/button.png');
+  width: 50px;
+  height: 50px;
+}
+
+.checkbox:hover {
+  background: url('../img/button_hover.png');
+}
+
+.checkbox:checked {
+  background: url('../img/ok_check.png'), url('../img/button_green.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: 14px 12px, 0px 0px;
+}
+
+
+.checkbox:checked:hover {
+  background: url('../img/ok_check.png'), url('../img/button_green_hover.png');
+  background-repeat: no-repeat, no-repeat;
+  background-position: 14px 12px, 0px 0px;
+/*input[type='checkbox']:not(:disabled):active*/
+}
