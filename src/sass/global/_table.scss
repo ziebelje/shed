@@ -1,15 +1,7 @@
 th {
   font-family: "Grobold";
   font-weight: normal;
-  text-shadow:
-    2px 2px #000,
-    -2px 2px #000,
-    2px -2px #000,
-    -2px -2px #000,
-    2px 0px #000,
-    0px 2px #000,
-    -2px 0px #000,
-    0px -2px #000;
+  @include text_shadow();
 }
 
 .zebra tbody td {

@@ -30,16 +30,7 @@ button:hover {
   width: 500px;
   text-align: center;
 
-  /* Not perfect, but emulates a text-stroke pretty well since text-stroke was ugly */
-  text-shadow:
-    2px 2px #000,
-    -2px 2px #000,
-    2px -2px #000,
-    -2px -2px #000,
-    2px 0px #000,
-    0px 2px #000,
-    -2px 0px #000,
-    0px -2px #000;
+  @include text_shadow();
 
   display: block;
   margin: auto;

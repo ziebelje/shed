@@ -31,6 +31,8 @@ shed.view.cubemitter_editor = function() {
   // TODO: Fix bug where leaving this view does not stop the requestAnimFrame call
   // TODO: Effects
   // TODO: Smooth zooming
+  // TODO: Selected indicator and show name of currently selected effect on bottom of well
+  // TODO: Redo curve function
 
   this.cubemitter_ = {
     'data': null,
@@ -38,11 +40,14 @@ shed.view.cubemitter_editor = function() {
     'group': new THREE.Object3D()
   };
 
+
+  this.current_name_ = $.createElement('div').addClass('current_name');
+
   // For now...
   this.load_cubemitter_(localStorage.path + '\\mods\\stonehearth\\data\\horde\\particles\\sparkle\\treasure_sparkle.cubemitter.json');
 
-  var width = 486;
-  var height = 450;
+  var width = 490;
+  var height = 485;
 
   this.scene_ = new THREE.Scene();
   this.scene_toggle_terrain_(true);
@@ -70,6 +75,7 @@ shed.view.cubemitter_editor.prototype.controls_;
 shed.view.cubemitter_editor.prototype.watcher_;
 shed.view.cubemitter_editor.prototype.scene_terrain_;
 shed.view.cubemitter_editor.prototype.cube_limit_ = 100;
+shed.view.cubemitter_editor.prototype.current_name_;
 
 shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   var testing_this_container = $.createElement('div').addClass('cubemitter_editor');
@@ -84,13 +90,12 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   this.decorate_list_(left);
 
   // Well
-  var well = $.createElement('div')
-    .addClass('well');
-
+  var well = $.createElement('div').addClass('well');
 
   this.decorate_toolbar_(well);
 
   well.appendChild(toolbar);
+  well.appendChild(this.current_name_);
 
   // Canvas
   // For some reason, the canvas won't extend all the way to the bottom of the well. TODO?
@@ -226,7 +231,7 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
           return done(null);
         }
 
-        file = directory + '/' + file;
+        file = directory + '\\' + file;
 
         fs.stat(file, function(error, stat) {
           if(stat && stat.isDirectory()) {
@@ -236,7 +241,7 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
           } else {
               console.log(file);
             if(file.substr(-5) === '.json') {
-              var name = file.substr(file.lastIndexOf('/') + 1).replace('.json', '').replace('.cubemitter', '');
+              var name = file.substr(file.lastIndexOf('\\') + 1).replace('.json', '').replace('.cubemitter', '');
               table.add_row();
               table.td(0, count)
                 .innerHTML(name)
@@ -292,6 +297,8 @@ shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
   this.watcher_ = fs.watch(path, {}, function(event, filename) {
     self.load_cubemitter_(path);
   });
+
+  this.current_name_.innerHTML(path.substr(path.lastIndexOf('\\') + 1).replace('.json', '').replace('.cubemitter', ''));
 }
 
 shed.view.cubemitter_editor.prototype.update_ = function(dt) {

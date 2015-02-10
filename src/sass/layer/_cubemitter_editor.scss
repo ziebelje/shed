@@ -12,6 +12,14 @@
     padding: 0;
   }
 
+  .current_name {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    margin: 10px;
+    @include text_shadow();
+  }
+
   .toolbar {
     position: absolute;
     top: 0px;

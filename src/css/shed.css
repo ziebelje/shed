@@ -662,7 +662,6 @@ button:hover {
   height: 80px;
   width: 500px;
   text-align: center;
-  /* Not perfect, but emulates a text-stroke pretty well since text-stroke was ugly */
   text-shadow: 2px 2px #000, -2px 2px #000, 2px -2px #000, -2px -2px #000, 2px 0px #000, 0px 2px #000, -2px 0px #000, 0px -2px #000;
   display: block;
   margin: auto;
@@ -731,36 +730,50 @@ th {
 }
 
 .zebra tbody tr:nth-child(odd) {
-  background: #333029;
+  background: #3C372F;
 }
 
-table {
+.highlight tbody tr:hover {
+  background: #464339;
+}
+
+.cubemitter_editor .list {
+  height: calc(100vh - 98px);
+  overflow: auto;
   font-size: 13px;
 }
-
-.list {
-  height: calc(100vh - 200px);
-  overflow: auto;
+.cubemitter_editor .well {
+  height: calc(100vh - 98px);
+  position: relative;
+  padding: 0;
 }
-
-.toolbar {
+.cubemitter_editor .current_name {
   position: absolute;
-  top: 0;
-  left: 0;
+  bottom: 0px;
+  left: 0px;
+  margin: 10px;
+  text-shadow: 2px 2px #000, -2px 2px #000, 2px -2px #000, -2px -2px #000, 2px 0px #000, 0px 2px #000, -2px 0px #000, 0px -2px #000;
 }
-
-.toggle_terrain {
+.cubemitter_editor .toolbar {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  margin: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  width: calc(100% - 20px);
+}
+.cubemitter_editor .toolbar .toggle_terrain {
   outline: none;
   -webkit-appearance: none;
   cursor: pointer;
   background-image: url("../img/terrain.png");
   background-repeat: no-repeat;
-  width: 55px;
-  height: 55px;
+  background-size: 42px 42px;
+  width: 42px;
+  height: 42px;
   -webkit-filter: grayscale(100%);
 }
-
-.toggle_terrain:checked {
+.cubemitter_editor .toolbar .toggle_terrain:checked {
   -webkit-filter: none;
 }
 
