@@ -17,5 +17,9 @@ th {
 }
 
 .zebra tbody tr:nth-child(odd) {
-  background: #333029;
+  background: #3C372F;
+}
+
+.highlight tbody tr:hover {
+  background: #464339;
 }

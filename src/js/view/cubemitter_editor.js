@@ -25,7 +25,6 @@ shed.view.cubemitter_editor = function() {
   // TODO: controls for playback in order to view effects that don't loop
 
   // TODO: Not all JSON files are named .cubemitter.json
-  // TODO: Add way to open a listed json file with the default external editor
   // TODO: Add mod switcher
   // TODO: Add a quick view/share that allows you to import or export JSON quickly
   // TODO: Add a way to record a gif?
@@ -177,7 +176,8 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
   var self = this;
 
   var table = new jex.table({'rows': 0, 'columns': 2});
-  table.table().addClass('zebra').style('width', '100%');
+  table.table().addClass(['zebra', 'highlight'])
+    .style({'width': '100%', 'cursor': 'pointer'});
   parent.appendChild(table.table());
 
   var fs = require('fs');
@@ -214,21 +214,24 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
               table.add_row();
               table.td(0, count)
                 .innerHTML(name)
-                .dataset('file', file);
+                .dataset('file', file)
+                .addEventListener('click', function() {
+                  self.load_cubemitter_(file);
+                });
 
-              // table.td(1, count)
-              //   .dataset('file', file)
-              //   .style('text-align', 'right')
-              //   .style('width', '50px')
-              //   .appendChild(
-              //     $.createElement('img')
-              //       .setAttribute('src', 'img/forward.png')
-              //       .style('height', '20px')
-              //   )
-                // .addEventListener('click', function() {
-                //   self.load_cubemitter_(file);
-                // })
-                // .style('cursor', 'pointer');
+              table.td(1, count)
+                .dataset('file', file)
+                .style('text-align', 'right')
+                .style('width', '50px')
+                .addEventListener('click', function() {
+                  var gui = require('nw.gui');
+                  gui.Shell.openItem(file);
+                })
+                .appendChild(
+                  $.createElement('img')
+                    .setAttribute('src', 'img/forward.png')
+                    .style('height', '20px')
+                )
               count++;
             }
             next();
