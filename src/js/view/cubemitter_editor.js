@@ -14,9 +14,7 @@ shed.view.cubemitter_editor = function() {
   // 360 means a particle will be created and then have an initial direction
   // of...anything.
 
-  // TODO: Particles that go downward clip into the dirt. Give the option to move the particle system around?
-
-  // TODO: Load multiple emitters at the same time? Maybe for displaying only and switch between editing them. Or load multiple of the same one and edit all instances at once.
+  // TODO: Switch to effects editor
 
   // TODO: Launch default .json editor for any json file?
 
@@ -45,43 +43,22 @@ shed.view.cubemitter_editor = function() {
   // For now...
   this.load_cubemitter_(localStorage.path + '\\mods\\stonehearth\\data\\horde\\particles\\sparkle\\treasure_sparkle.cubemitter.json');
 
-  var width = 490;
-  var height = 485;
-
-  this.scene_ = new THREE.Scene();
-  this.scene_toggle_terrain_(true);
-  this.scene_.add(this.cubemitter_.group);
-
-  this.camera_ = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
-  this.camera_.position.z = 12;
-  this.camera_.position.y = 7;
-  this.camera_.position.x = 12;
-
-  this.renderer_ = new THREE.WebGLRenderer({'antialias': true, 'alpha': true});
-  this.renderer_.setSize(width, height);
-  this.renderer_.setClearColor(0x000000, 0);
-
   shed.view.apply(this, arguments);
 }
 $.inherits(shed.view.cubemitter_editor, shed.view);
 
 shed.view.cubemitter_editor.prototype.title_ = 'Cubemitter Editor';
 shed.view.cubemitter_editor.prototype.cubemitter_;
-shed.view.cubemitter_editor.prototype.scene_;
-shed.view.cubemitter_editor.prototype.camera_;
-shed.view.cubemitter_editor.prototype.renderer_;
-shed.view.cubemitter_editor.prototype.controls_;
+shed.view.cubemitter_editor.prototype.webgl_;
 shed.view.cubemitter_editor.prototype.watcher_;
 shed.view.cubemitter_editor.prototype.scene_terrain_;
 shed.view.cubemitter_editor.prototype.cube_limit_ = 100;
 shed.view.cubemitter_editor.prototype.current_name_;
-shed.view.cubemitter_editor.prototype.animation_frame_id_;
 
 shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   var self = this;
 
   var testing_this_container = $.createElement('div').addClass('cubemitter_editor');
-
 
   var grid_row = $.createElement('div').addClass('grid_row');
   var left = $.createElement('div').addClass(['list', 'grid_column_5']);
@@ -98,10 +75,22 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   well.appendChild(toolbar);
   well.appendChild(this.current_name_);
 
+  // Scene
+  this.webgl_ = new shed.component.webgl({
+    'width': 490,
+    'height': 485,
+    'update': this.update_.bind(this)
+  });
+  this.webgl_.render(well);
+
+  this.webgl_.get_camera().position.z = 12;
+  this.webgl_.get_camera().position.y = 7;
+  this.webgl_.get_camera().position.x = 12;
+
+  this.scene_toggle_terrain_(true);
+  this.webgl_.get_scene().add(this.cubemitter_.group);
+
   // Canvas
-  // For some reason, the canvas won't extend all the way to the bottom of the well. TODO?
-  $(this.renderer_.domElement).style('margin-bottom', '-4px');
-  well.appendChild(this.renderer_.domElement);
   right.appendChild(well);
 
   grid_row.appendChild(left);
@@ -109,73 +98,7 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   testing_this_container.appendChild(grid_row);
 
   parent.appendChild(testing_this_container);
-
-  this.add_camera_controls_();
-
-  // Eh, this is a bit weird for now. Seec omment on run_() prototype for how I
-  // plan to fix this later.
-  var run = this.run_(); // Because this returns a function and I don't want to run the initialization more than once.
-  var callback = function() {
-    run();
-    self.animation_frame_id_ = requestAnimationFrame(callback);
-  }
-  callback();
 };
-
-/**
- * This just initializes a few variables, and then returns a function that
- * uses those for the game loop. The variables don't need to be stored on the
- * class so they're fine wrapped up here for now. TODO: Maybe eventually move
- * the THREE.js stuff into a separate class and build the loop in there so it
- * can be handled properly?
- *
- * @return {Function} A function that will run the game loop and call the
- * update/draw functions.
- */
-shed.view.cubemitter_editor.prototype.run_ = function() {
-  // http://gameprogrammingpatterns.com/game-loop.html
-  // http://nokarma.org/2011/02/02/javascript-game-development-the-game-loop/
-  var self = this;
-
-  var fps = 60;
-  var skip_milliseconds = 1000 / fps;
-  var next_update = Date.now();
-  var last_update = Date.now();
-  var loops = 0;
-
-  return function() {
-    loops = 0;
-
-    while (Date.now() > next_update) {
-      // Run update logic. Passing it the time since the last update was called.
-      self.update_(Date.now() - last_update);
-      last_update = Date.now();
-
-      // Set the next update out some amount of milliseconds
-      next_update += skip_milliseconds;
-
-      loops++;
-    }
-
-    // Always draw, but only if there has been an update. Don't otherwise
-    // bother since nothing will have changed.
-    if(loops) {
-      self.draw_();
-    }
-  };
-}
-
-shed.view.cubemitter_editor.prototype.add_camera_controls_ = function() {
-  // Add camera controls
-  // http://threejs.org/examples/misc_controls_orbit.html
-  // http://stackoverflow.com/questions/18581225/orbitcontrol-or-trackballcontrol
-  this.controls_ = new THREE.OrbitControls(this.camera_, this.renderer_.domElement);
-  this.controls_.zoomSpeed = 3;
-  this.controls_.noPan = true;
-  this.controls_.minDistance = 3;
-  this.controls_.maxDistance = 30;
-  this.controls_.noKeys = true;
-}
 
 shed.view.cubemitter_editor.prototype.decorate_toolbar_ = function(parent) {
   var self = this;
@@ -196,18 +119,6 @@ shed.view.cubemitter_editor.prototype.decorate_toolbar_ = function(parent) {
   });
   toggle_terrain_container.appendChild(toggle_terrain);
   toolbar.appendChild(toggle_terrain_container);
-
-  // Not sure this is useful. Loading one probably is though.
-/*  var share_container = $.createElement('span')
-    .dataset('hint', 'Share')
-    .addClass(['hint--bottom', 'hint--bounce']);
-  var share = $.createElement('img')
-    .setAttribute('src', 'img/scroll.png')
-    .addClass('share')
-  share.addEventListener('click', function() {
-  });
-  share_container.appendChild(share);
-  toolbar.appendChild(share_container);*/
 
   parent.appendChild(toolbar);
 }
@@ -624,13 +535,8 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
       }
     }
   }
-
-  this.controls_.update();
 };
 
-shed.view.cubemitter_editor.prototype.draw_ = function() {
-  this.renderer_.render(this.scene_, this.camera_);
-};
 
 shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
   // Add a fake point at the end of the curve to make evaluating this not
@@ -661,7 +567,7 @@ shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
 shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) {
   if(display === false) {
     if(this.scene_terrain_) {
-      this.scene_.remove(this.scene_terrain_);
+      this.webgl_.get_scene().remove(this.scene_terrain_);
       this.scene_terrain = null;
       // TODO: Dispose
     }
@@ -679,7 +585,7 @@ shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) 
     // mesh.position.y = 0;
     // mesh.position.z = 0;
     // mesh.position.x = 0;
-    // this.scene_.add(mesh);
+    // this.webgl_.get_scene().add(mesh);
     // return;
 
     // Grass
@@ -708,11 +614,10 @@ shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) 
     mesh.position.y = -6;
     this.scene_terrain_.add(mesh);
 
-    this.scene_.add(this.scene_terrain_);
+    this.webgl_.get_scene().add(this.scene_terrain_);
   }
 };
 
 shed.view.cubemitter_editor.prototype.dispose_ = function() {
-  // Stop rendering stuff.
-  cancelAnimationFrame(this.animation_frame_id_);
+  this.webgl_.stop();
 };

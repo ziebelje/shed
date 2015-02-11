@@ -91,6 +91,7 @@ shed.view.prototype.decorate_ = function(parent) {
 
 
 /**
- * Dispose the current view. Intended to be overridden.
+ * Dispose the current view. Intended to be overridden; called when the view
+ * is replaced.
  */
 shed.view.prototype.dispose_ = function() {}
