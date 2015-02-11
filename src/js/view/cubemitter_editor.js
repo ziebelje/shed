@@ -28,7 +28,6 @@ shed.view.cubemitter_editor = function() {
   // TODO: Add a quick view/share that allows you to import or export JSON quickly
   // TODO: Add a way to record a gif?
   // TODO: Import QB files
-  // TODO: Fix bug where leaving this view does not stop the requestAnimFrame call
   // TODO: Effects
   // TODO: Smooth zooming
   // TODO: Selected indicator and show name of currently selected effect on bottom of well
@@ -76,11 +75,13 @@ shed.view.cubemitter_editor.prototype.watcher_;
 shed.view.cubemitter_editor.prototype.scene_terrain_;
 shed.view.cubemitter_editor.prototype.cube_limit_ = 100;
 shed.view.cubemitter_editor.prototype.current_name_;
+shed.view.cubemitter_editor.prototype.animation_frame_id_;
 
 shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
+  var self = this;
+
   var testing_this_container = $.createElement('div').addClass('cubemitter_editor');
 
-  var self = this;
 
   var grid_row = $.createElement('div').addClass('grid_row');
   var left = $.createElement('div').addClass(['list', 'grid_column_5']);
@@ -111,46 +112,58 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
 
   this.add_camera_controls_();
 
+  // Eh, this is a bit weird for now. Seec omment on run_() prototype for how I
+  // plan to fix this later.
+  var run = this.run_(); // Because this returns a function and I don't want to run the initialization more than once.
+  var callback = function() {
+    run();
+    self.animation_frame_id_ = requestAnimationFrame(callback);
+  }
+  callback();
+};
 
+/**
+ * This just initializes a few variables, and then returns a function that
+ * uses those for the game loop. The variables don't need to be stored on the
+ * class so they're fine wrapped up here for now. TODO: Maybe eventually move
+ * the THREE.js stuff into a separate class and build the loop in there so it
+ * can be handled properly?
+ *
+ * @return {Function} A function that will run the game loop and call the
+ * update/draw functions.
+ */
+shed.view.cubemitter_editor.prototype.run_ = function() {
   // http://gameprogrammingpatterns.com/game-loop.html
   // http://nokarma.org/2011/02/02/javascript-game-development-the-game-loop/
-  var run = (function() {
-    var fps = 60;
-    var skip_milliseconds = 1000 / fps;
-    var next_update = Date.now();
-    var last_update = Date.now();
-    var loops = 0;
+  var self = this;
 
-    return function() {
-      loops = 0;
+  var fps = 60;
+  var skip_milliseconds = 1000 / fps;
+  var next_update = Date.now();
+  var last_update = Date.now();
+  var loops = 0;
 
-      while (Date.now() > next_update) {
-        // Run update logic. Passing it the time since the last update was called.
-        self.update_(Date.now() - last_update);
-        last_update = Date.now();
+  return function() {
+    loops = 0;
 
-        // Set the next update out some amount of milliseconds
-        next_update += skip_milliseconds;
+    while (Date.now() > next_update) {
+      // Run update logic. Passing it the time since the last update was called.
+      self.update_(Date.now() - last_update);
+      last_update = Date.now();
 
-        loops++;
-      }
+      // Set the next update out some amount of milliseconds
+      next_update += skip_milliseconds;
 
-      // Always draw, but only if there has been an update. Don't otherwise
-      // bother since nothing will have changed.
-      if(loops) {
-        self.draw_();
-      }
-    };
-  })();
+      loops++;
+    }
 
-  var onEachFrame = function(callback) {
-    var callback_ = function() { callback(); requestAnimationFrame(callback_); }
-    callback_();
+    // Always draw, but only if there has been an update. Don't otherwise
+    // bother since nothing will have changed.
+    if(loops) {
+      self.draw_();
+    }
   };
-
-  onEachFrame(run);
-  // TODO: This is never actually stopped when I leave the layer.
-};
+}
 
 shed.view.cubemitter_editor.prototype.add_camera_controls_ = function() {
   // Add camera controls
@@ -199,7 +212,6 @@ shed.view.cubemitter_editor.prototype.decorate_toolbar_ = function(parent) {
   parent.appendChild(toolbar);
 }
 
-
 shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
   // TODO: Major cleaning on this.
   var self = this;
@@ -239,7 +251,7 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
               next();
             });
           } else {
-              console.log(file);
+              // console.log(file);
             if(file.substr(-5) === '.json') {
               var name = file.substr(file.lastIndexOf('\\') + 1).replace('.json', '').replace('.cubemitter', '');
               table.add_row();
@@ -277,7 +289,7 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
       throw error;
     }
   });
-}
+};
 
 shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
   var self = this;
@@ -299,7 +311,7 @@ shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
   });
 
   this.current_name_.innerHTML(path.substr(path.lastIndexOf('\\') + 1).replace('.json', '').replace('.cubemitter', ''));
-}
+};
 
 shed.view.cubemitter_editor.prototype.update_ = function(dt) {
   this.cubemitter_.dt += dt;
@@ -614,8 +626,8 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
   }
 
   this.controls_.update();
-
 };
+
 shed.view.cubemitter_editor.prototype.draw_ = function() {
   this.renderer_.render(this.scene_, this.camera_);
 };
@@ -644,7 +656,7 @@ shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
       return y;
     }
   }
-}
+};
 
 shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) {
   if(display === false) {
@@ -698,5 +710,9 @@ shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) 
 
     this.scene_.add(this.scene_terrain_);
   }
+};
 
+shed.view.cubemitter_editor.prototype.dispose_ = function() {
+  // Stop rendering stuff.
+  cancelAnimationFrame(this.animation_frame_id_);
 };

@@ -9,8 +9,13 @@ shed.view = function() {
   var self = this;
 
   this.render_();
-  shed.view.current_view_ = this;
 
+  // Call the dispose function on the view
+  if(shed.view.current_view_) {
+    shed.view.current_view_.dispose_();
+  }
+
+  shed.view.current_view_ = this;
 }
 $.inherits(shed.view, rocket.EventTarget);
 
@@ -83,3 +88,9 @@ shed.view.prototype.render_ = function(opt_keep_event_listeners) {
 shed.view.prototype.decorate_ = function(parent) {
   parent.innerHTML('You need to override this function.');
 }
+
+
+/**
+ * Dispose the current view. Intended to be overridden.
+ */
+shed.view.prototype.dispose_ = function() {}
