@@ -27,13 +27,13 @@ shed.view.main.prototype.decorate_ = function(parent) {
     new shed.view.mod_manager();
   });
 
-  var cubemitter_editor_button = $.createElement('button')
+  var effect_editor_button = $.createElement('button')
     .addClass('button_main')
-    .innerHTML('Cubemitter Editor');
-  parent.appendChild(cubemitter_editor_button);
+    .innerHTML('Effect Editor');
+  parent.appendChild(effect_editor_button);
 
-  cubemitter_editor_button.addEventListener('click', function() {
-    new shed.view.cubemitter_editor();
+  effect_editor_button.addEventListener('click', function() {
+    new shed.view.effect_editor();
   });
 
   var settings_button = $.createElement('button')

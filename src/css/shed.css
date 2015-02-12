@@ -737,24 +737,24 @@ th {
   background: #464339;
 }
 
-.cubemitter_editor .list {
+.effect_editor .list {
   height: calc(100vh - 98px);
   overflow: auto;
   font-size: 13px;
 }
-.cubemitter_editor .well {
+.effect_editor .well {
   height: calc(100vh - 98px);
   position: relative;
   padding: 0;
 }
-.cubemitter_editor .current_name {
+.effect_editor .current_name {
   position: absolute;
   bottom: 0px;
   left: 0px;
   margin: 10px;
   text-shadow: 2px 2px #000, -2px 2px #000, 2px -2px #000, -2px -2px #000, 2px 0px #000, 0px 2px #000, -2px 0px #000, 0px -2px #000;
 }
-.cubemitter_editor .toolbar {
+.effect_editor .toolbar {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -762,7 +762,7 @@ th {
   background: rgba(0, 0, 0, 0.5);
   width: calc(100% - 20px);
 }
-.cubemitter_editor .toolbar .toggle_terrain {
+.effect_editor .toolbar .toggle_terrain {
   outline: none;
   -webkit-appearance: none;
   cursor: pointer;
@@ -773,7 +773,7 @@ th {
   height: 42px;
   -webkit-filter: grayscale(100%);
 }
-.cubemitter_editor .toolbar .toggle_terrain:checked {
+.effect_editor .toolbar .toggle_terrain:checked {
   -webkit-filter: none;
 }
 

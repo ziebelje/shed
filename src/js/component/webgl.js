@@ -20,8 +20,6 @@ $.inherits(shed.component.webgl, shed.component);
 /**
  * The width of the scene.
  *
- * @private
- *
  * @type {number}
  */
 shed.component.webgl.prototype.width_;
@@ -29,8 +27,6 @@ shed.component.webgl.prototype.width_;
 
 /**
  * The height of the scene.
- *
- * @private
  *
  * @type {number}
  */
@@ -40,8 +36,6 @@ shed.component.webgl.prototype.height_;
 /**
  * The scene.
  *
- * @private
- *
  * @type {THREE.Scene}
  */
 shed.component.webgl.prototype.scene_;
@@ -49,8 +43,6 @@ shed.component.webgl.prototype.scene_;
 
 /**
  * The camera.
- *
- * @private
  *
  * @type {THREE.PerspectiveCamera}
  */
@@ -60,8 +52,6 @@ shed.component.webgl.prototype.camera_;
 /**
  * The renderer.
  *
- * @private
- *
  * @type {THREE.WebGLRenderer}
  */
 shed.component.webgl.prototype.renderer_;
@@ -69,8 +59,6 @@ shed.component.webgl.prototype.renderer_;
 
 /**
  * The camera controls.
- *
- * @private
  *
  * @type {THREE.OrbitControls}
  */
@@ -80,8 +68,6 @@ shed.component.webgl.prototype.controls_;
 /**
  * The ID from requestAnimation Frame
  *
- * @private
- *
  * @type {number}
  */
 shed.component.webgl.prototype.animation_frame_id_;
@@ -90,8 +76,6 @@ shed.component.webgl.prototype.animation_frame_id_;
 /**
  * The function to call in the main loop that should update properties of
  * things inside the scene.
- *
- * @private
  *
  * @type {THREE.OrbitControls}
  */

@@ -1,4 +1,4 @@
-shed.view.cubemitter_editor = function() {
+shed.view.effect_editor = function() {
 
   // bugs? fire rotating on all 3 axis (I think?), should just be one
   // dust poof has a point origin with two values?
@@ -45,20 +45,20 @@ shed.view.cubemitter_editor = function() {
 
   shed.view.apply(this, arguments);
 }
-$.inherits(shed.view.cubemitter_editor, shed.view);
+$.inherits(shed.view.effect_editor, shed.view);
 
-shed.view.cubemitter_editor.prototype.title_ = 'Cubemitter Editor';
-shed.view.cubemitter_editor.prototype.cubemitter_;
-shed.view.cubemitter_editor.prototype.webgl_;
-shed.view.cubemitter_editor.prototype.watcher_;
-shed.view.cubemitter_editor.prototype.scene_terrain_;
-shed.view.cubemitter_editor.prototype.cube_limit_ = 100;
-shed.view.cubemitter_editor.prototype.current_name_;
+shed.view.effect_editor.prototype.title_ = 'Effect Editor';
+shed.view.effect_editor.prototype.cubemitter_;
+shed.view.effect_editor.prototype.webgl_;
+shed.view.effect_editor.prototype.watcher_;
+shed.view.effect_editor.prototype.scene_terrain_;
+shed.view.effect_editor.prototype.cube_limit_ = 100;
+shed.view.effect_editor.prototype.current_name_;
 
-shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
+shed.view.effect_editor.prototype.decorate_ = function(parent) {
   var self = this;
 
-  var testing_this_container = $.createElement('div').addClass('cubemitter_editor');
+  var testing_this_container = $.createElement('div').addClass('effect_editor');
 
   var grid_row = $.createElement('div').addClass('grid_row');
   var left = $.createElement('div').addClass(['list', 'grid_column_5']);
@@ -100,7 +100,7 @@ shed.view.cubemitter_editor.prototype.decorate_ = function(parent) {
   parent.appendChild(testing_this_container);
 };
 
-shed.view.cubemitter_editor.prototype.decorate_toolbar_ = function(parent) {
+shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var self = this;
 
   // Toolbar
@@ -123,7 +123,7 @@ shed.view.cubemitter_editor.prototype.decorate_toolbar_ = function(parent) {
   parent.appendChild(toolbar);
 }
 
-shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
+shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
   // TODO: Major cleaning on this.
   var self = this;
 
@@ -202,7 +202,7 @@ shed.view.cubemitter_editor.prototype.decorate_list_ = function(parent) {
   });
 };
 
-shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
+shed.view.effect_editor.prototype.load_cubemitter_ = function(path) {
   var self = this;
 
   var fs = require('fs');
@@ -224,7 +224,7 @@ shed.view.cubemitter_editor.prototype.load_cubemitter_ = function(path) {
   this.current_name_.innerHTML(path.substr(path.lastIndexOf('\\') + 1).replace('.json', '').replace('.cubemitter', ''));
 };
 
-shed.view.cubemitter_editor.prototype.update_ = function(dt) {
+shed.view.effect_editor.prototype.update_ = function(dt) {
   this.cubemitter_.dt += dt;
   if( // Decide whether or not to create a new cube
     this.cubemitter_.dt >= (1000 / this.cubemitter_.data.emission.rate.values[0]) &&
@@ -538,7 +538,7 @@ shed.view.cubemitter_editor.prototype.update_ = function(dt) {
 };
 
 
-shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
+shed.view.effect_editor.prototype.evaluate_curve_ = function(curve, t) {
   // Add a fake point at the end of the curve to make evaluating this not
   // require a conditional.
 
@@ -564,7 +564,7 @@ shed.view.cubemitter_editor.prototype.evaluate_curve_ = function(curve, t) {
   }
 };
 
-shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) {
+shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
   if(display === false) {
     if(this.scene_terrain_) {
       this.webgl_.get_scene().remove(this.scene_terrain_);
@@ -618,6 +618,6 @@ shed.view.cubemitter_editor.prototype.scene_toggle_terrain_ = function(display) 
   }
 };
 
-shed.view.cubemitter_editor.prototype.dispose_ = function() {
+shed.view.effect_editor.prototype.dispose_ = function() {
   this.webgl_.stop();
 };
