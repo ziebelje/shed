@@ -41,8 +41,8 @@ shed.cubemitter = function(options) {
 };
 
 shed.cubemitter.prototype.load_ = function() {
-  this.group_ = new THREE.Group();
-  this.cubes_ = new THREE.Group();
+  this.group_ = new THREE.Object3D();
+  this.cubes_ = new THREE.Object3D();
   this.emitter_ = new THREE.Mesh();
 
   this.group_.add(this.emitter_);
@@ -71,7 +71,7 @@ shed.cubemitter.prototype.emitter_;
 /**
  * The group containing all cubes.
  *
- * @type {THREE.Group}
+ * @type {THREE.Object3D}
  */
 shed.cubemitter.prototype.cubes_;
 
@@ -80,7 +80,7 @@ shed.cubemitter.prototype.cubes_;
  * A master group containing everything, including debugging stuff like the
  * emitter wireframes.
  *
- * @type {THREE.Group}
+ * @type {THREE.Object3D}
  */
 shed.cubemitter.prototype.group_;
 

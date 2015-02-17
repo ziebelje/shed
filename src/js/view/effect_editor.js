@@ -54,7 +54,7 @@ shed.view.effect_editor.prototype.webgl_;
 /**
  * The terrain group.
  *
- * @type {Three.Group}
+ * @type {Three.Object3D}
  */
 shed.view.effect_editor.prototype.scene_terrain_;
 
@@ -62,7 +62,7 @@ shed.view.effect_editor.prototype.scene_terrain_;
 /**
  * The x, y, z axis group.
  *
- * @type {Three.Group}
+ * @type {Three.Object3D}
  */
 shed.view.effect_editor.prototype.scene_axis_;
 
@@ -298,7 +298,7 @@ shed.view.effect_editor.prototype.update_ = function(dt) {
  */
 shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
   if(!this.scene_terrain_) {
-    this.scene_terrain_ = new THREE.Group();
+    this.scene_terrain_ = new THREE.Object3D();
 
     // Grass
     mesh = new THREE.Mesh(
@@ -344,7 +344,7 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
  */
 shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
   if(!this.scene_axis_) {
-    this.scene_axis_ = new THREE.Group();
+    this.scene_axis_ = new THREE.Object3D();
 
     var geometry, material, line, map, sprite;
 

@@ -133,10 +133,18 @@ shed.component.webgl.prototype.decorate_ = function(parent) {
 
   this.camera_ = new THREE.PerspectiveCamera(75, this.width_ / this.height_, 0.1, 100);
 
-  this.renderer_ = new THREE.WebGLRenderer({
-    'antialias': true,
-    'alpha': true
-  });
+  if(this.webgl_supported_() === true) {
+    this.renderer_ = new THREE.WebGLRenderer({
+      'antialias': true,
+      'alpha': true
+    });
+  }
+  else {
+    this.renderer_ = new THREE.CanvasRenderer();
+  }
+
+  this.renderer_.antialias = true;
+  this.renderer_.alpha = true;
   this.renderer_.setSize(this.width_, this.height_);
   this.renderer_.setClearColor(0x000000, 0);
 
@@ -184,6 +192,24 @@ shed.component.webgl.prototype.run_ = function() {
   }
 
   this.animation_frame_id_ = requestAnimationFrame(this.run_.bind(this));
+}
+
+
+/**
+ * Detect whether or not the WebGL renderer is supported.
+ *
+ * @link https://github.com/mrdoob/three.js/blob/master/examples/js/Detector.js
+ *
+ * @return {boolean}
+ */
+shed.component.webgl.prototype.webgl_supported_ = function() {
+  try {
+    var canvas = document.createElement('canvas');
+    return !! (window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+  }
+  catch(e) {
+    return false;
+  }
 }
 
 
