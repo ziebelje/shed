@@ -12,10 +12,6 @@
 // SH Bug? When rotating an effect, the particle system origin rotates, but the
 // particles still move according to the original axis.
 
-// TODO: SHOW AXIS
-
-// TODO: Show emitter
-
 // TODO: If I request 9999 particles per second, SH will give those to me by
 // just creating them all at once (then limiting to 100). I'm only creating one
 // particle per frame max, so I need to change that to allow creating LOTS of
@@ -28,12 +24,18 @@
 // add button to toggle emitter display
 // add mod switcher maybe
 // add legacy THREE support
+// handle duration / looping & add controls?
+// local coordinate systems?
 
 shed.cubemitter = function(options) {
   this.file_ = options.file;
   this.transforms_ = options.transforms;
 
   this.group_ = new THREE.Group();
+  this.cubes_ = new THREE.Group();
+  this.emitter_ = new THREE.Mesh();
+  this.group_.add(this.emitter_);
+
   this.data_ = shed.read_file(this.file_);
 
   // TODO: This doesn't need to run until the cubemitter gets displayed, BUT it
@@ -53,10 +55,20 @@ shed.cubemitter.prototype.file_;
 shed.cubemitter.prototype.scene_;
 shed.cubemitter.prototype.watcher_;
 shed.cubemitter.prototype.data_;
+shed.cubemitter.prototype.emitter_;
 
 
 /**
  * The group containing all cubes.
+ *
+ * @type {THREE.Group}
+ */
+shed.cubemitter.prototype.cubes_;
+
+
+/**
+ * A master group containing everything, including debugging stuff like the
+ * emitter wireframes.
  *
  * @type {THREE.Group}
  */
@@ -78,8 +90,8 @@ shed.cubemitter.prototype.transforms_;
  */
 shed.cubemitter.prototype.set_scene = function(scene) {
   this.scene_ = scene;
+  this.group_.add(this.cubes_);
   this.scene_.add(this.group_);
-
 
   this.apply_transforms_(); // TODO: JUST TESTING SOMETHING
 }
@@ -112,51 +124,9 @@ shed.cubemitter.prototype.update = function(dt) {
  * Apply any effect transformations to the cubemitter.
  */
 shed.cubemitter.prototype.apply_transforms_ = function() {
-  // TODO: This puts the fire on it's side. Maybe it works once I add velocity?
-  // var m = new THREE.Matrix4();
-
-  // var m1 = new THREE.Matrix4();
-  // var m2 = new THREE.Matrix4();
-  // var m3 = new THREE.Matrix4();
-
-  // var rx = -this.transforms_.rx * Math.PI / 180;
-  // var ry = -this.transforms_.ry * Math.PI / 180;
-  // var rz = -this.transforms_.rz * Math.PI / 180;
-
-  // m1.makeRotationX(rx);
-  // m2.makeRotationY(ry);
-  // m3.makeRotationZ(rz);
-
-  // m.multiplyMatrices(m1, m2);
-  // m.multiply(m3);
-
-  // TODO: Probably turn this on one day. First of all,
-
-  // TODO: I think the effect transform rotates only the emitter. Then the
-  // particle system itself still follows the global x, y, z axis.
-
-
-  // SH isn't applying this transform...
-  // this.group_.applyMatrix(m);
-
-  // ??? maybe
-  //
-  // var euler = new THREE.Euler( rx, ry, rz, 'XYZ' );
-  // this.group_.rotation = euler;
-// debugger;
-  // console.log('apply_transforms_?');
-  // this.group_.rotateOnAxis(new THREE.Vector3(1, 0, 0), rx);
-  // this.group_.rotateOnAxis(new THREE.Vector3(0, 1, 0), ry);
-  // this.group_.rotateOnAxis(new THREE.Vector3(0, 0, 1), rz);
-
-  // var b = new THREE.Vector3( 1, 0, 1 );
-  // b.applyEuler(a);
-
-
   this.group_.position.x = this.transforms_.x;
   this.group_.position.y = this.transforms_.y;
   this.group_.position.z = this.transforms_.z;
-  // console.log(euler);
 }
 
 
@@ -173,7 +143,7 @@ shed.cubemitter.prototype.update_create_ = function(dt) {
   while(particles_to_create-- > 0) { // TODO: needs more testing
     if(
       this.dt_cube_ >= (1000 / emission_rate) && // Don't create new cubes until enough time has passed.
-      this.group_.children.length < shed.cubemitter.cube_limit_ && // Stop creating new cubes if the cubemitter cube limit is reached.
+      this.cubes_.children.length < shed.cubemitter.cube_limit_ && // Stop creating new cubes if the cubemitter cube limit is reached.
       (this.dt_system_ < this.data_.duration * 1000) // Stop creating new cubes when the cubemitter duration is up.
       // particles_to_create-- > 0
     ) {
@@ -224,102 +194,102 @@ shed.cubemitter.prototype.update_create_ = function(dt) {
         // 'u2': Math.random() * (1 - Math.cos(phi)) + Math.cos(phi)
       };
 
-      this.group_.add(cube);
+      this.cubes_.add(cube);
     }
   }
 }
 
 // update all existing cubes
 shed.cubemitter.prototype.update_move_ = function(dt) {
-  for(var i = this.group_.children.length - 1; i >= 0; i--) {
-    this.group_.children[i].userData.age += (dt / 1000);
+  for(var i = this.cubes_.children.length - 1; i >= 0; i--) {
+    this.cubes_.children[i].userData.age += (dt / 1000);
 
     // Remove anything that has aged out.
-    if(this.group_.children[i].userData.age >= this.group_.children[i].userData.lifetime) {
-      this.group_.children[i].geometry.dispose();
-      this.group_.children[i].material.dispose();
-      this.group_.remove(this.group_.children[i]);
+    if(this.cubes_.children[i].userData.age >= this.cubes_.children[i].userData.lifetime) {
+      this.cubes_.children[i].geometry.dispose();
+      this.cubes_.children[i].material.dispose();
+      this.cubes_.remove(this.cubes_.children[i]);
       continue;
     }
 
-    var age_percent = this.group_.children[i].userData.age / this.group_.children[i].userData.lifetime;
+    var age_percent = this.cubes_.children[i].userData.age / this.cubes_.children[i].userData.lifetime;
 
     // Color
     if(this.data_.particle.color.over_lifetime_r) {
-      var color_r = this[this.data_.particle.color.over_lifetime_r.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_r.values, age_percent, this.group_.children[i].userData.random);
-      this.group_.children[i].material.color.r = color_r;
+      var color_r = this[this.data_.particle.color.over_lifetime_r.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_r.values, age_percent, this.cubes_.children[i].userData.random);
+      this.cubes_.children[i].material.color.r = color_r;
     }
     if(this.data_.particle.color.over_lifetime_g) {
-      var color_g = this[this.data_.particle.color.over_lifetime_g.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_g.values, age_percent, this.group_.children[i].userData.random);
-      this.group_.children[i].material.color.g = color_g;
+      var color_g = this[this.data_.particle.color.over_lifetime_g.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_g.values, age_percent, this.cubes_.children[i].userData.random);
+      this.cubes_.children[i].material.color.g = color_g;
     }
     if(this.data_.particle.color.over_lifetime_b) {
-      var color_b = this[this.data_.particle.color.over_lifetime_b.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_b.values, age_percent, this.group_.children[i].userData.random);
-      this.group_.children[i].material.color.b = color_b;
+      var color_b = this[this.data_.particle.color.over_lifetime_b.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_b.values, age_percent, this.cubes_.children[i].userData.random);
+      this.cubes_.children[i].material.color.b = color_b;
     }
     if(this.data_.particle.color.over_lifetime_a) {
-      var color_a = this[this.data_.particle.color.over_lifetime_a.kind.toLowerCase() + '_']('particle.opacity', this.data_.particle.color.over_lifetime_a.values, age_percent, this.group_.children[i].userData.random);
-      this.group_.children[i].material.opacity = color_a;
+      var color_a = this[this.data_.particle.color.over_lifetime_a.kind.toLowerCase() + '_']('particle.opacity', this.data_.particle.color.over_lifetime_a.values, age_percent, this.cubes_.children[i].userData.random);
+      this.cubes_.children[i].material.opacity = color_a;
     }
 
     // Scale
     if(this.data_.particle.scale.over_lifetime) {
-      var scale = this[this.data_.particle.scale.over_lifetime.kind.toLowerCase() + '_']('particle.scale', this.data_.particle.scale.over_lifetime.values, age_percent, this.group_.children[i].userData.random);
-      this.group_.children[i].scale.x = scale;
-      this.group_.children[i].scale.y = scale;
-      this.group_.children[i].scale.z = scale;
+      var scale = this[this.data_.particle.scale.over_lifetime.kind.toLowerCase() + '_']('particle.scale', this.data_.particle.scale.over_lifetime.values, age_percent, this.cubes_.children[i].userData.random);
+      this.cubes_.children[i].scale.x = scale;
+      this.cubes_.children[i].scale.y = scale;
+      this.cubes_.children[i].scale.z = scale;
     }
 
     // Rotation
     if(this.data_.particle.rotation) {
       if(this.data_.particle.rotation.over_lifetime_x) {
-        var rotation_x = this[this.data_.particle.rotation.over_lifetime_x.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_x.values, age_percent, this.group_.children[i].userData.random);
-        this.group_.children[i].rotation.x = rotation_x;
+        var rotation_x = this[this.data_.particle.rotation.over_lifetime_x.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_x.values, age_percent, this.cubes_.children[i].userData.random);
+        this.cubes_.children[i].rotation.x = rotation_x;
       }
       if(this.data_.particle.rotation.over_lifetime_y) {
-        var rotation_y = this[this.data_.particle.rotation.over_lifetime_y.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_y.values, age_percent, this.group_.children[i].userData.random);
-        this.group_.children[i].rotation.y = rotation_y;
+        var rotation_y = this[this.data_.particle.rotation.over_lifetime_y.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_y.values, age_percent, this.cubes_.children[i].userData.random);
+        this.cubes_.children[i].rotation.y = rotation_y;
       }
       if(this.data_.particle.rotation.over_lifetime_z) {
-        var rotation_z = this[this.data_.particle.rotation.over_lifetime_z.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_z.values, age_percent, this.group_.children[i].userData.random);
-        this.group_.children[i].rotation.z = rotation_z;
+        var rotation_z = this[this.data_.particle.rotation.over_lifetime_z.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_z.values, age_percent, this.cubes_.children[i].userData.random);
+        this.cubes_.children[i].rotation.z = rotation_z;
       }
     }
 
     // Speed
     if(this.data_.particle.speed.over_lifetime) {
-      var speed_factor = this[this.data_.particle.speed.over_lifetime.kind.toLowerCase() + '_']('particle.speed', this.data_.particle.speed.over_lifetime.values, age_percent, this.group_.children[i].userData.random);
+      var speed_factor = this[this.data_.particle.speed.over_lifetime.kind.toLowerCase() + '_']('particle.speed', this.data_.particle.speed.over_lifetime.values, age_percent, this.cubes_.children[i].userData.random);
     } else {
       var speed_factor = 1;
     }
-    var speed = this.group_.children[i].userData.speed * speed_factor;
+    var speed = this.cubes_.children[i].userData.speed * speed_factor;
     // TODO: negative speed?
 
     // Calculate initial velocities based off of emission angle.
-    var velocity_x = speed * Math.sqrt(1 - Math.pow(this.group_.children[i].userData.z, 2)) * Math.cos(this.group_.children[i].userData.phi);
-    var velocity_z = speed * Math.sqrt(1 - Math.pow(this.group_.children[i].userData.z, 2)) * Math.sin(this.group_.children[i].userData.phi);
-    var velocity_y = speed * this.group_.children[i].userData.z;
+    var velocity_x = speed * Math.sqrt(1 - Math.pow(this.cubes_.children[i].userData.z, 2)) * Math.cos(this.cubes_.children[i].userData.phi);
+    var velocity_z = speed * Math.sqrt(1 - Math.pow(this.cubes_.children[i].userData.z, 2)) * Math.sin(this.cubes_.children[i].userData.phi);
+    var velocity_y = speed * this.cubes_.children[i].userData.z;
 
     // TODO
     // Now alter the velocity over time if provided.
     if(this.data_.particle.velocity) {
       if(this.data_.particle.velocity.over_lifetime_x) {
-        velocity_x += this[this.data_.particle.velocity.over_lifetime_x.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_x.values, age_percent, this.group_.children[i].userData.random);
-        // this.group_.children[i].userData.velocity.x = velocity_x;
+        velocity_x += this[this.data_.particle.velocity.over_lifetime_x.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_x.values, age_percent, this.cubes_.children[i].userData.random);
+        // this.cubes_.children[i].userData.velocity.x = velocity_x;
       }
       if(this.data_.particle.velocity.over_lifetime_y) {
-        velocity_y += this[this.data_.particle.velocity.over_lifetime_y.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_y.values, age_percent, this.group_.children[i].userData.random);
-        // this.group_.children[i].userData.velocity.y = velocity_y;
+        velocity_y += this[this.data_.particle.velocity.over_lifetime_y.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_y.values, age_percent, this.cubes_.children[i].userData.random);
+        // this.cubes_.children[i].userData.velocity.y = velocity_y;
       }
       if(this.data_.particle.velocity.over_lifetime_z) {
-        velocity_z += this[this.data_.particle.velocity.over_lifetime_z.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_z.values, age_percent, this.group_.children[i].userData.random);
-        // this.group_.children[i].userData.velocity.z = velocity_z;
+        velocity_z += this[this.data_.particle.velocity.over_lifetime_z.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_z.values, age_percent, this.cubes_.children[i].userData.random);
+        // this.cubes_.children[i].userData.velocity.z = velocity_z;
       }
     }
 
-    this.group_.children[i].position.x += dt / 1000 * (velocity_x);
-    this.group_.children[i].position.y += dt / 1000 * (velocity_y);
-    this.group_.children[i].position.z += dt / 1000 * (velocity_z);
+    this.cubes_.children[i].position.x += dt / 1000 * (velocity_x);
+    this.cubes_.children[i].position.y += dt / 1000 * (velocity_y);
+    this.cubes_.children[i].position.z += dt / 1000 * (velocity_z);
   }
 
 }
@@ -469,31 +439,30 @@ shed.cubemitter.prototype.random_between_curves_ = function(type, values, t, ran
 shed.cubemitter.prototype.rectangle_ = function(type, values) {
   switch(type) {
     case 'emission.origin':
-      // TODO: CLEAN UP THIS POLLUTION
-      this.added = false;
-      if(!this.added) {
-        this.added = true;
-        var geometry = new THREE.BoxGeometry(values[1], values[0], .01);
-        var material = new THREE.MeshBasicMaterial({'color': 0xffffff });
-        this.mesh = new THREE.Mesh(geometry, material);
+      if(!this.emitter_.userData.added) {
+        this.emitter_.userData.added = true;
+        this.emitter_.geometry = new THREE.BoxGeometry(values[1], values[0], 0);
+        this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true})
 
+        // Rotate the emitter.
         // http://stackoverflow.com/a/17647308
-        this.mesh.geometry.applyMatrix(new THREE.Matrix4().makeRotationX(this.transforms_.rx * Math.PI / 180));
-        this.mesh.geometry.applyMatrix(new THREE.Matrix4().makeRotationY(this.transforms_.ry * Math.PI / 180));
-        this.mesh.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(this.transforms_.rz * Math.PI / 180));
+        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationX(this.transforms_.rx * Math.PI / 180));
+        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationY(this.transforms_.ry * Math.PI / 180));
+        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(this.transforms_.rz * Math.PI / 180));
 
-        this.scene_.add(this.mesh);
-        this.mesh.geometry.computeBoundingBox();
+        this.emitter_.geometry.computeBoundingBox();
       }
 
-      var min_x = this.mesh.geometry.boundingBox.min.x;
-      var max_x = this.mesh.geometry.boundingBox.max.x;
+      // Use the generated / transformed mesh and pick a random point inside of
+      // it for the origin.
+      var min_x = this.emitter_.geometry.boundingBox.min.x;
+      var max_x = this.emitter_.geometry.boundingBox.max.x;
 
-      var min_y = this.mesh.geometry.boundingBox.min.y;
-      var max_y = this.mesh.geometry.boundingBox.max.y;
+      var min_y = this.emitter_.geometry.boundingBox.min.y;
+      var max_y = this.emitter_.geometry.boundingBox.max.y;
 
-      var min_z = this.mesh.geometry.boundingBox.min.z;
-      var max_z = this.mesh.geometry.boundingBox.max.z;
+      var min_z = this.emitter_.geometry.boundingBox.min.z;
+      var max_z = this.emitter_.geometry.boundingBox.max.z;
 
       return {
         'x': Math.random() * (min_x - max_x) + max_x,
@@ -519,6 +488,12 @@ shed.cubemitter.prototype.rectangle_ = function(type, values) {
  * plane.
  */
 shed.cubemitter.prototype.point_ = function(type, values) {
+  if(!this.emitter_.userData.added) {
+    this.emitter_.userData.added = true;
+    this.emitter_.geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2),
+    this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true})
+  }
+
   return {'x': 0, 'y': 0, 'z': 0};
 };
 
@@ -564,19 +539,16 @@ shed.cubemitter.prototype.dispose = function() {
   if(this.scene_) {
     // Remove all particles from the group and then remove the group from the
     // scene.
-    for(var i = this.group_.children.length - 1; i >= 0; i--) {
-      this.group_.children[i].geometry.dispose();
-      this.group_.children[i].material.dispose();
-      this.group_.remove(this.group_.children[i]);
+    for(var i = this.cubes_.children.length - 1; i >= 0; i--) {
+      this.cubes_.children[i].geometry.dispose();
+      this.cubes_.children[i].material.dispose();
+      this.cubes_.remove(this.cubes_.children[i]);
     }
+    // this.scene_.remove(this.cubes_);
     this.scene_.remove(this.group_);
-
   }
 }
 
-
-
-
-
-
-
+shed.cubemitter.prototype.toggle_emitter = function(display) {
+  this.emitter_.visible = display;
+}

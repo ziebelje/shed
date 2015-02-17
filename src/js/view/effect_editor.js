@@ -35,6 +35,7 @@ shed.view.effect_editor.prototype.scene_terrain_;
 shed.view.effect_editor.prototype.scene_axis_;
 shed.view.effect_editor.prototype.cube_limit_ = 100;
 shed.view.effect_editor.prototype.current_name_;
+shed.view.effect_editor.prototype.display_emitter_;
 
 shed.view.effect_editor.prototype.decorate_ = function(parent) {
   var self = this;
@@ -70,6 +71,7 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
 
   this.scene_toggle_terrain_(true);
   this.scene_toggle_axis_(true);
+  this.scene_toggle_emitter_(true);
   this.webgl_.get_scene().add(this.cubemitter_.group);
 
   // Canvas
@@ -126,7 +128,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
     .addClass('toggle_emitter')
     .checked(true);
   toggle_emitter.addEventListener('change', function() {
-    // self.scene_toggle_emitter_(toggle_emitter.checked());
+    self.scene_toggle_emitter_(toggle_emitter.checked());
   });
   toggle_emitter_container.appendChild(toggle_emitter);
   toolbar.appendChild(toggle_emitter_container);
@@ -180,8 +182,8 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
             // TODO: The effects are switching but when I go back to an already opened one it's like it's been playing for a while...
           }
           self.effect_ = effect;
-          console.log(effect);
           effect.set_scene(self.webgl_.get_scene());
+          self.scene_toggle_emitter_(self.display_emitter_); // Load up the new scene and apply the proper emitter display setting
           self.current_name_.innerHTML(effect.get_name());
         });
       })(effects[i]);
@@ -228,7 +230,7 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
 
     // Grass
     mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(10, 1, 10),
+      new THREE.BoxGeometry(10, 0.99, 10), // Slightly shorter so lines on the surface don't z-fight
       new THREE.MeshBasicMaterial({'color': 0x80c47b })
     );
     mesh.position.y = -0.5;
@@ -270,8 +272,8 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
 
     // X
     geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
-    geometry.vertices.push(new THREE.Vector3(6, 0.01, 0));
+    geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+    geometry.vertices.push(new THREE.Vector3(6, 0, 0));
     material = new THREE.LineBasicMaterial({'color': 0xff0000});
     line = new THREE.Line(geometry, material);
     this.scene_axis_.add(line);
@@ -285,7 +287,7 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
 
     // Y
     geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
+    geometry.vertices.push(new THREE.Vector3(0, 0, 0));
     geometry.vertices.push(new THREE.Vector3(0, 6, 0));
     material = new THREE.LineBasicMaterial({'color': 0x00ff00});
     line = new THREE.Line(geometry, material);
@@ -300,8 +302,8 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
 
     // Z
     geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(0, 0.01, 0));
-    geometry.vertices.push(new THREE.Vector3(0, 0.01, 6));
+    geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+    geometry.vertices.push(new THREE.Vector3(0, 0, 6));
     material = new THREE.LineBasicMaterial({'color': 0x0000ff});
     line = new THREE.Line(geometry, material);
     this.scene_axis_.add(line);
@@ -317,6 +319,18 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
   }
 
   this.scene_axis_.visible = display;
+}
+
+shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
+  if(this.effect_) {
+    this.display_emitter_ = display;
+    var tracks = this.effect_.get_tracks();
+    for(var i = 0; i < tracks.length; i++) {
+      if(tracks[i].attributes.type === 'cubemitter') {
+        tracks[i].object.toggle_emitter(display);
+      }
+    }
+  }
 }
 
 shed.view.effect_editor.prototype.dispose_ = function() {
