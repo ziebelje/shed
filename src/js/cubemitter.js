@@ -30,19 +30,29 @@
 shed.cubemitter = function(options) {
   this.file_ = options.file;
   this.transforms_ = options.transforms;
+  this.load_();
 
-  this.group_ = new THREE.Group();
-  this.cubes_ = new THREE.Group();
-  this.emitter_ = new THREE.Mesh();
-  this.group_.add(this.emitter_);
 
-  this.data_ = shed.read_file(this.file_);
 
   // TODO: This doesn't need to run until the cubemitter gets displayed, BUT it
   // can only run one time total or it will transform multiple times (depending
   // on if I use an absolute or relative transform).
   // this.apply_transforms_();
 };
+
+shed.cubemitter.prototype.load_ = function() {
+  this.group_ = new THREE.Group();
+  this.cubes_ = new THREE.Group();
+  this.emitter_ = new THREE.Mesh();
+
+  this.group_.add(this.emitter_);
+  this.group_.add(this.cubes_);
+
+
+  this.apply_transforms_(); // TODO: JUST TESTING SOMETHING
+
+  this.data_ = shed.read_file(this.file_);
+}
 
 /**
  * How many cubes can be present in a cubemitter at any given time.
@@ -89,11 +99,9 @@ shed.cubemitter.prototype.transforms_;
  * @param {THREE.Scene} scene
  */
 shed.cubemitter.prototype.set_scene = function(scene) {
+  this.watch_();
   this.scene_ = scene;
-  this.group_.add(this.cubes_);
   this.scene_.add(this.group_);
-
-  this.apply_transforms_(); // TODO: JUST TESTING SOMETHING
 }
 
 
@@ -523,7 +531,15 @@ shed.cubemitter.prototype.evaluate_curve_ = function(curve, t) {
  * Watch this file for changes and reload it when that happens.
  */
 shed.cubemitter.prototype.watch_ = function() {
-  this.watcher_ = shed.watch_file(this.file_, this.load_.bind(this));
+  var self = this;
+  this.watcher_ = shed.watch_file(this.file_, function() {
+    var scene = self.scene_; // Back this up before disposing.
+    self.dispose();
+    self.load_();
+    self.set_scene(scene);
+  });
+
+  // this.watcher_ = shed.watch_file(this.file_, this.load_.bind(this));
 }
 
 
@@ -532,21 +548,22 @@ shed.cubemitter.prototype.watch_ = function() {
  * it stops listening for file changes.
  */
 shed.cubemitter.prototype.dispose = function() {
-  // this.watcher_.close(); // TODO turn back on after watchers are fixed.
+  this.watcher_.close();
+
   this.dt_cube_ = 0;
   this.dt_system_ = 0;
 
-  if(this.scene_) {
-    // Remove all particles from the group and then remove the group from the
-    // scene.
-    for(var i = this.cubes_.children.length - 1; i >= 0; i--) {
-      this.cubes_.children[i].geometry.dispose();
-      this.cubes_.children[i].material.dispose();
-      this.cubes_.remove(this.cubes_.children[i]);
-    }
-    // this.scene_.remove(this.cubes_);
-    this.scene_.remove(this.group_);
+  // Remove all particles from the group and then remove the group from the
+  // scene.
+  for(var i = this.cubes_.children.length - 1; i >= 0; i--) {
+    this.cubes_.children[i].geometry.dispose();
+    this.cubes_.children[i].material.dispose();
+    this.cubes_.remove(this.cubes_.children[i]);
   }
+  // this.scene_.remove(this.cubes_);
+  this.scene_.remove(this.group_);
+
+  this.scene_ = null;
 }
 
 shed.cubemitter.prototype.toggle_emitter = function(display) {

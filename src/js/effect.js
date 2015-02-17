@@ -5,11 +5,17 @@
  */
 shed.effect = function(file) {
   this.file_ = file;
+  this.load_();
+};
 
-  this.tracks_ = [];
 
+/**
+ * Load the effect file and the tracks.
+ */
+shed.effect.prototype.load_ = function() {
   this.data_ = shed.read_file(this.file_);
 
+  this.tracks_ = [];
   if(this.data_.tracks) {
     for(var name in this.data_.tracks) {
       if(this.data_.tracks[name].type && this.data_.tracks[name].type === 'cubemitter') {
@@ -25,9 +31,8 @@ shed.effect = function(file) {
     }
   }
 
-  this.name_ = this.file_.substr(file.lastIndexOf('\\') + 1).replace('.json', '');
-};
-
+  this.name_ = this.file_.substr(this.file_.lastIndexOf('\\') + 1).replace('.json', '');
+}
 
 /**
  * Path of the effect file.
@@ -81,6 +86,7 @@ shed.effect.prototype.name_;
  * Call the update function on each track.
  */
 shed.effect.prototype.update = function(dt) {
+  console.log(this.tracks_.length);
   for(var i = 0; i < this.tracks_.length; i++) {
     this.tracks_[i].object.update(dt);
   }
@@ -109,10 +115,9 @@ shed.effect.prototype.get_tracks = function() {
 
 /**
  * Set the scene this effect is part of.
- *
- * @param {THREE.Scene} scene
  */
 shed.effect.prototype.set_scene = function(scene) {
+  this.watch_();
   this.scene_ = scene;
   for(var i = 0; i < this.tracks_.length; i++) {
     this.tracks_[i].object.set_scene(this.scene_);
@@ -125,7 +130,8 @@ shed.effect.prototype.set_scene = function(scene) {
  * it stops listening for file changes and other stuff.
  */
 shed.effect.prototype.dispose = function() {
-  // this.watcher_.close(); // TODO turn back on after watchers are fixed.
+  this.scene_ = null;
+  this.watcher_.close();
   for(var i = 0; i < this.tracks_.length; i++) {
     this.tracks_[i].object.dispose();
   }
@@ -133,10 +139,18 @@ shed.effect.prototype.dispose = function() {
 
 
 /**
- * Watch this file for changes and reload it when that happens.
+ * Watch this file for changes. When it changes, dispose it (which will
+ * dispose all tracks and remove it from the scene), then reload the file and
+ * re-add it to the scene.
  */
 shed.effect.prototype.watch_ = function() {
-  this.watcher_ = shed.watch_file(this.file_, this.load_.bind(this));
+  var self = this;
+  this.watcher_ = shed.watch_file(this.file_, function() {
+    var scene = self.scene_; // Back this up before disposing.
+    self.dispose();
+    self.load_();
+    self.set_scene(scene);
+  });
 }
 
 
