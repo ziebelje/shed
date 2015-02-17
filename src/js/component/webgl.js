@@ -1,11 +1,13 @@
 
 
+
 /**
  * This is more or less just a wrapper for a THREE scene that handles all of
  * the loop/draw logic, camera controls, etc.
  *
- * @param {number} width The width of the scene.
- * @param {number} height The height of the scene.
+ * @param {Array} options [width, height, update (Function)]
+ *
+ * @constructor
  */
 shed.component.webgl = function(options) {
   this.width_ = options.width;
@@ -13,7 +15,7 @@ shed.component.webgl = function(options) {
   this.update_ = options.update;
 
   shed.component.apply(this, arguments);
-}
+};
 $.inherits(shed.component.webgl, shed.component);
 
 
@@ -86,6 +88,8 @@ shed.component.webgl.prototype.update_;
  * Update frames per second. The browser will always try to animate at 60 FPS.
  *
  * @type {number}
+ *
+ * @private
  */
 shed.component.webgl.prototype.fps_ = 30;
 
@@ -94,6 +98,8 @@ shed.component.webgl.prototype.fps_ = 30;
  * Milliseconds between updates.
  *
  * @type {number}
+ *
+ * @private
  */
 shed.component.webgl.prototype.skip_milliseconds_ = 1000 / 30;
 
@@ -102,6 +108,8 @@ shed.component.webgl.prototype.skip_milliseconds_ = 1000 / 30;
  * When the next update will occur.
  *
  * @type {number}
+ *
+ * @private
  */
 shed.component.webgl.prototype.next_update_ = Date.now();
 
@@ -110,6 +118,8 @@ shed.component.webgl.prototype.next_update_ = Date.now();
  * When the last update happened.
  *
  * @type {number}
+ *
+ * @private
  */
 shed.component.webgl.prototype.last_update_ = Date.now();
 
@@ -118,6 +128,8 @@ shed.component.webgl.prototype.last_update_ = Date.now();
  * How many times the update function was called since the last animate.
  *
  * @type {number}
+ *
+ * @private
  */
 shed.component.webgl.prototype.loops_ = 0;
 
@@ -126,14 +138,16 @@ shed.component.webgl.prototype.loops_ = 0;
  * Create the scene, add the camera, renderer, and controls. Automatically
  * starts the animation loop.
  *
- * @param {Rocket.Elements} parent
+ * @param {rocket.Elements} parent
+ *
+ * @private
  */
 shed.component.webgl.prototype.decorate_ = function(parent) {
   this.scene_ = new THREE.Scene();
 
   this.camera_ = new THREE.PerspectiveCamera(75, this.width_ / this.height_, 0.1, 100);
 
-  if(this.webgl_supported_() === true) {
+  if (this.webgl_supported_() === true) {
     this.renderer_ = new THREE.WebGLRenderer({
       'antialias': true,
       'alpha': true
@@ -168,6 +182,8 @@ shed.component.webgl.prototype.decorate_ = function(parent) {
  *
  * @link http://gameprogrammingpatterns.com/game-loop.html
  * @link http://nokarma.org/2011/02/02/javascript-game-development-the-game-loop/
+ *
+ * @private
  */
 shed.component.webgl.prototype.run_ = function() {
   this.loops_ = 0;
@@ -186,19 +202,21 @@ shed.component.webgl.prototype.run_ = function() {
   // Always draw, but only if there has been an update. Don't otherwise bother
   // since nothing will have changed. This doesn't actually do much right now
   // since webkit will try to render at 60fps and I'm also updating at 60fps.
-  if(this.loops_) {
+  if (this.loops_) {
     this.controls_.update();
     this.renderer_.render(this.scene_, this.camera_);
   }
 
   this.animation_frame_id_ = requestAnimationFrame(this.run_.bind(this));
-}
+};
 
 
 /**
  * Detect whether or not the WebGL renderer is supported.
  *
  * @link https://github.com/mrdoob/three.js/blob/master/examples/js/Detector.js
+ *
+ * @private
  *
  * @return {boolean}
  */
@@ -207,10 +225,10 @@ shed.component.webgl.prototype.webgl_supported_ = function() {
     var canvas = document.createElement('canvas');
     return !! (window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
   }
-  catch(e) {
+  catch (e) {
     return false;
   }
-}
+};
 
 
 /**
@@ -220,7 +238,7 @@ shed.component.webgl.prototype.webgl_supported_ = function() {
  */
 shed.component.webgl.prototype.get_scene = function() {
   return this.scene_;
-}
+};
 
 
 /**
@@ -230,7 +248,7 @@ shed.component.webgl.prototype.get_scene = function() {
  */
 shed.component.webgl.prototype.get_renderer = function() {
   return this.renderer_;
-}
+};
 
 
 /**
@@ -240,7 +258,7 @@ shed.component.webgl.prototype.get_renderer = function() {
  */
 shed.component.webgl.prototype.get_camera = function() {
   return this.camera_;
-}
+};
 
 
 /**
@@ -250,7 +268,7 @@ shed.component.webgl.prototype.get_camera = function() {
  */
 shed.component.webgl.prototype.get_controls = function() {
   return this.controls_;
-}
+};
 
 
 /**
@@ -258,7 +276,7 @@ shed.component.webgl.prototype.get_controls = function() {
  */
 shed.component.webgl.prototype.play = function() {
   this.animation_frame_id_ = requestAnimationFrame(this.run_.bind(this));
-}
+};
 
 
 /**
@@ -266,4 +284,4 @@ shed.component.webgl.prototype.play = function() {
  */
 shed.component.webgl.prototype.stop = function() {
   cancelAnimationFrame(this.animation_frame_id_);
-}
+};

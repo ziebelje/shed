@@ -1,5 +1,10 @@
+
+
+
 /**
  * An effect.
+ *
+ * @constructor
  *
  * @param {string} file The file describing this effect.
  */
@@ -11,14 +16,16 @@ shed.effect = function(file) {
 
 /**
  * Load the effect file and the tracks.
+ *
+ * @private
  */
 shed.effect.prototype.load_ = function() {
   this.data_ = shed.read_file(this.file_);
 
   this.tracks_ = [];
-  if(this.data_.tracks) {
-    for(var name in this.data_.tracks) {
-      if(this.data_.tracks[name].type && this.data_.tracks[name].type === 'cubemitter') {
+  if (this.data_.tracks) {
+    for (var name in this.data_.tracks) {
+      if (this.data_.tracks[name].type && this.data_.tracks[name].type === 'cubemitter') {
         this.tracks_.push({
           'name': name,
           'attributes': this.data_.tracks[name],
@@ -32,7 +39,8 @@ shed.effect.prototype.load_ = function() {
   }
 
   this.name_ = this.file_.substr(this.file_.lastIndexOf('\\') + 1).replace('.json', '');
-}
+};
+
 
 /**
  * Path of the effect file.
@@ -84,13 +92,15 @@ shed.effect.prototype.name_;
 
 /**
  * Call the update function on each track.
+ *
+ * @param {number} dt
  */
 shed.effect.prototype.update = function(dt) {
   console.log(this.tracks_.length);
-  for(var i = 0; i < this.tracks_.length; i++) {
+  for (var i = 0; i < this.tracks_.length; i++) {
     this.tracks_[i].object.update(dt);
   }
-}
+};
 
 
 /**
@@ -100,7 +110,7 @@ shed.effect.prototype.update = function(dt) {
  */
 shed.effect.prototype.get_name = function() {
   return this.name_;
-}
+};
 
 
 /**
@@ -110,19 +120,22 @@ shed.effect.prototype.get_name = function() {
  */
 shed.effect.prototype.get_tracks = function() {
   return this.tracks_;
-}
+};
 
 
 /**
- * Set the scene this effect is part of.
+ * Set the scene this effect is part of. Setting the scene will assume you
+ * want to display it and start watching the file for changes.
+ *
+ * @param {THREE.scene} scene
  */
 shed.effect.prototype.set_scene = function(scene) {
   this.watch_();
   this.scene_ = scene;
-  for(var i = 0; i < this.tracks_.length; i++) {
+  for (var i = 0; i < this.tracks_.length; i++) {
     this.tracks_[i].object.set_scene(this.scene_);
   }
-}
+};
 
 
 /**
@@ -132,16 +145,18 @@ shed.effect.prototype.set_scene = function(scene) {
 shed.effect.prototype.dispose = function() {
   this.scene_ = null;
   this.watcher_.close();
-  for(var i = 0; i < this.tracks_.length; i++) {
+  for (var i = 0; i < this.tracks_.length; i++) {
     this.tracks_[i].object.dispose();
   }
-}
+};
 
 
 /**
  * Watch this file for changes. When it changes, dispose it (which will
  * dispose all tracks and remove it from the scene), then reload the file and
  * re-add it to the scene.
+ *
+ * @private
  */
 shed.effect.prototype.watch_ = function() {
   var self = this;
@@ -151,7 +166,7 @@ shed.effect.prototype.watch_ = function() {
     self.load_();
     self.set_scene(scene);
   });
-}
+};
 
 
 /**
@@ -163,6 +178,8 @@ shed.effect.prototype.watch_ = function() {
  * likely just a callback on each file that will determine if it's something
  * I'm looking for.
  *
+ * @param {Function} callback
+ *
  * @link http://stackoverflow.com/a/5827895
  */
 shed.effect.get_effects = function(callback) {
@@ -171,27 +188,27 @@ shed.effect.get_effects = function(callback) {
   var fs = require('fs');
   var walk = function(directory, callback) {
     fs.readdir(directory, function(error, list) {
-      if(error) {
+      if (error) {
         return callback(error);
       }
 
       var pending = list.length;
-      if(!pending) {
+      if (!pending) {
         return callback();
       }
 
       list.forEach(function(file) {
         file = directory + '\\' + file;
         fs.stat(file, function(error, stat) {
-          if(stat && stat.isDirectory()) {
+          if (stat && stat.isDirectory()) {
             walk(file, function(error, result) {
-              if(!--pending) {
+              if (!--pending) {
                 callback();
               }
             });
           } else {
             effects.push(new shed.effect(file));
-            if(!--pending) {
+            if (!--pending) {
               callback();
             }
           }
@@ -202,9 +219,9 @@ shed.effect.get_effects = function(callback) {
 
   // TODO: Eh, for now assume all effects are located here...
   walk(localStorage.mod_path + '\\data\\effects', function(error) {
-    if(error) {
+    if (error) {
       throw error;
     }
     callback(effects);
   });
-}
+};

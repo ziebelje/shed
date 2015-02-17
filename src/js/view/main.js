@@ -1,10 +1,26 @@
+
+
+
+/**
+ * Main
+ *
+ * @constructor
+ */
 shed.view.main = function() {
   shed.view.apply(this, arguments);
-}
+};
 $.inherits(shed.view.main, shed.view);
 
+
+/**
+ * Decorate.
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
 shed.view.main.prototype.decorate_ = function(parent) {
-  if(localStorage.path === undefined || $.trim(localStorage.path) === '') {
+  if (localStorage.path === undefined || $.trim(localStorage.path) === '') {
     this.guess_path_();
   }
 
@@ -50,6 +66,8 @@ shed.view.main.prototype.decorate_ = function(parent) {
 /**
  * Try and guess where the Stonehearth folder is at. If this cannot be
  * guessed, the user will have to manually enter this value in.
+ *
+ * @private
  */
 shed.view.main.prototype.guess_path_ = function() {
   var fs = require('fs');
@@ -63,13 +81,13 @@ shed.view.main.prototype.guess_path_ = function() {
   ];
 
   // Pick the first detected path.
-  for(var i = 0; i < possible_paths.length; i++) {
+  for (var i = 0; i < possible_paths.length; i++) {
     try {
       fs.readdirSync(possible_paths[i]);
       localStorage.path = possible_paths[i];
       localStorage.mod_path = possible_paths[i] + '\\mods\\stonehearth'; // TODO: For now...
       return;
     }
-    catch(e) {}
+    catch (e) {}
   }
 };

@@ -1,5 +1,10 @@
+
+
+
 /**
  * Effect editor.
+ *
+ * @constructor
  */
 shed.view.effect_editor = function() {
   // TODO: Sky color (night/day/specific time of night/day)
@@ -31,7 +36,7 @@ shed.view.effect_editor = function() {
 
   this.current_name_ = $.createElement('h3').addClass('current_name');
   shed.view.apply(this, arguments);
-}
+};
 $.inherits(shed.view.effect_editor, shed.view);
 
 
@@ -39,6 +44,8 @@ $.inherits(shed.view.effect_editor, shed.view);
  * Title of this view.
  *
  * @type {string}
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.title_ = 'Effect Editor';
 
@@ -47,6 +54,8 @@ shed.view.effect_editor.prototype.title_ = 'Effect Editor';
  * WebGL component.
  *
  * @type {shed.component.webgl}
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.webgl_;
 
@@ -55,6 +64,8 @@ shed.view.effect_editor.prototype.webgl_;
  * The terrain group.
  *
  * @type {Three.Object3D}
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.scene_terrain_;
 
@@ -63,6 +74,8 @@ shed.view.effect_editor.prototype.scene_terrain_;
  * The x, y, z axis group.
  *
  * @type {Three.Object3D}
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.scene_axis_;
 
@@ -71,6 +84,8 @@ shed.view.effect_editor.prototype.scene_axis_;
  * A container for the name of the currently loaded effect.
  *
  * @type {rocket.Elements}
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.current_name_;
 
@@ -79,6 +94,8 @@ shed.view.effect_editor.prototype.current_name_;
  * Whether or not to display the emitter on each cubemitter.
  *
  * @type {boolean}
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.display_emitter_;
 
@@ -87,6 +104,8 @@ shed.view.effect_editor.prototype.display_emitter_;
  * Decorate the view.
  *
  * @param {rocket.Elements} parent
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.decorate_ = function(parent) {
   var self = this;
@@ -139,6 +158,8 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
  * Decorate the previewer toolabr
  *
  * @param {rocket.Elements} parent
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var self = this;
@@ -190,13 +211,15 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   toolbar.appendChild(toggle_emitter_container);
 
   parent.appendChild(toolbar);
-}
+};
 
 
 /**
  * Decorate the effect list.
  *
  * @param {rocket.Elements} parent
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
   var self = this;
@@ -207,20 +230,20 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
       .style({'width': '100%', 'cursor': 'pointer'});
 
 
-    for(var i = 0; i < effects.length; i++) {
+    for (var i = 0; i < effects.length; i++) {
       var tracks = effects[i].get_tracks();
 
       // Hide effects with no tracks or no supported tracks. TODO: Once I add
       // support for more track types I may just expose everything and disable
       // certain things.
       var effect_supported = false;
-      for(var j = 0; j < tracks.length; j++) {
-        if(tracks[j].attributes.type === 'cubemitter') {
+      for (var j = 0; j < tracks.length; j++) {
+        if (tracks[j].attributes.type === 'cubemitter') {
           effect_supported = true;
           break;
         }
       }
-      if(effect_supported === false) {
+      if (effect_supported === false) {
         continue;
       }
 
@@ -229,7 +252,7 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
         $.createElement('h3').innerHTML(effects[i].get_name())
       );
 
-      for(var j = 0; j < tracks.length; j++) {
+      for (var j = 0; j < tracks.length; j++) {
         table.td(0, k).appendChild(
           $.createElement('div')
             .style('margin-left', '20px')
@@ -239,7 +262,7 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
 
       (function(effect) {
         table.td(0, k).addEventListener('click', function() {
-          if(self.effect_) {
+          if (self.effect_) {
             self.effect_.dispose();
             // TODO: The effects are switching but when I go back to an already opened one it's like it's been playing for a while...
           }
@@ -251,7 +274,7 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
       })(effects[i]);
 
       // TODO Temporary auto-load of the effect I want.
-      if(effects[i].get_name() === 'firepit_effect') {
+      if (effects[i].get_name() === 'firepit_effect') {
       // if(effects[i].get_name() === 'talisman_glow') {
         table.td(0, k).dispatchEvent('click');
       }
@@ -283,9 +306,11 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
  * Call the update function on the currently loaded effect.
  *
  * @param {number} dt Time since last update (ms)
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.update_ = function(dt) {
-  if(this.effect_) {
+  if (this.effect_) {
     this.effect_.update(dt);
   }
 };
@@ -295,9 +320,11 @@ shed.view.effect_editor.prototype.update_ = function(dt) {
  * Toggle the terrain on/off.
  *
  * @param {boolean} display
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
-  if(!this.scene_terrain_) {
+  if (!this.scene_terrain_) {
     this.scene_terrain_ = new THREE.Object3D();
 
     // Grass
@@ -341,9 +368,11 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
  * Toggle the axis on/off.
  *
  * @param {boolean} display
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
-  if(!this.scene_axis_) {
+  if (!this.scene_axis_) {
     this.scene_axis_ = new THREE.Object3D();
 
     var geometry, material, line, map, sprite;
@@ -397,30 +426,34 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
   }
 
   this.scene_axis_.visible = display;
-}
+};
 
 
 /**
  * Toggle the cubemitter emitter on/off.
  *
  * @param {boolean} display
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
   this.display_emitter_ = display;
-  if(this.effect_) {
+  if (this.effect_) {
     var tracks = this.effect_.get_tracks();
-    for(var i = 0; i < tracks.length; i++) {
-      if(tracks[i].attributes.type === 'cubemitter') {
+    for (var i = 0; i < tracks.length; i++) {
+      if (tracks[i].attributes.type === 'cubemitter') {
         tracks[i].object.toggle_emitter(display);
       }
     }
   }
-}
+};
 
 
 /**
  * Dispose of this view by stopping the webgl component. This will cancel all
  * updates and requestAnimationFrames.
+ *
+ * @private
  */
 shed.view.effect_editor.prototype.dispose_ = function() {
   this.webgl_.stop();

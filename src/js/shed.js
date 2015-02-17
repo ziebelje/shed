@@ -22,15 +22,15 @@ shed.read_file = function(file) {
   try {
     var fs = require('fs');
     var contents = fs.readFileSync(file);
-    if(file.substr(-5) === '.json') {
+    if (file.substr(-5) === '.json') {
       contents = JSON.parse(contents);
     }
     return contents;
   }
-  catch(e) {
+  catch (e) {
     return null;
   }
-}
+};
 
 
 /**
@@ -46,4 +46,4 @@ shed.watch_file = function(file, callback) {
   return fs.watch(file, {}, $.debounce(100, function() {
     callback();
   }));
-}
+};

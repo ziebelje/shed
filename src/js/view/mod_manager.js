@@ -1,11 +1,42 @@
+
+
+
+/**
+ * Mod manager
+ *
+ * @constructor
+ */
 shed.view.mod_manager = function() {
   shed.view.apply(this, arguments);
-}
+};
 $.inherits(shed.view.mod_manager, shed.view);
 
+
+/**
+ * Mod list
+ *
+ * @private
+ */
 shed.view.mod_manager.prototype.mods_;
+
+
+/**
+ * Title
+ *
+ * @type {string}
+ *
+ * @private
+ */
 shed.view.mod_manager.prototype.title_ = 'Manage Mods';
 
+
+/**
+ * Decorate
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
 shed.view.mod_manager.prototype.decorate_ = function(parent) {
   var self = this;
 
@@ -13,7 +44,7 @@ shed.view.mod_manager.prototype.decorate_ = function(parent) {
 
   var mods_table = $.createElement('div').addClass('mods_table');
 
-  if(this.mods_.length > 0) {
+  if (this.mods_.length > 0) {
     this.decorate_mods_table_(mods_table);
   }
   else {
@@ -23,8 +54,16 @@ shed.view.mod_manager.prototype.decorate_ = function(parent) {
   parent.appendChild(mods_table);
 
   this.decorate_path_(parent);
-}
+};
 
+
+/**
+ * Decorate list of mods.
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
 shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   var self = this;
 
@@ -43,44 +82,44 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
 
   table.fill_row(0, [null, 'SMOD', 'Unpacked', 'Enabled']);
 
-  for(var i = 0; i < this.mods_.length; ++i) {
+  for (var i = 0; i < this.mods_.length; ++i) {
     table.td(0, i + 1)
       .style({'text-overflow': 'ellipsis', 'white-space': 'nowrap', 'overflow': 'hidden'})
-      .innerHTML(this.mods_[i].get_name())
-    ;
+      .innerHTML(this.mods_[i].get_name());
 
-    if(this.mods_[i].has_smod() === true) {
+
+    if (this.mods_[i].has_smod() === true) {
       var has_smod_green_check = $.createElement('img')
         .setAttribute('src', 'img/green_check.png')
-        .style('width', '45px')
-      ;
+        .style('width', '45px');
+
       table.td(1, i + 1)
         .style('text-align', 'center')
-        .appendChild(has_smod_green_check)
-      ;
+        .appendChild(has_smod_green_check);
+
     }
 
-    if(this.mods_[i].has_directory() === true) {
+    if (this.mods_[i].has_directory() === true) {
       var has_directory_green_check = $.createElement('img')
         .setAttribute('src', 'img/green_check.png')
-        .style('width', '45px')
-      ;
+        .style('width', '45px');
+
       table.td(2, i + 1)
         .style('text-align', 'center')
-        .appendChild(has_directory_green_check)
-      ;
+        .appendChild(has_directory_green_check);
+
     }
 
     var enabled_checkbox = $.createElement('input')
       .setAttribute('type', 'checkbox')
       .addClass(['checkbox', 'enabled_checkbox'])
-      .dataset('mod_id', i)
-    ;
+      .dataset('mod_id', i);
+
     table.td(3, i + 1)
       .style('text-align', 'center')
-      .appendChild(enabled_checkbox)
-    ;
-    if(this.mods_[i].is_enabled() === true) {
+      .appendChild(enabled_checkbox);
+
+    if (this.mods_[i].is_enabled() === true) {
       enabled_checkbox.checked(true);
     }
 
@@ -88,13 +127,13 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
       .innerHTML('SMOD')
       .style('margin-right', '5px')
       .addClass('pack_button')
-      .dataset('mod_id', i)
-    ;
+      .dataset('mod_id', i);
+
     var unpack_button = $.createElement('button')
       .innerHTML('Unpack')
       .dataset('mod_id', i)
-      .addClass('unpack_button')
-    ;
+      .addClass('unpack_button');
+
 
     table.td(4, i + 1).style('text-align', 'right').appendChild(pack_button);
     table.td(4, i + 1).style('text-align', 'right').appendChild(unpack_button);
@@ -103,7 +142,7 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   table.table().live('.enabled_checkbox', 'change', function() {
     var enabled_checkbox = $(this);
     var mod_id = enabled_checkbox.dataset('mod_id');
-    if(enabled_checkbox.checked() === true) {
+    if (enabled_checkbox.checked() === true) {
       self.mods_[mod_id].enable();
     }
     else {
@@ -124,8 +163,16 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   });
 
   parent.appendChild(table.table());
-}
+};
 
+
+/**
+ * Decorate list of mods if there are none.
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
 shed.view.mod_manager.prototype.decorate_empty_mods_table_ = function(parent) {
   var container = $.createElement('div').style('text-align', 'center');
   var none_icon = $.createElement('img')
@@ -133,8 +180,16 @@ shed.view.mod_manager.prototype.decorate_empty_mods_table_ = function(parent) {
   container.appendChild(none_icon);
   container.appendChild($.createElement('h2').innerHTML('No mods found'));
   parent.appendChild(container);
-}
+};
 
+
+/**
+ * Decorate the mod path at the bottom of the window.
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
 shed.view.mod_manager.prototype.decorate_path_ = function(parent) {
   var path_table = new jex.table({'rows': 1, 'columns': 2});
   path_table.table().style('width', '100%');
@@ -158,8 +213,16 @@ shed.view.mod_manager.prototype.decorate_path_ = function(parent) {
   });
 
   parent.appendChild(path_table.table());
-}
+};
 
+
+/**
+ * Get a list of mods currently available in the mods folder.
+ *
+ * @return {Array.<shed.mod>}
+ *
+ * @private
+ */
 shed.view.mod_manager.prototype.get_mods_ = function() {
   var fs = require('fs');
 
@@ -170,25 +233,25 @@ shed.view.mod_manager.prototype.get_mods_ = function() {
   try {
     var file_entries = fs.readdirSync(localStorage.path + '\\mods');
   }
-  catch(e) {
+  catch (e) {
     return [];
   }
-  for(var i = 0; i < file_entries.length; i++) {
+  for (var i = 0; i < file_entries.length; i++) {
     mod_names.push(file_entries[i].replace('.smod', '').replace('.disabled', ''));
   }
   mod_names = $.unique(mod_names);
 
-  for(var i = 0; i < mod_names.length; ++i) {
+  for (var i = 0; i < mod_names.length; ++i) {
     var mod = new shed.mod(mod_names[i]);
     mods.push(mod);
   }
 
   // Sort the mods and stick stonehearth/radiant up top.
   mods.sort(function(a, b) {
-    if(b.get_name() === 'stonehearth') {
+    if (b.get_name() === 'stonehearth') {
       return 3;
     }
-    else if(b.get_name() === 'radiant') {
+    else if (b.get_name() === 'radiant') {
       return 2;
     }
     else {
@@ -197,4 +260,4 @@ shed.view.mod_manager.prototype.get_mods_ = function() {
   });
 
   return mods;
-}
+};

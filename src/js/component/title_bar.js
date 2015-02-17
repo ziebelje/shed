@@ -1,9 +1,29 @@
+
+
+
+/**
+ * Title bar that acts as the window drag handle and container for minimize,
+ * close.
+ *
+ * @param {string} title The title to display. Each view needs to set a
+ * private title_ property.
+ *
+ * @constructor
+ */
 shed.component.title_bar = function(title) {
   this.title_ = title;
   shed.component.apply(this, arguments);
-}
+};
 $.inherits(shed.component.title_bar, shed.component);
 
+
+/**
+ * Decorate
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
 shed.component.title_bar.prototype.decorate_ = function(parent) {
   var table = new jex.table({'rows': 1, 'columns': 3});
   table.table().style('width', '100%');
@@ -41,14 +61,13 @@ shed.component.title_bar.prototype.decorate_ = function(parent) {
   table.td(0, 0).appendChild(back);
 
   var title = $.createElement('span').innerHTML('SHED (Unofficial)' + ((this.title_) ? ' - ' + this.title_ : ''));
-  table.td(1, 0).appendChild(title);;
+  table.td(1, 0).appendChild(title);
 
   table.td(2, 0).style('text-align', 'right');
   table.td(2, 0).appendChild(refresh);
   table.td(2, 0).appendChild(dev_tools);
   table.td(2, 0).appendChild(minimize);
   table.td(2, 0).appendChild(close);
-
 
   var title_bar = $.createElement('div').addClass('title_bar');
   title_bar.appendChild(table.table());

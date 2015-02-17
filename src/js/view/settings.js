@@ -1,11 +1,34 @@
 
+
+
+/**
+ * SHED Settings.
+ *
+ * @constructor
+ */
 shed.view.settings = function() {
   shed.view.apply(this, arguments);
-}
+};
 $.inherits(shed.view.settings, shed.view);
 
+
+/**
+ * View title.
+ *
+ * @type {string}
+ *
+ * @private
+ */
 shed.view.settings.prototype.title_ = 'Settings';
 
+
+/**
+ * Decorate
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
 shed.view.settings.prototype.decorate_ = function(parent) {
   var self = this;
 
@@ -19,7 +42,7 @@ shed.view.settings.prototype.decorate_ = function(parent) {
     .addClass('settings_path')
     .value(localStorage.path)
     .setAttribute('type', 'text');
-  if(this.path_is_valid_() === true) {
+  if (this.path_is_valid_() === true) {
     path_input.addClass('settings_path_valid');
   }
   else {
@@ -49,11 +72,20 @@ shed.view.settings.prototype.decorate_ = function(parent) {
   parent.appendChild(path_table.table());
 };
 
+
+/**
+ * Return whether or not an installation path is valid by checking for the
+ * presence of Stonehearth.exe.
+ *
+ * @return {boolean}
+ *
+ * @private
+ */
 shed.view.settings.prototype.path_is_valid_ = function() {
   try {
     var fs = require('fs');
     var files = fs.readdirSync(localStorage.path);
-    if($.indexOf(files, 'Stonehearth.exe') === -1) {
+    if ($.indexOf(files, 'Stonehearth.exe') === -1) {
       // Stonehearth.exe does not exist inside directory
       return false;
     }
@@ -61,8 +93,8 @@ shed.view.settings.prototype.path_is_valid_ = function() {
       return true;
     }
   }
-  catch(e) {
+  catch (e) {
     // Could not read directory
     return false;
   }
-}
+};

@@ -1,7 +1,7 @@
 /**
  * A group of elements that serves a specific purpose.
  */
-shed.component = function() {}
+shed.component = function() {};
 $.inherits(shed.component, rocket.EventTarget);
 
 
@@ -23,7 +23,7 @@ shed.component.prototype.render = function(parent) {
   this.container_ = container;
   this.decorate_(container);
   parent.appendChild(container);
-}
+};
 
 
 /**
@@ -36,7 +36,7 @@ shed.component.prototype.render_replace = function() {
   this.decorate_(new_container);
   parent.replaceChild(new_container, old_container);
   this.container_ = new_container;
-}
+};
 
 
 /**
@@ -44,4 +44,4 @@ shed.component.prototype.render_replace = function() {
  */
 shed.component.prototype.dispose = function() {
   this.container_.parentNode().removeChild(this.container_);
-}
+};

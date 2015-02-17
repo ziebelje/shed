@@ -52,7 +52,7 @@ shed.cubemitter.prototype.load_ = function() {
   this.apply_transforms_(); // TODO: JUST TESTING SOMETHING
 
   this.data_ = shed.read_file(this.file_);
-}
+};
 
 /**
  * How many cubes can be present in a cubemitter at any given time.
@@ -102,7 +102,7 @@ shed.cubemitter.prototype.set_scene = function(scene) {
   this.watch_();
   this.scene_ = scene;
   this.scene_.add(this.group_);
-}
+};
 
 
 /**
@@ -135,7 +135,7 @@ shed.cubemitter.prototype.apply_transforms_ = function() {
   this.group_.position.x = this.transforms_.x;
   this.group_.position.y = this.transforms_.y;
   this.group_.position.z = this.transforms_.z;
-}
+};
 
 
 // determine whether or not a new cube needs created
@@ -148,8 +148,8 @@ shed.cubemitter.prototype.update_create_ = function(dt) {
   var particles_to_create = dt / 1000 * emission_rate;
   // particles_to_create = 0;
 
-  while(particles_to_create-- > 0) { // TODO: needs more testing
-    if(
+  while (particles_to_create-- > 0) { // TODO: needs more testing
+    if (
       this.dt_cube_ >= (1000 / emission_rate) && // Don't create new cubes until enough time has passed.
       this.cubes_.children.length < shed.cubemitter.cube_limit_ && // Stop creating new cubes if the cubemitter cube limit is reached.
       (this.dt_system_ < this.data_.duration * 1000) // Stop creating new cubes when the cubemitter duration is up.
@@ -205,15 +205,15 @@ shed.cubemitter.prototype.update_create_ = function(dt) {
       this.cubes_.add(cube);
     }
   }
-}
+};
 
 // update all existing cubes
 shed.cubemitter.prototype.update_move_ = function(dt) {
-  for(var i = this.cubes_.children.length - 1; i >= 0; i--) {
+  for (var i = this.cubes_.children.length - 1; i >= 0; i--) {
     this.cubes_.children[i].userData.age += (dt / 1000);
 
     // Remove anything that has aged out.
-    if(this.cubes_.children[i].userData.age >= this.cubes_.children[i].userData.lifetime) {
+    if (this.cubes_.children[i].userData.age >= this.cubes_.children[i].userData.lifetime) {
       this.cubes_.children[i].geometry.dispose();
       this.cubes_.children[i].material.dispose();
       this.cubes_.remove(this.cubes_.children[i]);
@@ -223,25 +223,25 @@ shed.cubemitter.prototype.update_move_ = function(dt) {
     var age_percent = this.cubes_.children[i].userData.age / this.cubes_.children[i].userData.lifetime;
 
     // Color
-    if(this.data_.particle.color.over_lifetime_r) {
+    if (this.data_.particle.color.over_lifetime_r) {
       var color_r = this[this.data_.particle.color.over_lifetime_r.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_r.values, age_percent, this.cubes_.children[i].userData.random);
       this.cubes_.children[i].material.color.r = color_r;
     }
-    if(this.data_.particle.color.over_lifetime_g) {
+    if (this.data_.particle.color.over_lifetime_g) {
       var color_g = this[this.data_.particle.color.over_lifetime_g.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_g.values, age_percent, this.cubes_.children[i].userData.random);
       this.cubes_.children[i].material.color.g = color_g;
     }
-    if(this.data_.particle.color.over_lifetime_b) {
+    if (this.data_.particle.color.over_lifetime_b) {
       var color_b = this[this.data_.particle.color.over_lifetime_b.kind.toLowerCase() + '_']('particle.color', this.data_.particle.color.over_lifetime_b.values, age_percent, this.cubes_.children[i].userData.random);
       this.cubes_.children[i].material.color.b = color_b;
     }
-    if(this.data_.particle.color.over_lifetime_a) {
+    if (this.data_.particle.color.over_lifetime_a) {
       var color_a = this[this.data_.particle.color.over_lifetime_a.kind.toLowerCase() + '_']('particle.opacity', this.data_.particle.color.over_lifetime_a.values, age_percent, this.cubes_.children[i].userData.random);
       this.cubes_.children[i].material.opacity = color_a;
     }
 
     // Scale
-    if(this.data_.particle.scale.over_lifetime) {
+    if (this.data_.particle.scale.over_lifetime) {
       var scale = this[this.data_.particle.scale.over_lifetime.kind.toLowerCase() + '_']('particle.scale', this.data_.particle.scale.over_lifetime.values, age_percent, this.cubes_.children[i].userData.random);
       this.cubes_.children[i].scale.x = scale;
       this.cubes_.children[i].scale.y = scale;
@@ -249,23 +249,23 @@ shed.cubemitter.prototype.update_move_ = function(dt) {
     }
 
     // Rotation
-    if(this.data_.particle.rotation) {
-      if(this.data_.particle.rotation.over_lifetime_x) {
+    if (this.data_.particle.rotation) {
+      if (this.data_.particle.rotation.over_lifetime_x) {
         var rotation_x = this[this.data_.particle.rotation.over_lifetime_x.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_x.values, age_percent, this.cubes_.children[i].userData.random);
         this.cubes_.children[i].rotation.x = rotation_x;
       }
-      if(this.data_.particle.rotation.over_lifetime_y) {
+      if (this.data_.particle.rotation.over_lifetime_y) {
         var rotation_y = this[this.data_.particle.rotation.over_lifetime_y.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_y.values, age_percent, this.cubes_.children[i].userData.random);
         this.cubes_.children[i].rotation.y = rotation_y;
       }
-      if(this.data_.particle.rotation.over_lifetime_z) {
+      if (this.data_.particle.rotation.over_lifetime_z) {
         var rotation_z = this[this.data_.particle.rotation.over_lifetime_z.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_z.values, age_percent, this.cubes_.children[i].userData.random);
         this.cubes_.children[i].rotation.z = rotation_z;
       }
     }
 
     // Speed
-    if(this.data_.particle.speed.over_lifetime) {
+    if (this.data_.particle.speed.over_lifetime) {
       var speed_factor = this[this.data_.particle.speed.over_lifetime.kind.toLowerCase() + '_']('particle.speed', this.data_.particle.speed.over_lifetime.values, age_percent, this.cubes_.children[i].userData.random);
     } else {
       var speed_factor = 1;
@@ -280,16 +280,16 @@ shed.cubemitter.prototype.update_move_ = function(dt) {
 
     // TODO
     // Now alter the velocity over time if provided.
-    if(this.data_.particle.velocity) {
-      if(this.data_.particle.velocity.over_lifetime_x) {
+    if (this.data_.particle.velocity) {
+      if (this.data_.particle.velocity.over_lifetime_x) {
         velocity_x += this[this.data_.particle.velocity.over_lifetime_x.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_x.values, age_percent, this.cubes_.children[i].userData.random);
         // this.cubes_.children[i].userData.velocity.x = velocity_x;
       }
-      if(this.data_.particle.velocity.over_lifetime_y) {
+      if (this.data_.particle.velocity.over_lifetime_y) {
         velocity_y += this[this.data_.particle.velocity.over_lifetime_y.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_y.values, age_percent, this.cubes_.children[i].userData.random);
         // this.cubes_.children[i].userData.velocity.y = velocity_y;
       }
-      if(this.data_.particle.velocity.over_lifetime_z) {
+      if (this.data_.particle.velocity.over_lifetime_z) {
         velocity_z += this[this.data_.particle.velocity.over_lifetime_z.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_z.values, age_percent, this.cubes_.children[i].userData.random);
         // this.cubes_.children[i].userData.velocity.z = velocity_z;
       }
@@ -300,7 +300,7 @@ shed.cubemitter.prototype.update_move_ = function(dt) {
     this.cubes_.children[i].position.z += dt / 1000 * (velocity_z);
   }
 
-}
+};
 
 
 /**
@@ -313,7 +313,7 @@ shed.cubemitter.prototype.update_move_ = function(dt) {
  * @return {number|THREE.Color}
  */
 shed.cubemitter.prototype.constant_ = function(type, values) {
-  switch(type) {
+  switch (type) {
     case 'particle.color':
       return new THREE.Color(values[0], values[1], values[2]);
     break;
@@ -345,7 +345,7 @@ shed.cubemitter.prototype.constant_ = function(type, values) {
  * @return {number}
  */
 shed.cubemitter.prototype.random_between_ = function(type, values) {
-  switch(type) {
+  switch (type) {
     case 'particle.color':
       return new THREE.Color(
         Math.random() * (values[0][0] - values[1][0]) + values[1][0],
@@ -354,7 +354,7 @@ shed.cubemitter.prototype.random_between_ = function(type, values) {
       );
     break;
     case 'particle.opacity':
-      return Math.random() * (values[0][3] - values[1][3]) + values[1][3]
+      return Math.random() * (values[0][3] - values[1][3]) + values[1][3];
     break;
     case 'particle.scale':
     case 'particle.lifetime':
@@ -382,7 +382,7 @@ shed.cubemitter.prototype.random_between_ = function(type, values) {
  * @return {number}
  */
 shed.cubemitter.prototype.curve_ = function(type, values, t) {
-  switch(type) {
+  switch (type) {
     case 'emission.rate':
     case 'emission.angle':
     case 'particle.lifetime':
@@ -414,7 +414,7 @@ shed.cubemitter.prototype.curve_ = function(type, values, t) {
  * @return {number}
  */
 shed.cubemitter.prototype.random_between_curves_ = function(type, values, t, random) {
-  switch(type) {
+  switch (type) {
     case 'emission.rate':
     case 'emission.angle':
     case 'particle.color':
@@ -445,12 +445,12 @@ shed.cubemitter.prototype.random_between_curves_ = function(type, values, t, ran
  * desired plane.
  */
 shed.cubemitter.prototype.rectangle_ = function(type, values) {
-  switch(type) {
+  switch (type) {
     case 'emission.origin':
-      if(!this.emitter_.userData.added) {
+      if (!this.emitter_.userData.added) {
         this.emitter_.userData.added = true;
         this.emitter_.geometry = new THREE.BoxGeometry(values[1], values[0], 0);
-        this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true})
+        this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true});
 
         // Rotate the emitter.
         // http://stackoverflow.com/a/17647308
@@ -496,10 +496,10 @@ shed.cubemitter.prototype.rectangle_ = function(type, values) {
  * plane.
  */
 shed.cubemitter.prototype.point_ = function(type, values) {
-  if(!this.emitter_.userData.added) {
+  if (!this.emitter_.userData.added) {
     this.emitter_.userData.added = true;
     this.emitter_.geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2),
-    this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true})
+    this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true});
   }
 
   return {'x': 0, 'y': 0, 'z': 0};
@@ -513,8 +513,8 @@ shed.cubemitter.prototype.evaluate_curve_ = function(curve, t) {
   clone_curve.push([10, 0]); // TODO: Not really liking this...
 
   var x, y, x0, x1, y0, y1;
-  for(var i = 0; i < clone_curve.length; i++) {
-    if(t >= clone_curve[i][0] && t < clone_curve[i + 1][0]) {
+  for (var i = 0; i < clone_curve.length; i++) {
+    if (t >= clone_curve[i][0] && t < clone_curve[i + 1][0]) {
       x0 = clone_curve[i][0];
       x1 = clone_curve[i + 1][0];
       y0 = clone_curve[i][1];
@@ -540,7 +540,7 @@ shed.cubemitter.prototype.watch_ = function() {
   });
 
   // this.watcher_ = shed.watch_file(this.file_, this.load_.bind(this));
-}
+};
 
 
 /**
@@ -555,7 +555,7 @@ shed.cubemitter.prototype.dispose = function() {
 
   // Remove all particles from the group and then remove the group from the
   // scene.
-  for(var i = this.cubes_.children.length - 1; i >= 0; i--) {
+  for (var i = this.cubes_.children.length - 1; i >= 0; i--) {
     this.cubes_.children[i].geometry.dispose();
     this.cubes_.children[i].material.dispose();
     this.cubes_.remove(this.cubes_.children[i]);
@@ -564,8 +564,8 @@ shed.cubemitter.prototype.dispose = function() {
   this.scene_.remove(this.group_);
 
   this.scene_ = null;
-}
+};
 
 shed.cubemitter.prototype.toggle_emitter = function(display) {
   this.emitter_.visible = display;
-}
+};

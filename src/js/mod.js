@@ -1,3 +1,17 @@
+
+
+
+/**
+ * A mod.
+ *
+ * @param {string} name The name of the mod.
+ *
+ * TODO: Probably create this using a file path instead of a name and then get
+ * all of the attributes that way. That's how the new effects/cubemitters
+ * work.
+ *
+ * @constructor
+ */
 shed.mod = function(name) {
   this.name_ = name;
 };
@@ -27,8 +41,8 @@ shed.mod.prototype.get_name = function() {
  * @param {Function} callback
  */
 shed.mod.prototype.pack = function(callback) {
-  if(this.is_disabled() === true) {
-    throw "disable this";
+  if (this.is_disabled() === true) {
+    throw 'disable this';
   }
 
   var folder_name = localStorage.path + '\\mods\\' + this.name_;
@@ -68,8 +82,8 @@ shed.mod.prototype.pack = function(callback) {
  * @param {Function} callback
  */
 shed.mod.prototype.unpack = function(callback) {
-  if(this.is_disabled() === true) {
-    throw "disable this";
+  if (this.is_disabled() === true) {
+    throw 'disable this';
   }
 
   var folder_name = localStorage.path + '\\mods\\';
@@ -110,8 +124,8 @@ shed.mod.prototype.enable = function() {
   var fs = require('fs');
   var file_entries = this.get_file_entries_();
 
-  for(var i = 0; i < file_entries.length; i++) {
-    if(file_entries[i].substr(-9) === '.disabled') {
+  for (var i = 0; i < file_entries.length; i++) {
+    if (file_entries[i].substr(-9) === '.disabled') {
       var old_name = localStorage.path + '\\mods\\' + file_entries[i];
       var new_name = localStorage.path + '\\mods\\' + file_entries[i].replace('.disabled', '');
       fs.renameSync(old_name, new_name);
@@ -128,8 +142,8 @@ shed.mod.prototype.disable = function() {
   var fs = require('fs');
   var file_entries = this.get_file_entries_();
 
-  for(var i = 0; i < file_entries.length; i++) {
-    if(file_entries[i].substr(-9) !== '.disabled') {
+  for (var i = 0; i < file_entries.length; i++) {
+    if (file_entries[i].substr(-9) !== '.disabled') {
       var old_name = localStorage.path + '\\mods\\' + file_entries[i];
       var new_name = localStorage.path + '\\mods\\' + file_entries[i] + '.disabled';
       fs.renameSync(old_name, new_name);
@@ -149,8 +163,8 @@ shed.mod.prototype.disable = function() {
 shed.mod.prototype.is_disabled = function() {
   var file_entries = this.get_file_entries_();
 
-  for(var i = 0; i < file_entries.length; i++) {
-    if(file_entries[i].substr(-9) !== '.disabled') {
+  for (var i = 0; i < file_entries.length; i++) {
+    if (file_entries[i].substr(-9) !== '.disabled') {
       return false;
     }
   }
@@ -167,7 +181,7 @@ shed.mod.prototype.is_disabled = function() {
  */
 shed.mod.prototype.is_enabled = function() {
   return !this.is_disabled();
-}
+};
 
 
 /**
@@ -179,9 +193,9 @@ shed.mod.prototype.has_directory = function() {
   var fs = require('fs');
   var file_entries = this.get_file_entries_();
 
-  for(var i = 0; i < file_entries.length; i++) {
+  for (var i = 0; i < file_entries.length; i++) {
     var stat = fs.statSync(localStorage.path + '\\mods\\' + file_entries[i]);
-    if(stat.isDirectory() === true) {
+    if (stat.isDirectory() === true) {
       return true;
     }
   }
@@ -199,9 +213,9 @@ shed.mod.prototype.has_smod = function() {
   var fs = require('fs');
   var file_entries = this.get_file_entries_();
 
-  for(var i = 0; i < file_entries.length; i++) {
+  for (var i = 0; i < file_entries.length; i++) {
     var stat = fs.statSync(localStorage.path + '\\mods\\' + file_entries[i]);
-    if(stat.isFile() === true && file_entries[i].indexOf('.smod') !== -1) {
+    if (stat.isFile() === true && file_entries[i].indexOf('.smod') !== -1) {
       return true;
     }
   }
@@ -219,6 +233,8 @@ shed.mod.prototype.has_smod = function() {
  * mod.smod
  * mod.smod.disabled
  *
+ * @private
+ *
  * @return {Array.<string>}
  */
 shed.mod.prototype.get_file_entries_ = function() {
@@ -226,8 +242,8 @@ shed.mod.prototype.get_file_entries_ = function() {
   var all_file_entries = fs.readdirSync(localStorage.path + '\\mods');
 
   var file_entries = [];
-  for(var i = 0; i < all_file_entries.length; i++) {
-    if(
+  for (var i = 0; i < all_file_entries.length; i++) {
+    if (
       all_file_entries[i] === this.name_ ||
       all_file_entries[i] === this.name_ + '.disabled' ||
       all_file_entries[i] === this.name_ + '.smod' ||
@@ -238,4 +254,4 @@ shed.mod.prototype.get_file_entries_ = function() {
   }
 
   return file_entries;
-}
+};

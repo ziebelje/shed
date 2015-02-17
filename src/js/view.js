@@ -1,9 +1,14 @@
+
+
+
 /**
  * A view is a representation of the entire page. It is composed of individual
  * elements or larger groups of elements called components. All child classes
  * should at the very least override the private decorate_() method which is
  * what should describe what goes on the page. Creating a new view will
  * automatically render it.
+ *
+ * @constructor
  */
 shed.view = function() {
   var self = this;
@@ -11,12 +16,12 @@ shed.view = function() {
   this.render_();
 
   // Call the dispose function on the view
-  if(shed.view.current_view_) {
+  if (shed.view.current_view_) {
     shed.view.current_view_.dispose_();
   }
 
   shed.view.current_view_ = this;
-}
+};
 $.inherits(shed.view, rocket.EventTarget);
 
 
@@ -38,15 +43,17 @@ shed.view.current_view_;
  * Create a container for the view and attach it to the body, replacing (if it
  * exists) the current view.
  *
- * @param {boolean} opt_keep_event_listeners If set to true, rendering this
+ * @param {boolean=} opt_keep_event_listeners If set to true, rendering this
  * view will not clear the event listeners. This should really only be used on
  * the loading screen because the loading view renders before the API call
  * returns, which would otherwise remove that event listener and then we would
  * be loading forever.
+ *
+ * @private
  */
 shed.view.prototype.render_ = function(opt_keep_event_listeners) {
   // Before rendering anything, remove all existing event listeners.
-  if(opt_keep_event_listeners !== true) {
+  if (opt_keep_event_listeners !== true) {
     $.EventTarget.removeAllEventListeners();
   }
 
@@ -60,7 +67,7 @@ shed.view.prototype.render_ = function(opt_keep_event_listeners) {
   this.decorate_(new_container);
 
   // Attach the new view to the body (replace the old one if it exists).
-  if(shed.view.current_container_) {
+  if (shed.view.current_container_) {
     $('body').replaceChild(new_container, shed.view.current_container_);
   }
   else {
@@ -76,7 +83,7 @@ shed.view.prototype.render_ = function(opt_keep_event_listeners) {
   // Dispatch the render event so subclasses can listen on this to do things
   // like focus inputs once the layer is rendered.
   this.dispatchEvent('render');
-}
+};
 
 
 /**
@@ -84,14 +91,18 @@ shed.view.prototype.render_ = function(opt_keep_event_listeners) {
  * calls this.
  *
  * @param {rocket.Elements} parent The element to decorate.
+ *
+ * @private
  */
 shed.view.prototype.decorate_ = function(parent) {
   parent.innerHTML('You need to override this function.');
-}
+};
 
 
 /**
  * Dispose the current view. Intended to be overridden; called when the view
  * is replaced.
+ *
+ * @private
  */
-shed.view.prototype.dispose_ = function() {}
+shed.view.prototype.dispose_ = function() {};
