@@ -1,42 +1,68 @@
 shed.view.effect_editor = function() {
-
-  // TODO: add controls for showing/hiding terrain, changing backterrain colors, etc
-
-  // TODO: Emission angle appears to control the angle the particles emit at.
-  // 360 means a particle will be created and then have an initial direction
-  // of...anything.
-
-  // TODO: controls for playback in order to view effects that don't loop
-
-  // TODO: Add mod switcher
-  // TODO: Add a way to record a gif?
-  // TODO: Import QB files
-  // TODO: Game speed controller?
-
-  this.cubemitter_ = {
-    'data': null,
-    'dt': 0,
-    'group': new THREE.Object3D()
-  };
-
+  // TODO: Sky color (night/day/specific time of night/day)
+  // TODO: Playback controls for each effect. Repeat, repeat delay, play pause, playback speed (2x, normal to mimic game)
+  // TODO: GIF recording?
+  // TODO: Load up any entity
 
   this.current_name_ = $.createElement('h3').addClass('current_name');
-
-  // For now...
   shed.view.apply(this, arguments);
 }
 $.inherits(shed.view.effect_editor, shed.view);
 
+
+/**
+ * Title of this view.
+ *
+ * @type {string}
+ */
 shed.view.effect_editor.prototype.title_ = 'Effect Editor';
-shed.view.effect_editor.prototype.cubemitter_;
+
+
+/**
+ * WebGL component.
+ *
+ * @type {shed.component.webgl}
+ */
 shed.view.effect_editor.prototype.webgl_;
-shed.view.effect_editor.prototype.watcher_;
+
+
+/**
+ * The terrain group.
+ *
+ * @type {Three.Group}
+ */
 shed.view.effect_editor.prototype.scene_terrain_;
+
+
+/**
+ * The x, y, z axis group.
+ *
+ * @type {Three.Group}
+ */
 shed.view.effect_editor.prototype.scene_axis_;
-shed.view.effect_editor.prototype.cube_limit_ = 100;
+
+
+/**
+ * A container for the name of the currently loaded effect.
+ *
+ * @type {rocket.Elements}
+ */
 shed.view.effect_editor.prototype.current_name_;
+
+
+/**
+ * Whether or not to display the emitter on each cubemitter.
+ *
+ * @type {boolean}
+ */
 shed.view.effect_editor.prototype.display_emitter_;
 
+
+/**
+ * Decorate the view.
+ *
+ * @param {rocket.Elements} parent
+ */
 shed.view.effect_editor.prototype.decorate_ = function(parent) {
   var self = this;
 
@@ -70,9 +96,8 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
   this.webgl_.get_camera().position.x = 12;
 
   this.scene_toggle_terrain_(true);
-  this.scene_toggle_axis_(true);
-  this.scene_toggle_emitter_(true);
-  this.webgl_.get_scene().add(this.cubemitter_.group);
+  this.scene_toggle_axis_(false);
+  this.scene_toggle_emitter_(false);
 
   // Canvas
   right.appendChild(well);
@@ -84,6 +109,12 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
   parent.appendChild(testing_this_container);
 };
 
+
+/**
+ * Decorate the previewer toolabr
+ *
+ * @param {rocket.Elements} parent
+ */
 shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var self = this;
 
@@ -112,7 +143,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_axis = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_axis')
-    .checked(true);
+    .checked(false);
   toggle_axis.addEventListener('change', function() {
     self.scene_toggle_axis_(toggle_axis.checked());
   });
@@ -126,7 +157,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_emitter = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_emitter')
-    .checked(true);
+    .checked(false);
   toggle_emitter.addEventListener('change', function() {
     self.scene_toggle_emitter_(toggle_emitter.checked());
   });
@@ -136,6 +167,12 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   parent.appendChild(toolbar);
 }
 
+
+/**
+ * Decorate the effect list.
+ *
+ * @param {rocket.Elements} parent
+ */
 shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
   var self = this;
 
@@ -189,8 +226,8 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
       })(effects[i]);
 
       // TODO Temporary auto-load of the effect I want.
-      // if(effects[i].get_name() === 'firepit_effect') {
-      if(effects[i].get_name() === 'talisman_glow') {
+      if(effects[i].get_name() === 'firepit_effect') {
+      // if(effects[i].get_name() === 'talisman_glow') {
         table.td(0, k).dispatchEvent('click');
       }
 
@@ -217,6 +254,11 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
 };
 
 
+/**
+ * Call the update function on the currently loaded effect.
+ *
+ * @param {number} dt Time since last update (ms)
+ */
 shed.view.effect_editor.prototype.update_ = function(dt) {
   if(this.effect_) {
     this.effect_.update(dt);
@@ -224,9 +266,14 @@ shed.view.effect_editor.prototype.update_ = function(dt) {
 };
 
 
+/**
+ * Toggle the terrain on/off.
+ *
+ * @param {boolean} display
+ */
 shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
   if(!this.scene_terrain_) {
-    this.scene_terrain_ = new THREE.Object3D();
+    this.scene_terrain_ = new THREE.Group();
 
     // Grass
     mesh = new THREE.Mesh(
@@ -264,9 +311,15 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
   this.scene_terrain_.visible = display;
 };
 
+
+/**
+ * Toggle the axis on/off.
+ *
+ * @param {boolean} display
+ */
 shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
   if(!this.scene_axis_) {
-    this.scene_axis_ = new THREE.Object3D();
+    this.scene_axis_ = new THREE.Group();
 
     var geometry, material, line, map, sprite;
 
@@ -321,9 +374,15 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
   this.scene_axis_.visible = display;
 }
 
+
+/**
+ * Toggle the cubemitter emitter on/off.
+ *
+ * @param {boolean} display
+ */
 shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
+  this.display_emitter_ = display;
   if(this.effect_) {
-    this.display_emitter_ = display;
     var tracks = this.effect_.get_tracks();
     for(var i = 0; i < tracks.length; i++) {
       if(tracks[i].attributes.type === 'cubemitter') {
@@ -333,6 +392,11 @@ shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
   }
 }
 
+
+/**
+ * Dispose of this view by stopping the webgl component. This will cancel all
+ * updates and requestAnimationFrames.
+ */
 shed.view.effect_editor.prototype.dispose_ = function() {
   this.webgl_.stop();
 };
