@@ -1,23 +1,8 @@
-// TODO: The Stonehearth JSON files (firepit_effect.json for example) have some
-// duplicate keys. This is technically legal but REALLY weird and JavaScript
-// won't decode that the same way the game does...I think tracks should be an
-// array, not an object. Or if it's an object the keys need unique names.
-
-// TODO:
-//
-// \data\effects\firepit_effect\firepit_effect.json
-//
-// POINTS TO A CUBEMITTER EFFECT AT
-//
-// "particles/fire/fire.cubemitter.json"
-//
-// This path is not relative to the current path.
-// This path is not an absolute path.
-//
-// Actual effect is located at
-//
-// \data\horde\particles\fire\fire.cubemitter.json
-
+/**
+ * An effect.
+ *
+ * @param {string} file The file describing this effect.
+ */
 shed.effect = function(file) {
   this.file_ = file;
 
@@ -32,7 +17,7 @@ shed.effect = function(file) {
           'name': name,
           'attributes': this.data_.tracks[name],
           'object': new shed.cubemitter({
-            'file': localStorage.mod_path + '\\data\\horde\\' + this.data_.tracks[name].cubemitter,  // TODO: I guess this could technically be a path OR an alias. Need a static shed function to interpret these. That means loading up the manifest, which means choosing a mod to load...
+            'file': localStorage.mod_path + '\\data\\horde\\' + this.data_.tracks[name].cubemitter,
             'transforms': this.data_.tracks[name].transforms
           })
         });

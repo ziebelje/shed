@@ -1,8 +1,33 @@
+/**
+ * Effect editor.
+ */
 shed.view.effect_editor = function() {
   // TODO: Sky color (night/day/specific time of night/day)
   // TODO: Playback controls for each effect. Repeat, repeat delay, play pause, playback speed (2x, normal to mimic game)
   // TODO: GIF recording?
   // TODO: Load up any entity
+
+  // TODO: The Stonehearth JSON files (firepit_effect.json for example) have
+  // some duplicate keys. This is technically legal but REALLY weird and
+  // JavaScript won't decode that the same way the game does...I think tracks
+  // should be an array, not an object. Or if it's an object the keys need
+  // unique names.
+
+  // TODO: Need to figure this out / handle these paths and mixins and overrides
+  // etc
+  //
+  // \data\effects\firepit_effect\firepit_effect.json
+  //
+  // POINTS TO A CUBEMITTER EFFECT AT
+  //
+  // "particles/fire/fire.cubemitter.json"
+  //
+  // This path is not relative to the current path.
+  // This path is not an absolute path.
+  //
+  // Actual effect is located at
+  //
+  // \data\horde\particles\fire\fire.cubemitter.json
 
   this.current_name_ = $.createElement('h3').addClass('current_name');
   shed.view.apply(this, arguments);
@@ -124,7 +149,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
 
   // Toggle terrain
   var toggle_terrain_container = $.createElement('span')
-    .dataset('hint', 'Toggle terrain')
+    .dataset('hint', 'Terrain')
     .addClass(['hint--bottom', 'hint--bounce']);
   var toggle_terrain = $.createElement('input')
     .setAttribute('type', 'checkbox')
@@ -138,7 +163,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
 
   // Toggle axis
   var toggle_axis_container = $.createElement('span')
-    .dataset('hint', 'Toggle axis')
+    .dataset('hint', 'Axis')
     .addClass(['hint--bottom', 'hint--bounce']);
   var toggle_axis = $.createElement('input')
     .setAttribute('type', 'checkbox')
@@ -152,7 +177,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
 
   // Toggle emitter
   var toggle_emitter_container = $.createElement('span')
-    .dataset('hint', 'Toggle emitter')
+    .dataset('hint', 'Emitters')
     .addClass(['hint--bottom', 'hint--bounce']);
   var toggle_emitter = $.createElement('input')
     .setAttribute('type', 'checkbox')
