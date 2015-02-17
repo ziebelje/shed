@@ -52,7 +52,7 @@ shed.component.webgl.prototype.camera_;
 /**
  * The renderer.
  *
- * @type {THREE.WebGLRenderer}
+ * @type {THREE.WebGLRenderer|Three.CanvasRenderer}
  */
 shed.component.webgl.prototype.renderer_;
 
@@ -226,7 +226,7 @@ shed.component.webgl.prototype.get_scene = function() {
 /**
  * Get the renderer.
  *
- * @return {THREE.WebGLRenderer}
+ * @return {THREE.WebGLRenderer|THREE.CanvasRenderer}
  */
 shed.component.webgl.prototype.get_renderer = function() {
   return this.renderer_;
