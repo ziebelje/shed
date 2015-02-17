@@ -87,7 +87,7 @@ shed.component.webgl.prototype.update_;
  *
  * @type {number}
  */
-shed.component.webgl.prototype.fps_ = 60;
+shed.component.webgl.prototype.fps_ = 30;
 
 
 /**
@@ -95,7 +95,7 @@ shed.component.webgl.prototype.fps_ = 60;
  *
  * @type {number}
  */
-shed.component.webgl.prototype.skip_milliseconds_ = 1000 / 60;
+shed.component.webgl.prototype.skip_milliseconds_ = 1000 / 30;
 
 
 /**

@@ -12,3 +12,10 @@ h2 {
   font-weight: normal;
   @include text_shadow();
 }
+
+h3 {
+  font-size: 14px;
+  font-family: "Autour One";
+  font-weight: normal;
+  @include text_shadow();
+}

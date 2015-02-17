@@ -617,6 +617,13 @@ h2 {
   text-shadow: 2px 2px #000, -2px 2px #000, 2px -2px #000, -2px -2px #000, 2px 0px #000, 0px 2px #000, -2px 0px #000, 0px -2px #000;
 }
 
+h3 {
+  font-size: 14px;
+  font-family: "Autour One";
+  font-weight: normal;
+  text-shadow: 2px 2px #000, -2px 2px #000, 2px -2px #000, -2px -2px #000, 2px 0px #000, 0px 2px #000, -2px 0px #000, 0px -2px #000;
+}
+
 @font-face {
   font-family: "Grobold";
   src: url("../font/grobold.woff") format("woff");
@@ -752,7 +759,6 @@ th {
   bottom: 0px;
   left: 0px;
   margin: 10px;
-  text-shadow: 2px 2px #000, -2px 2px #000, 2px -2px #000, -2px -2px #000, 2px 0px #000, 0px 2px #000, -2px 0px #000, 0px -2px #000;
 }
 .effect_editor .toolbar {
   position: absolute;
@@ -762,19 +768,27 @@ th {
   background: rgba(0, 0, 0, 0.5);
   width: calc(100% - 20px);
 }
-.effect_editor .toolbar .toggle_terrain {
+.effect_editor .toolbar input {
   outline: none;
   -webkit-appearance: none;
   cursor: pointer;
-  background-image: url("../img/terrain.png");
   background-repeat: no-repeat;
   background-size: 42px 42px;
   width: 42px;
   height: 42px;
   -webkit-filter: grayscale(100%);
 }
-.effect_editor .toolbar .toggle_terrain:checked {
+.effect_editor .toolbar input:checked {
   -webkit-filter: none;
+}
+.effect_editor .toolbar .toggle_terrain {
+  background-image: url("../img/terrain.png");
+}
+.effect_editor .toolbar .toggle_axis {
+  background-image: url("../img/terrain.png");
+}
+.effect_editor .toolbar .toggle_emitter {
+  background-image: url("../img/terrain.png");
 }
 
 .main_footer {
@@ -839,5 +853,3 @@ th {
   cursor: pointer;
   -webkit-app-region: no-drag;
 }
-
-/*# sourceMappingURL=shed.css.map */

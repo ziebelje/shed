@@ -1,5 +1,4 @@
 .effect_editor {
-
   .list {
     height: calc(100vh - #{$non_content_height});
     overflow: auto;
@@ -17,7 +16,6 @@
     bottom: 0px;
     left: 0px;
     margin: 10px;
-    @include text_shadow();
   }
 
   .toolbar {
@@ -28,11 +26,10 @@
     background: rgba(0, 0, 0, 0.5);
     width: calc(100% - 20px);
 
-    .toggle_terrain {
+    input {
       outline: none;
       -webkit-appearance: none;
       cursor: pointer;
-      background-image: url('../img/terrain.png');
       background-repeat: no-repeat;
       background-size: 42px 42px;
       width: 42px;
@@ -40,19 +37,20 @@
       -webkit-filter: grayscale(100%);
     }
 
-    .toggle_terrain:checked {
+    input:checked {
       -webkit-filter: none;
     }
 
-    // .share {
-    //   width: 42px;
-    //   height: 42px;
-    //   cursor: pointer;
-    // }
+    .toggle_terrain {
+      background-image: url('../img/terrain.png');
+    }
 
+    .toggle_axis {
+      background-image: url('../img/terrain.png');
+    }
+
+    .toggle_emitter {
+      background-image: url('../img/terrain.png');
+    }
   }
-
-
-
-
 }
