@@ -11,6 +11,8 @@ button {
   height: 50px;
 
   font-family: "Grobold";
+
+  @extend .cursor_hover;
 }
 
 button:hover {

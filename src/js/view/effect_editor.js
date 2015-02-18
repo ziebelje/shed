@@ -12,12 +12,6 @@ shed.view.effect_editor = function() {
   // TODO: GIF recording?
   // TODO: Load up any entity
 
-  // TODO: The Stonehearth JSON files (firepit_effect.json for example) have
-  // some duplicate keys. This is technically legal but REALLY weird and
-  // JavaScript won't decode that the same way the game does...I think tracks
-  // should be an array, not an object. Or if it's an object the keys need
-  // unique names.
-
   // TODO: Need to figure this out / handle these paths and mixins and overrides
   // etc
   //
@@ -225,9 +219,11 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
   var self = this;
 
   shed.effect.get_effects(function(effects) {
-    var table = new jex.table({'rows': 0, 'columns': 2});
+    var table = new jex.table({'rows': 0, 'columns': 1});
     table.table().addClass(['zebra', 'highlight'])
       .style({'width': '100%', 'cursor': 'pointer'});
+
+    // table.table().setAttribute('border', '1');
 
 
     for (var i = 0; i < effects.length; i++) {
@@ -236,42 +232,44 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
       // Hide effects with no tracks or no supported tracks. TODO: Once I add
       // support for more track types I may just expose everything and disable
       // certain things.
-      var effect_supported = false;
+      var supported = false;
       for (var j = 0; j < tracks.length; j++) {
         if (tracks[j].attributes.type === 'cubemitter') {
-          effect_supported = true;
+          supported = true;
           break;
         }
       }
-      if (effect_supported === false) {
-        continue;
-      }
+      // if (supported === false) {
+      //   continue;
+      // }
 
       var k = table.add_row();
-      table.td(0, k).appendChild(
-        $.createElement('h3').innerHTML(effects[i].get_name())
-      );
+      table.td(0, k).innerHTML(effects[i].get_name());
 
-      for (var j = 0; j < tracks.length; j++) {
-        table.td(0, k).appendChild(
-          $.createElement('div')
-            .style('margin-left', '20px')
-            .innerHTML(tracks[j].name)
-        );
+      // for (var j = 0; j < tracks.length; j++) {
+      //   table.td(0, k).appendChild(
+      //     $.createElement('div')
+      //       .style('margin-left', '10px')
+      //       .innerHTML(tracks[j].name)
+      //   );
+      // }
+
+      if (supported === true) {
+        (function(effect) {
+          table.td(0, k).addEventListener('click', function() {
+            if (self.effect_) {
+              self.effect_.dispose();
+            }
+            self.effect_ = effect;
+            effect.set_scene(self.webgl_.get_scene());
+            self.scene_toggle_emitter_(self.display_emitter_); // Load up the new scene and apply the proper emitter display setting
+            self.current_name_.innerHTML(effect.get_name());
+          });
+        })(effects[i]);
       }
-
-      (function(effect) {
-        table.td(0, k).addEventListener('click', function() {
-          if (self.effect_) {
-            self.effect_.dispose();
-            // TODO: The effects are switching but when I go back to an already opened one it's like it's been playing for a while...
-          }
-          self.effect_ = effect;
-          effect.set_scene(self.webgl_.get_scene());
-          self.scene_toggle_emitter_(self.display_emitter_); // Load up the new scene and apply the proper emitter display setting
-          self.current_name_.innerHTML(effect.get_name());
-        });
-      })(effects[i]);
+      else {
+        table.td(0, k).addClass('unsupported');
+      }
 
       // TODO Temporary auto-load of the effect I want.
       if (effects[i].get_name() === 'firepit_effect') {

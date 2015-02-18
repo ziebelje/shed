@@ -5,6 +5,11 @@
     font-size: 13px;
   }
 
+  .unsupported {
+    color: #1f1e1e;
+    @extend .cursor_invalid;
+  }
+
   .well {
     height: calc(100vh - #{$non_content_height});
     position: relative;

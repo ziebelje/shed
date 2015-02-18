@@ -9,8 +9,14 @@
 
 // TODO: transforms?? Handled by effect?
 
+// TODO: start time / end time on the effects?
+
 // SH Bug? When rotating an effect, the particle system origin rotates, but the
 // particles still move according to the original axis.
+
+// Addressed on Dev Stream #16 2/17/2015 around 30 min in? Tom suggested
+// programmatic access to the effect transforms to handle things like rotating
+// an effect with an object.
 
 // TODO: If I request 9999 particles per second, SH will give those to me by
 // just creating them all at once (then limiting to 100). I'm only creating one

@@ -10,7 +10,7 @@ $.inherits(shed.component, rocket.EventTarget);
  *
  * @type {rocket.Elements}
  */
-shed.component.prototype.container_;
+shed.component.prototype.container_
 
 
 /**
