@@ -1,0 +1,22 @@
+.effect_list {
+  .list {
+    height: calc(100vh - #{$non_content_height});
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  .unsupported {
+    @extend .cursor_not-allowed;
+    opacity: 0.3;
+  }
+
+  small {
+    display: block;
+  }
+
+  .well {
+    height: calc(100vh - #{$non_content_height});
+    position: relative;
+    padding-top: 160px;
+  }
+}

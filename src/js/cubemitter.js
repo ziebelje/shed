@@ -1,76 +1,78 @@
-// TODO: Why are constant values stored in arrays?
 
-// TODO: Something with POINT origins is wrong maybe? No, they just have values
-// that don't get read.
 
-// TODO: Materials
 
-// TODO: Duration/looping?? Handled by effect?
-
-// TODO: transforms?? Handled by effect?
-
-// TODO: start time / end time on the effects?
-
-// SH Bug? When rotating an effect, the particle system origin rotates, but the
-// particles still move according to the original axis.
-
-// Addressed on Dev Stream #16 2/17/2015 around 30 min in? Tom suggested
-// programmatic access to the effect transforms to handle things like rotating
-// an effect with an object.
-
-// TODO: If I request 9999 particles per second, SH will give those to me by
-// just creating them all at once (then limiting to 100). I'm only creating one
-// particle per frame max, so I need to change that to allow creating LOTS of
-// particles pretty much at the same time. Then, FIREWORKS!
-
-// TODO FOR NEXT RELEASE:
-// finish effect editor with openable files
-// add button to toggle grid maybe
-// add button to toggle axis
-// add button to toggle emitter display
-// add mod switcher maybe
-// add legacy THREE support
-// handle duration / looping & add controls?
-// local coordinate systems?
-
+/**
+ * Cubemitter.
+ *
+ * @param {Array} options [file, transforms, effect]
+ *
+ * @constructor
+ */
 shed.cubemitter = function(options) {
   this.file_ = options.file;
-  this.transforms_ = options.transforms;
+  this.transforms_ = options.transforms || null;
   this.load_();
-
-
-
-  // TODO: This doesn't need to run until the cubemitter gets displayed, BUT it
-  // can only run one time total or it will transform multiple times (depending
-  // on if I use an absolute or relative transform).
-  // this.apply_transforms_();
 };
+$.inherits(shed.cubemitter, $.EventTarget);
 
-shed.cubemitter.prototype.load_ = function() {
-  this.group_ = new THREE.Object3D();
-  this.cubes_ = new THREE.Object3D();
-  this.emitter_ = new THREE.Mesh();
-
-  this.group_.add(this.emitter_);
-  this.group_.add(this.cubes_);
-
-
-  this.apply_transforms_(); // TODO: JUST TESTING SOMETHING
-
-  this.data_ = shed.read_file(this.file_);
-};
 
 /**
  * How many cubes can be present in a cubemitter at any given time.
  *
  * @type {number}
+ *
+ * @private
  */
 shed.cubemitter.cube_limit_ = 100;
 
+
+/**
+ * The JSON file for this cubemitter.
+ *
+ * @type {string}
+ *
+ * @private
+ */
 shed.cubemitter.prototype.file_;
+
+
+/**
+ * The scene the cubmitter exists in.
+ *
+ * @type {THREE.Scene}
+ *
+ * @private
+ */
 shed.cubemitter.prototype.scene_;
+
+
+/**
+ * File watcher
+ *
+ * @type {fs.FSWatcher}
+ *
+ * @private
+ */
 shed.cubemitter.prototype.watcher_;
+
+
+/**
+ * Cubemitter properties loaded from the JSON file.
+ *
+ * @type {Object}
+ *
+ * @private
+ */
 shed.cubemitter.prototype.data_;
+
+
+/**
+ * Emitter mesh that is optionally displayed
+ *
+ * @type {THREE.Mesh}
+ *
+ * @private
+ */
 shed.cubemitter.prototype.emitter_;
 
 
@@ -100,67 +102,158 @@ shed.cubemitter.prototype.transforms_;
 
 
 /**
- * Set the scene this effect is part of.
- *
- * @param {THREE.Scene} scene
- */
-shed.cubemitter.prototype.set_scene = function(scene) {
-  this.watch_();
-  this.scene_ = scene;
-  this.scene_.add(this.group_);
-};
-
-
-/**
  * Time since last cube was created.
  *
  * @type {number}
+ *
+ * @private
  */
-shed.cubemitter.prototype.dt_cube_ = 0;
+shed.cubemitter.prototype.dt_cube_;
 
 
 /**
  * Time since the system was created.
  *
  * @type {number}
+ *
+ * @private
  */
-shed.cubemitter.prototype.dt_system_ = 0;
+shed.cubemitter.prototype.dt_system_;
 
 
-shed.cubemitter.prototype.update = function(dt) {
-  this.dt_system_ += dt;
-  this.update_create_(dt);
-  this.update_move_(dt); // TODO: Find a better name for this
+/**
+ * Whether or not the cubemitter is allowed to emit new cubes.
+ *
+ * @type {boolean}
+ *
+ * @private
+ */
+shed.cubemitter.prototype.emit_;
+
+
+/**
+ * Set the scene this effect is part of.
+ *
+ * @param {THREE.Scene} scene
+ */
+shed.cubemitter.prototype.render = function(scene) {
+  this.watch_();
+  this.scene_ = scene;
+
+  // Translate
+  if (this.transforms_) {
+    if (this.transforms_.x) {
+      this.group_.position.x = this.transforms_.x;
+    }
+    if (this.transforms_.y) {
+      this.group_.position.y = this.transforms_.y;
+    }
+    if (this.transforms_.z) {
+      this.group_.position.z = this.transforms_.z;
+    }
+  }
+
+  this.group_.add(this.emitter_);
+  this.group_.add(this.cubes_);
+
+  this.scene_.add(this.group_);
 };
 
 
 /**
- * Apply any effect transformations to the cubemitter.
+ * Update the cubemitter data in prepration to be rendered.
+ *
+ * @param {number} dt Time since last update call.
  */
-shed.cubemitter.prototype.apply_transforms_ = function() {
-  this.group_.position.x = this.transforms_.x;
-  this.group_.position.y = this.transforms_.y;
-  this.group_.position.z = this.transforms_.z;
+shed.cubemitter.prototype.update = function(dt) {
+  this.dt_system_ += dt;
+
+  this.update_create_(dt);
+  this.update_alter_(dt);
 };
 
 
-// determine whether or not a new cube needs created
-shed.cubemitter.prototype.update_create_ = function(dt) {
+/**
+ * Get this file.
+ *
+ * @return {string}
+ */
+shed.cubemitter.prototype.get_file = function() {
+  return this.file_;
+};
 
+
+/**
+ * Toggle display of the emitter.
+ *
+ * @param {boolean} display Whether or not to display it.
+ */
+shed.cubemitter.prototype.toggle_emitter = function(display) {
+  this.emitter_.visible = display;
+};
+
+
+/**
+ * Start emitting cubes.
+ */
+shed.cubemitter.prototype.start_emit = function() {
+  this.emit_ = true;
+};
+
+
+/**
+ * Stop emitting cubes.
+ */
+shed.cubemitter.prototype.stop_emit = function() {
+  this.emit_ = false;
+};
+
+
+/**
+ * Load the cubemitter file, create some basic stuff and apply the translation
+ * transform.
+ *
+ * @private
+ */
+shed.cubemitter.prototype.load_ = function() {
+  this.dt_cube_ = 0;
+  this.dt_system_ = 0;
+  this.emit_ = true;
+
+  this.data_ = shed.read_file(this.file_);
+
+  this.group_ = new THREE.Object3D();
+  this.cubes_ = new THREE.Object3D();
+
+  this.emitter_ = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshBasicMaterial({'color': 0x3d9cd2})
+  );
+};
+
+
+/**
+ * Determine whether or not any new cubes need created, then create them.
+ *
+ * @param {number} dt Time since last update call.
+ *
+ * @private
+ */
+shed.cubemitter.prototype.update_create_ = function(dt) {
   this.dt_cube_ += dt;
+
+  if (this.emit_ === false) {
+    return;
+  }
+
+  // Limit creation between start/stop times
   var emission_rate = this[this.data_.emission.rate.kind.toLowerCase() + '_']('emission.rate', this.data_.emission.rate.values, this.dt_system_ / this.data_.duration);
 
-  // emission_rate = 9999;
-  var particles_to_create = dt / 1000 * emission_rate;
-  // particles_to_create = 0;
+  var particles_to_create = Math.floor(this.dt_cube_ / 1000 * emission_rate);
 
-  while (particles_to_create-- > 0) { // TODO: needs more testing
-    if (
-      this.dt_cube_ >= (1000 / emission_rate) && // Don't create new cubes until enough time has passed.
-      this.cubes_.children.length < shed.cubemitter.cube_limit_ && // Stop creating new cubes if the cubemitter cube limit is reached.
-      (this.dt_system_ < this.data_.duration * 1000) // Stop creating new cubes when the cubemitter duration is up.
-      // particles_to_create-- > 0
-    ) {
+  while (particles_to_create-- > 0) {
+    // Stop creating new cubes if the cubemitter cube limit is reached.
+    if (this.cubes_.children.length < shed.cubemitter.cube_limit_) {
       this.dt_cube_ = 0;
 
       // Create the cube
@@ -171,7 +264,6 @@ shed.cubemitter.prototype.update_create_ = function(dt) {
       var speed = this[this.data_.particle.speed.start.kind.toLowerCase() + '_']('particle.speed', this.data_.particle.speed.start.values);
       var origin = this[this.data_.emission.origin.surface.toLowerCase() + '_']('emission.origin', this.data_.emission.origin.values);
       var angle = this[this.data_.emission.angle.kind.toLowerCase() + '_']('emission.angle', this.data_.emission.angle.values);
-      // TODO: Start velocity?
 
       var geometry = new THREE.BoxGeometry(scale, scale, scale);
       var material = new THREE.MeshBasicMaterial({
@@ -185,36 +277,62 @@ shed.cubemitter.prototype.update_create_ = function(dt) {
       cube.position.y = origin.y;
       cube.position.z = origin.z;
 
+      // Emission angle properties
       var z_min = Math.cos(angle * Math.PI / 180);
       var z_max = 1;
       var z = (Math.random() * (z_max - z_min)) + z_min;
 
-      var phi_min = 0;
-      var phi_max = 2 * Math.PI;
-      var phi = (Math.random() * (phi_max - phi_min)) + phi_min;
+      var theta_min = 0;
+      var theta_max = 2 * Math.PI;
+      var theta = (Math.random() * (theta_max - theta_min)) + theta_min;
 
-      // theta = theta * Math.PI / 180;
-      // var phi = theta;
-      // var random_theta = Math.random() * theta * Math.PI / 180;
+      // Emission vector is some random vector in a cone.
+      var vector = new THREE.Vector3(
+        Math.sqrt(1 - Math.pow(z, 2)) * Math.cos(theta),
+        Math.sqrt(1 - Math.pow(z, 2)) * Math.sin(theta),
+        z
+      );
+
+      // Rotate the emission vector to line up with the emitter.
+      if (this.transforms_) {
+        if (this.transforms_.rx) {
+          vector.applyAxisAngle(new THREE.Vector3(1, 0, 0), -this.transforms_.rx * Math.PI / 180);
+        }
+        if (this.transforms_.ry) {
+          vector.applyAxisAngle(new THREE.Vector3(0, 1, 0), -this.transforms_.ry * Math.PI / 180);
+        }
+        if (this.transforms_.rz) {
+          vector.applyAxisAngle(new THREE.Vector3(0, 0, 1), -this.transforms_.rz * Math.PI / 180);
+        }
+      }
+
       cube.userData = {
         'lifetime': lifetime,
         'age': 0,
         'speed': speed,
-        'z': z,
-        'phi': phi,
+        'vector': vector,
         'random': Math.random()
-        // 'theta': random_theta,
-        // 'u': (Math.random() * 2) - 1,
-        // 'u2': Math.random() * (1 - Math.cos(phi)) + Math.cos(phi)
       };
 
       this.cubes_.add(cube);
     }
   }
+
 };
 
-// update all existing cubes
-shed.cubemitter.prototype.update_move_ = function(dt) {
+
+/**
+ * Updating the position, rotation, color, etc of all particles in the
+ * cubemitter.
+ *
+ * @param {number} dt Time since last update call.
+ *
+ * @private
+ */
+shed.cubemitter.prototype.update_alter_ = function(dt) {
+  if(!this.cubes_) {
+    debugger;
+  }
   for (var i = this.cubes_.children.length - 1; i >= 0; i--) {
     this.cubes_.children[i].userData.age += (dt / 1000);
 
@@ -277,27 +395,21 @@ shed.cubemitter.prototype.update_move_ = function(dt) {
       var speed_factor = 1;
     }
     var speed = this.cubes_.children[i].userData.speed * speed_factor;
-    // TODO: negative speed?
 
-    // Calculate initial velocities based off of emission angle.
-    var velocity_x = speed * Math.sqrt(1 - Math.pow(this.cubes_.children[i].userData.z, 2)) * Math.cos(this.cubes_.children[i].userData.phi);
-    var velocity_z = speed * Math.sqrt(1 - Math.pow(this.cubes_.children[i].userData.z, 2)) * Math.sin(this.cubes_.children[i].userData.phi);
-    var velocity_y = speed * this.cubes_.children[i].userData.z;
+    var velocity_x = speed * this.cubes_.children[i].userData.vector.getComponent(0);
+    var velocity_y = speed * this.cubes_.children[i].userData.vector.getComponent(1);
+    var velocity_z = speed * this.cubes_.children[i].userData.vector.getComponent(2);
 
-    // TODO
     // Now alter the velocity over time if provided.
     if (this.data_.particle.velocity) {
       if (this.data_.particle.velocity.over_lifetime_x) {
         velocity_x += this[this.data_.particle.velocity.over_lifetime_x.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_x.values, age_percent, this.cubes_.children[i].userData.random);
-        // this.cubes_.children[i].userData.velocity.x = velocity_x;
       }
       if (this.data_.particle.velocity.over_lifetime_y) {
         velocity_y += this[this.data_.particle.velocity.over_lifetime_y.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_y.values, age_percent, this.cubes_.children[i].userData.random);
-        // this.cubes_.children[i].userData.velocity.y = velocity_y;
       }
       if (this.data_.particle.velocity.over_lifetime_z) {
         velocity_z += this[this.data_.particle.velocity.over_lifetime_z.kind.toLowerCase() + '_']('particle.velocity', this.data_.particle.velocity.over_lifetime_z.values, age_percent, this.cubes_.children[i].userData.random);
-        // this.cubes_.children[i].userData.velocity.z = velocity_z;
       }
     }
 
@@ -311,10 +423,11 @@ shed.cubemitter.prototype.update_move_ = function(dt) {
 
 /**
  * Attribute with a constant value.
- * TODO: Why are constant values stored in arrays in the cubemitter JSON?
  *
  * @param {string} type The type of the property.
  * @param {Array} values Just a single constant value in an array...
+ *
+ * @private
  *
  * @return {number|THREE.Color}
  */
@@ -347,6 +460,8 @@ shed.cubemitter.prototype.constant_ = function(type, values) {
  *
  * @param {string} type The type of the property.
  * @param {Array} values The min and max value.
+ *
+ * @private
  *
  * @return {number}
  */
@@ -385,6 +500,8 @@ shed.cubemitter.prototype.random_between_ = function(type, values) {
  * @param {Array} values The curve keyframes.
  * @param {number} t How far along the curve (from 0 to 1).
  *
+ * @private
+ *
  * @return {number}
  */
 shed.cubemitter.prototype.curve_ = function(type, values, t) {
@@ -417,6 +534,8 @@ shed.cubemitter.prototype.curve_ = function(type, values, t) {
  * (from 0 to 1). This determines the ratio between the two curve points where
  * the "between" curve lies.
  *
+ * @private
+ *
  * @return {number}
  */
 shed.cubemitter.prototype.random_between_curves_ = function(type, values, t, random) {
@@ -447,6 +566,8 @@ shed.cubemitter.prototype.random_between_curves_ = function(type, values, t, ran
  * @param {string} type The type of the property.
  * @param {Array} values The rectangle bounds
  *
+ * @private
+ *
  * @return {Array} An array of points in the rectangle to be used on some
  * desired plane.
  */
@@ -454,17 +575,25 @@ shed.cubemitter.prototype.rectangle_ = function(type, values) {
   switch (type) {
     case 'emission.origin':
       if (!this.emitter_.userData.added) {
-        this.emitter_.userData.added = true;
-        this.emitter_.geometry = new THREE.BoxGeometry(values[1], values[0], 0);
-        this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true});
-
-        // Rotate the emitter.
+        // Rotate the emitter. Cannot just scale/rotate the mesh because the
+        // geometry doesn't update. Need to do these matrix transforms.
         // http://stackoverflow.com/a/17647308
-        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationX(this.transforms_.rx * Math.PI / 180));
-        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationY(this.transforms_.ry * Math.PI / 180));
-        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(this.transforms_.rz * Math.PI / 180));
+        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeScale(values[1], values[0], 0.1));
+
+        if (this.transforms_) {
+          if (this.transforms_.rx) {
+            this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-this.transforms_.rx * Math.PI / 180));
+          }
+          if (this.transforms_.ry) {
+            this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationY(-this.transforms_.ry * Math.PI / 180));
+          }
+          if (this.transforms_.rz) {
+            this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationZ(-this.transforms_.rz * Math.PI / 180));
+          }
+        }
 
         this.emitter_.geometry.computeBoundingBox();
+        this.emitter_.userData.added = true;
       }
 
       // Use the generated / transformed mesh and pick a random point inside of
@@ -498,54 +627,59 @@ shed.cubemitter.prototype.rectangle_ = function(type, values) {
  * @param {Array} values I have no idea why these even exist in the effect
  * JSON but they do.
  *
+ * @private
+ *
  * @return {Array} An array of points in the point to be used on some desired
  * plane.
  */
 shed.cubemitter.prototype.point_ = function(type, values) {
   if (!this.emitter_.userData.added) {
     this.emitter_.userData.added = true;
-    this.emitter_.geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2),
-    this.emitter_.material = new THREE.MeshBasicMaterial({'color': 0x000000, 'wireframe': true});
+    this.emitter_.scale.x = 0.2;
+    this.emitter_.scale.z = 0.2;
+    this.emitter_.scale.y = 0.2;
+    // TODO: Transform this, too
   }
 
   return {'x': 0, 'y': 0, 'z': 0};
 };
 
 
-// TODO TEMPORARY!!!!!!!!!!
+/**
+ * Evaluate a curve at time t by linear interpolation.
+ *
+ * @param {Array} curve Curve data
+ * @param {number} t Current time (from 0 to 1)
+ *
+ * @private
+ *
+ * @return {number}
+ */
 shed.cubemitter.prototype.evaluate_curve_ = function(curve, t) {
-  // TODO TEMPORARY!!!!!!!!!!
-  var clone_curve = curve.slice(0);
-  clone_curve.push([10, 0]); // TODO: Not really liking this...
-
-  var x, y, x0, x1, y0, y1;
-  for (var i = 0; i < clone_curve.length; i++) {
-    if (t >= clone_curve[i][0] && t < clone_curve[i + 1][0]) {
-      x0 = clone_curve[i][0];
-      x1 = clone_curve[i + 1][0];
-      y0 = clone_curve[i][1];
-      y1 = clone_curve[i + 1][1];
-      x = t;
-      y = y0 + ((y1 - y0) * ((x - x0) / (x1 - x0))); // Linear interpolation. TODO: Use a sine function here?
-      return y;
+  var t0, t1, y0, y1;
+  for (var i = 0; i < curve.length; i++) {
+    if (t >= curve[i][0] && (!curve[i + 1] || t < curve[i + 1][0])) {
+      t0 = curve[i][0];
+      t1 = curve[i + 1] ? curve[i + 1][0] : curve[i][0];
+      y0 = curve[i][1];
+      y1 = curve[i + 1] ? curve[i + 1][1] : curve[i][1];
+      return y0 + ((y1 - y0) * ((t - t0) / (t1 - t0)));
     }
   }
 };
 
 
 /**
- * Watch this file for changes and reload it when that happens.
+ * Trigger the watcher on the effect file. That will do all of the necessary
+ * work to reload the effect with this cubemitter.
+ *
+ * @private
  */
 shed.cubemitter.prototype.watch_ = function() {
   var self = this;
   this.watcher_ = shed.watch_file(this.file_, function() {
-    var scene = self.scene_; // Back this up before disposing.
-    self.dispose();
-    self.load_();
-    self.set_scene(scene);
+    self.dispatchEvent('change');
   });
-
-  // this.watcher_ = shed.watch_file(this.file_, this.load_.bind(this));
 };
 
 
@@ -554,24 +688,36 @@ shed.cubemitter.prototype.watch_ = function() {
  * it stops listening for file changes.
  */
 shed.cubemitter.prototype.dispose = function() {
-  this.watcher_.close();
-
-  this.dt_cube_ = 0;
-  this.dt_system_ = 0;
-
   // Remove all particles from the group and then remove the group from the
   // scene.
-  for (var i = this.cubes_.children.length - 1; i >= 0; i--) {
-    this.cubes_.children[i].geometry.dispose();
-    this.cubes_.children[i].material.dispose();
-    this.cubes_.remove(this.cubes_.children[i]);
+  if (this.cubes_) {
+    for (var i = this.cubes_.children.length - 1; i >= 0; i--) {
+      this.cubes_.children[i].geometry.dispose();
+      this.cubes_.children[i].material.dispose();
+      this.cubes_.remove(this.cubes_.children[i]);
+    }
   }
-  // this.scene_.remove(this.cubes_);
-  this.scene_.remove(this.group_);
 
-  this.scene_ = null;
-};
+  if (this.scene_) {
+    this.group_.remove(this.emitter_);
+    this.group_.remove(this.cubes_);
+    this.scene_.remove(this.group_);
+  }
 
-shed.cubemitter.prototype.toggle_emitter = function(display) {
-  this.emitter_.visible = display;
+  // Stop watching file for changes (if watching at all)
+  if (this.watcher_) {
+    console.log('- watcher');
+    this.watcher_.close();
+  }
+
+  delete this.scene_;
+  delete this.watcher_;
+  delete this.data_;
+  delete this.emitter_;
+  delete this.cubes_;
+  delete this.group_;
+  delete this.transforms_;
+  delete this.dt_cube_;
+  delete this.dt_system_;
+  delete this.emit_;
 };

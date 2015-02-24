@@ -1,6 +1,7 @@
 th {
   font-family: "Grobold";
   font-weight: normal;
+  font-size: 16px;
   @include text_shadow();
 }
 
@@ -14,5 +15,5 @@ th {
 
 .highlight tbody tr:hover {
   background: #464339;
-  @extend .cursor_hover;
+  @extend .cursor_pointer;
 }

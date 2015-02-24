@@ -16,7 +16,6 @@
   @include text_shadow();
 
   margin: -10px -10px 10px -10px;
-
 }
 
 .title_bar_button {
@@ -29,6 +28,6 @@
 .title_bar_back {
   height: 25px;
   margin-top: 3px;
-  cursor: pointer;
+  @extend .cursor_pointer;
   -webkit-app-region: no-drag;
 }

@@ -152,13 +152,13 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
 
   table.table().live('.pack_button', 'click', function() {
     self.mods_[$(this).dataset('mod_id')].pack(function() {
-      self.render_();
+      self.render();
     });
   });
 
   table.table().live('.unpack_button', 'click', function() {
     self.mods_[$(this).dataset('mod_id')].unpack(function() {
-      self.render_();
+      self.render();
     });
   });
 

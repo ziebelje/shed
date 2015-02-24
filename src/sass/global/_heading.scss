@@ -12,14 +12,14 @@ h1 {
 }
 
 h2 {
-  font-size: 16px;
+  font-size: 22px;
   font-family: "Grobold";
   font-weight: normal;
   @include text_shadow();
 }
 
 h3 {
-  font-size: 14px;
+  font-size: 16px;
   font-family: "Autour One";
   font-weight: normal;
   @include text_shadow();

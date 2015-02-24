@@ -6,10 +6,6 @@
  *
  * @param {string} name The name of the mod.
  *
- * TODO: Probably create this using a file path instead of a name and then get
- * all of the attributes that way. That's how the new effects/cubemitters
- * work.
- *
  * @constructor
  */
 shed.mod = function(name) {
@@ -35,8 +31,6 @@ shed.mod.prototype.get_name = function() {
 
 /**
  * Zip up a mod folder. http://stackoverflow.com/a/16099450
- *
- * TODO: See TODOs and comments on unpack.
  *
  * @param {Function} callback
  */
@@ -73,11 +67,6 @@ shed.mod.prototype.pack = function(callback) {
 
 /**
  * Unzip a smod archive. http://stackoverflow.com/a/16099450
- *
- * TODO: Handle errors
- * TODO: Handle overwriting
- * TODO: Show spinner on frontend while this is working
- * TODO: Optionally show 7zip output while it's extracting?
  *
  * @param {Function} callback
  */

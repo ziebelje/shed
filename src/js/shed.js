@@ -1,10 +1,13 @@
 var $ = rocket.extend(rocket.$, rocket);
 
 $.ready(function() {
-  // new shed.view.main();
-  // new shed.view.mod_manager();
-  new shed.view.effect_editor();
-  // new shed.view.settings();
+  // Should catch all errors.
+  process.on('uncaughtException', function(error) {
+    console.error(error);
+    // (new shed.view.error(error)).render();
+  });
+
+  (new shed.view.main()).render();
 });
 
 var shed = {};
@@ -43,7 +46,8 @@ shed.read_file = function(file) {
  */
 shed.watch_file = function(file, callback) {
   var fs = require('fs');
-  return fs.watch(file, {}, $.debounce(100, function() {
+  return fs.watch(file, {}, $.debounce(200, function() {
+    console.log('watch_file triggered');
     callback();
   }));
 };

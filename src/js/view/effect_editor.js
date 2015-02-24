@@ -4,31 +4,23 @@
 /**
  * Effect editor.
  *
+ * @param {shed.effect} effect The effect currently being edited.
+ *
  * @constructor
  */
-shed.view.effect_editor = function() {
-  // TODO: Sky color (night/day/specific time of night/day)
-  // TODO: Playback controls for each effect. Repeat, repeat delay, play pause, playback speed (2x, normal to mimic game)
-  // TODO: GIF recording?
-  // TODO: Load up any entity
+shed.view.effect_editor = function(effect) {
+  var self = this;
 
-  // TODO: Need to figure this out / handle these paths and mixins and overrides
-  // etc
-  //
-  // \data\effects\firepit_effect\firepit_effect.json
-  //
-  // POINTS TO A CUBEMITTER EFFECT AT
-  //
-  // "particles/fire/fire.cubemitter.json"
-  //
-  // This path is not relative to the current path.
-  // This path is not an absolute path.
-  //
-  // Actual effect is located at
-  //
-  // \data\horde\particles\fire\fire.cubemitter.json
+  this.effect_ = effect;
 
-  this.current_name_ = $.createElement('h3').addClass('current_name');
+
+
+  // TODO PUT THIS BACK?
+  // Toggle the emitter display any time the effect gets loaded.
+  // this.effect_.addEventListener('load', function() {
+  //   self.scene_toggle_emitter_(self.display_emitter_);
+  // });
+
   shed.view.apply(this, arguments);
 };
 $.inherits(shed.view.effect_editor, shed.view);
@@ -75,16 +67,6 @@ shed.view.effect_editor.prototype.scene_axis_;
 
 
 /**
- * A container for the name of the currently loaded effect.
- *
- * @type {rocket.Elements}
- *
- * @private
- */
-shed.view.effect_editor.prototype.current_name_;
-
-
-/**
  * Whether or not to display the emitter on each cubemitter.
  *
  * @type {boolean}
@@ -102,16 +84,40 @@ shed.view.effect_editor.prototype.display_emitter_;
  * @private
  */
 shed.view.effect_editor.prototype.decorate_ = function(parent) {
+  // Guarantee that we capture any changes to the effect since the object was
+  // created.
+  this.effect_.reload();
+
+  this.effect_.addEventListener('change', function() {
+    // debugger;
+    self.rerender();
+  });
+
   var self = this;
 
-  var testing_this_container = $.createElement('div').addClass('effect_editor');
+  var todo = $.createElement('div').addClass('effect_editor'); // todo sass namespacing
 
   var grid_row = $.createElement('div').addClass('grid_row');
-  var left = $.createElement('div').addClass(['list', 'grid_column_5']);
+  var left = $.createElement('div').addClass(['list', 'left', 'grid_column_5']);
   var right = $.createElement('div').addClass('grid_column_7');
 
-  // Cubemitter list
-  this.decorate_list_(left);
+  var table = new jex.table({'rows': 1, 'columns': 2});
+  table.table().style({'width': '100%', 'table-layout': 'fixed'});
+
+  table.td(0, 0)
+    .addClass('name')
+    .innerHTML(this.effect_.get_name());
+
+  var open = $.createElement('img').setAttribute('src', 'img/forward.png').addClass('effect_open');
+  open.addEventListener('click', function() {
+    var gui = require('nw.gui');
+    gui.Shell.openItem(self.effect_.get_file());
+  });
+  table.td(1, 0).style('text-align', 'right').appendChild(open);
+
+  left.appendChild(table.table());
+
+  this.decorate_tracks_(left);
 
   // Well
   var well = $.createElement('div').addClass('well');
@@ -119,7 +125,6 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
   this.decorate_toolbar_(well);
 
   well.appendChild(toolbar);
-  well.appendChild(this.current_name_);
 
   // Scene
   this.webgl_ = new shed.component.webgl({
@@ -128,6 +133,8 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
     'update': this.update_.bind(this)
   });
   this.webgl_.render(well);
+
+  this.effect_.render(this.webgl_.get_scene());
 
   this.webgl_.get_camera().position.z = 12;
   this.webgl_.get_camera().position.y = 7;
@@ -142,9 +149,53 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
 
   grid_row.appendChild(left);
   grid_row.appendChild(right);
-  testing_this_container.appendChild(grid_row);
+  todo.appendChild(grid_row);
 
-  parent.appendChild(testing_this_container);
+  parent.appendChild(todo);
+};
+
+
+/**
+ * Decorate track list
+ *
+ * @param {rocket.Elements} parent
+ *
+ * @private
+ */
+shed.view.effect_editor.prototype.decorate_tracks_ = function(parent) {
+  var tracks = this.effect_.get_tracks();
+  var table = new jex.table({'rows': tracks.length, 'columns': 2});
+  table.table().addClass('zebra').style('width', '100%');
+  for (var i = 0; i < tracks.length; i++) {
+    table.td(0, i).innerHTML(tracks[i].name);
+
+    if (tracks[i].object === null) {
+      table.td(0, i).addClass('unsupported');
+      table.td(0, i).appendChild($.createElement('small').innerHTML('Unsupported track type (' + tracks[i].attributes.type + ')'));
+    }
+    else {
+      table.td(0, i).appendChild($.createElement('small').innerHTML(tracks[i].attributes.type));
+
+      var open = $.createElement('img').setAttribute('src', 'img/forward.png').addClass('cubemitter_open');
+      table.td(1, i).style('text-align', 'right').appendChild(open);
+
+      (function(file) {
+        open.addEventListener('click', function() {
+          var gui = require('nw.gui');
+          gui.Shell.openItem(file);
+        });
+      })(tracks[i].object.get_file());
+
+      (function(file) {
+        open.addEventListener('click', function() {
+          var gui = require('nw.gui');
+          gui.Shell.openItem(file);
+        });
+      })(tracks[i].object.get_file());
+    }
+
+  }
+  parent.appendChild(table.table());
 };
 
 
@@ -223,77 +274,27 @@ shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
     table.table().addClass(['zebra', 'highlight'])
       .style({'width': '100%', 'cursor': 'pointer'});
 
-    // table.table().setAttribute('border', '1');
-
-
     for (var i = 0; i < effects.length; i++) {
-      var tracks = effects[i].get_tracks();
+      var j = table.add_row();
+      table.td(0, j).innerHTML(effects[i].get_name());
 
-      // Hide effects with no tracks or no supported tracks. TODO: Once I add
-      // support for more track types I may just expose everything and disable
-      // certain things.
-      var supported = false;
-      for (var j = 0; j < tracks.length; j++) {
-        if (tracks[j].attributes.type === 'cubemitter') {
-          supported = true;
-          break;
-        }
-      }
-      // if (supported === false) {
-      //   continue;
-      // }
-
-      var k = table.add_row();
-      table.td(0, k).innerHTML(effects[i].get_name());
-
-      // for (var j = 0; j < tracks.length; j++) {
-      //   table.td(0, k).appendChild(
-      //     $.createElement('div')
-      //       .style('margin-left', '10px')
-      //       .innerHTML(tracks[j].name)
-      //   );
-      // }
-
-      if (supported === true) {
+      if (effects[i].is_supported() === true) {
         (function(effect) {
-          table.td(0, k).addEventListener('click', function() {
+          table.td(0, j).addEventListener('click', function() {
             if (self.effect_) {
               self.effect_.dispose();
             }
             self.effect_ = effect;
-            effect.set_scene(self.webgl_.get_scene());
+            effect.render(self.webgl_.get_scene());
             self.scene_toggle_emitter_(self.display_emitter_); // Load up the new scene and apply the proper emitter display setting
-            self.current_name_.innerHTML(effect.get_name());
           });
         })(effects[i]);
       }
       else {
-        table.td(0, k).addClass('unsupported');
+        table.td(0, j).addClass('unsupported');
+        table.td(0, j).appendChild($.createElement('div').innerHTML('No supported tracks'));
       }
-
-      // TODO Temporary auto-load of the effect I want.
-      if (effects[i].get_name() === 'firepit_effect') {
-      // if(effects[i].get_name() === 'talisman_glow') {
-        table.td(0, k).dispatchEvent('click');
-      }
-
-      // table.td(1, i)
-      //   .style('text-align', 'right')
-      //   .style('width', '50px')
-      //   .appendChild(
-      //     $.createElement('img')
-      //       .setAttribute('src', 'img/forward.png')
-      //       .style('height', '20px')
-      //   );
-
-
-
-
     }
-    // .addEventListener('click', function() {
-    //   var gui = require('nw.gui');
-    //   gui.Shell.openItem(file);
-    // })
 
     parent.appendChild(table.table());
   });
@@ -455,4 +456,9 @@ shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
  */
 shed.view.effect_editor.prototype.dispose_ = function() {
   this.webgl_.stop();
+  this.effect_.dispose();
+
+  // Delete these so they can be recreated if rerendering.
+  delete this.scene_terrain_;
+  delete this.scene_axis_;
 };

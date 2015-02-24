@@ -1,6 +1,5 @@
 button {
   outline: none;
-  cursor: pointer;
 
   background: #7E8994;
 
@@ -12,7 +11,7 @@ button {
 
   font-family: "Grobold";
 
-  @extend .cursor_hover;
+  @extend .cursor_pointer;
 }
 
 button:hover {

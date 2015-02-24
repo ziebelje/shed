@@ -51,14 +51,16 @@ shed.component.title_bar.prototype.decorate_ = function(parent) {
     win.close();
   });
 
-  var back = $.createElement('img')
-    .setAttribute('src', 'img/arrow_left.png')
-    .addClass('title_bar_back');
-  back.addEventListener('click', function() {
-    new shed.view.main();
-  });
-  table.td(0, 0).style('width', '30px');
-  table.td(0, 0).appendChild(back);
+  if (frame.view.get_stack().length > 1) {
+    var back = $.createElement('img')
+      .setAttribute('src', 'img/arrow_left.png')
+      .addClass('title_bar_back');
+    back.addEventListener('click', function() {
+      frame.view.render_previous();
+    });
+    table.td(0, 0).style('width', '30px');
+    table.td(0, 0).appendChild(back);
+  }
 
   var title = $.createElement('span').innerHTML('SHED (Unofficial)' + ((this.title_) ? ' - ' + this.title_ : ''));
   table.td(1, 0).appendChild(title);

@@ -111,7 +111,7 @@ shed.component.webgl.prototype.skip_milliseconds_ = 1000 / 30;
  *
  * @private
  */
-shed.component.webgl.prototype.next_update_ = Date.now();
+shed.component.webgl.prototype.next_update_;
 
 
 /**
@@ -121,7 +121,7 @@ shed.component.webgl.prototype.next_update_ = Date.now();
  *
  * @private
  */
-shed.component.webgl.prototype.last_update_ = Date.now();
+shed.component.webgl.prototype.last_update_;
 
 
 /**
@@ -275,6 +275,8 @@ shed.component.webgl.prototype.get_controls = function() {
  * Start updating/animating.
  */
 shed.component.webgl.prototype.play = function() {
+  this.next_update_ = Date.now();
+  this.last_update_ = Date.now();
   this.animation_frame_id_ = requestAnimationFrame(this.run_.bind(this));
 };
 

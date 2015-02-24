@@ -1,0 +1,19 @@
+.gold_frame {
+  // TODO: Figure out a nice background for this and fix the name...
+
+  // border-image-source: url('../img/recipe_scroll.png');
+  // border-image-slice: 50 50 50 50;
+  // border-width: 50px 50px 50px 50px;
+  // background: #D1C096;
+
+  // padding: 5px;
+  // padding: -25px;
+
+  margin-bottom: 10px;
+
+  // color: #000;
+  font-size: 20px;
+  @include text_shadow();
+  // font-family: "Grobold";
+  // font-weight: normal;
+}

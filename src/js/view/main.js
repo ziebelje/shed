@@ -40,16 +40,16 @@ shed.view.main.prototype.decorate_ = function(parent) {
   parent.appendChild(manage_mods_button);
 
   manage_mods_button.addEventListener('click', function() {
-    new shed.view.mod_manager();
+    (new shed.view.mod_manager()).render();
   });
 
-  var effect_editor_button = $.createElement('button')
+  var effect_list_button = $.createElement('button')
     .addClass('button_main')
     .innerHTML('Effect Editor');
-  parent.appendChild(effect_editor_button);
+  parent.appendChild(effect_list_button);
 
-  effect_editor_button.addEventListener('click', function() {
-    new shed.view.effect_editor();
+  effect_list_button.addEventListener('click', function() {
+    (new shed.view.effect_list()).render();
   });
 
   var settings_button = $.createElement('button')
@@ -58,7 +58,7 @@ shed.view.main.prototype.decorate_ = function(parent) {
   parent.appendChild(settings_button);
 
   settings_button.addEventListener('click', function() {
-    new shed.view.settings();
+    (new shed.view.settings()).render();
   });
 };
 
