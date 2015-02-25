@@ -1,7 +1,7 @@
 .effect_list {
   .list {
     height: calc(100vh - #{$non_content_height});
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
   }
 

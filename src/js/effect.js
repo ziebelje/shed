@@ -34,7 +34,7 @@ shed.effect.prototype.load_ = function() {
           'name': name,
           'attributes': this.data_.tracks[name],
           'object': new shed.cubemitter({
-            'file': localStorage.mod_path + '\\data\\horde\\' + this.data_.tracks[name].cubemitter,
+            'file': localStorage.path + '\\mods\\' + localStorage.mod + '\\data\\horde\\' + this.data_.tracks[name].cubemitter,
             'transforms': this.data_.tracks[name].transforms
             // TODO: Add event listener on the cubemitter to reload this effect when any cubemitter changes
           })
@@ -268,7 +268,6 @@ shed.effect.prototype.dispose = function() {
 
   // Stop watching file for changes (if watching at all)
   if (this.watcher_) {
-    console.log('- watcher');
     this.watcher_.close();
   }
 
@@ -292,7 +291,6 @@ shed.effect.prototype.dispose = function() {
  */
 shed.effect.prototype.watch_ = function() {
   var self = this;
-  console.log('+ watcher');
   this.watcher_ = shed.watch_file(this.file_, function() {
     self.dispatchEvent('change');
   });
@@ -358,10 +356,10 @@ shed.effect.get_effects = function(callback) {
     });
   };
 
-  walk(localStorage.mod_path + '\\data\\effects', function(error) {
-    if (error) {
-      throw error;
-    }
+  walk(localStorage.path + '\\mods\\' + localStorage.mod + '\\data\\effects', function(error) {
+    // if (error) {
+      // throw error;
+    // }
 
     effects.sort(function(a, b) {
       var a_score = 0;

@@ -77,6 +77,16 @@ shed.cubemitter.prototype.emitter_;
 
 
 /**
+ * Whether or not to display the emitter.
+ *
+ * @type {boolean}
+ *
+ * @private
+ */
+shed.cubemitter.prototype.dispaly_emitter_;
+
+
+/**
  * The group containing all cubes.
  *
  * @type {THREE.Object3D}
@@ -153,7 +163,7 @@ shed.cubemitter.prototype.render = function(scene) {
     }
   }
 
-  this.group_.add(this.emitter_);
+  // this.group_.add(this.emitter_);
   this.group_.add(this.cubes_);
 
   this.scene_.add(this.group_);
@@ -184,12 +194,16 @@ shed.cubemitter.prototype.get_file = function() {
 
 
 /**
- * Toggle display of the emitter.
+ * Toggle display of the emitter. If the emitter does not yet exist, just
+ * store the value to be used when it gets created.
  *
  * @param {boolean} display Whether or not to display it.
  */
 shed.cubemitter.prototype.toggle_emitter = function(display) {
-  this.emitter_.visible = display;
+  if (this.emitter_) {
+    this.emitter_.visible = display;
+  }
+  this.display_emitter_ = display;
 };
 
 
@@ -224,11 +238,6 @@ shed.cubemitter.prototype.load_ = function() {
 
   this.group_ = new THREE.Object3D();
   this.cubes_ = new THREE.Object3D();
-
-  this.emitter_ = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial({'color': 0x3d9cd2})
-  );
 };
 
 
@@ -330,9 +339,6 @@ shed.cubemitter.prototype.update_create_ = function(dt) {
  * @private
  */
 shed.cubemitter.prototype.update_alter_ = function(dt) {
-  if(!this.cubes_) {
-    debugger;
-  }
   for (var i = this.cubes_.children.length - 1; i >= 0; i--) {
     this.cubes_.children[i].userData.age += (dt / 1000);
 
@@ -574,12 +580,18 @@ shed.cubemitter.prototype.random_between_curves_ = function(type, values, t, ran
 shed.cubemitter.prototype.rectangle_ = function(type, values) {
   switch (type) {
     case 'emission.origin':
-      if (!this.emitter_.userData.added) {
+      if (!this.emitter_) {
+
+        this.emitter_ = new THREE.Mesh(
+          new THREE.BoxGeometry(values[1], values[0], 0.1),
+          new THREE.MeshBasicMaterial({'color': 0x3d9cd2})
+        );
+        this.emitter_.visible = this.display_emitter_;
+
         // Rotate the emitter. Cannot just scale/rotate the mesh because the
         // geometry doesn't update. Need to do these matrix transforms.
         // http://stackoverflow.com/a/17647308
-        this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeScale(values[1], values[0], 0.1));
-
+        // this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeScale(values[1], values[0], 0.1));
         if (this.transforms_) {
           if (this.transforms_.rx) {
             this.emitter_.geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-this.transforms_.rx * Math.PI / 180));
@@ -592,8 +604,8 @@ shed.cubemitter.prototype.rectangle_ = function(type, values) {
           }
         }
 
+        this.group_.add(this.emitter_);
         this.emitter_.geometry.computeBoundingBox();
-        this.emitter_.userData.added = true;
       }
 
       // Use the generated / transformed mesh and pick a random point inside of
@@ -633,12 +645,14 @@ shed.cubemitter.prototype.rectangle_ = function(type, values) {
  * plane.
  */
 shed.cubemitter.prototype.point_ = function(type, values) {
-  if (!this.emitter_.userData.added) {
-    this.emitter_.userData.added = true;
-    this.emitter_.scale.x = 0.2;
-    this.emitter_.scale.z = 0.2;
-    this.emitter_.scale.y = 0.2;
-    // TODO: Transform this, too
+  if (!this.emitter_) {
+    this.emitter_ = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 0.2, 0.2),
+      new THREE.MeshBasicMaterial({'color': 0x3d9cd2})
+    );
+    this.emitter_.visible = this.display_emitter_;
+
+    this.group_.add(this.emitter_);
   }
 
   return {'x': 0, 'y': 0, 'z': 0};
@@ -706,7 +720,6 @@ shed.cubemitter.prototype.dispose = function() {
 
   // Stop watching file for changes (if watching at all)
   if (this.watcher_) {
-    console.log('- watcher');
     this.watcher_.close();
   }
 

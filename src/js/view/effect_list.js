@@ -69,27 +69,36 @@ shed.view.effect_list.prototype.decorate_list_ = function(parent) {
   var self = this;
 
   shed.effect.get_effects(function(effects) {
-    var table = new jex.table({'rows': 0, 'columns': 1});
-    table.table().addClass(['zebra', 'highlight'])
-      .style('width', '100%');
+    if(effects.length === 0) {
+      (new shed.component.none(
+        'No effects found',
+        'Make sure your effects are in the data/effects/ folder of your mod. (This will not be a requirement in the future)'
+      )).render(parent);
+    }
+    else {
+      var table = new jex.table({'rows': 0, 'columns': 1});
+      table.table().addClass(['zebra', 'highlight'])
+        .style('width', '100%');
 
-    for (var i = 0; i < effects.length; i++) {
-      var j = table.add_row();
-      table.td(0, j).innerHTML(effects[i].get_name());
+      for (var i = 0; i < effects.length; i++) {
+        var j = table.add_row();
+        table.td(0, j).innerHTML(effects[i].get_name());
 
-      if (effects[i].is_supported() === true) {
-        (function(effect) {
-          table.td(0, j).addEventListener('click', function() {
-            (new shed.view.effect_editor(effect)).render();
-          });
-        })(effects[i]);
+        if (effects[i].is_supported() === true) {
+          (function(effect) {
+            table.td(0, j).addEventListener('click', function() {
+              (new shed.view.effect_editor(effect)).render();
+            });
+          })(effects[i]);
+        }
+        else {
+          table.td(0, j).addClass('unsupported');
+          table.td(0, j).appendChild($.createElement('small').innerHTML('No supported tracks'));
+        }
       }
-      else {
-        table.td(0, j).addClass('unsupported');
-        table.td(0, j).appendChild($.createElement('small').innerHTML('No supported tracks'));
-      }
+
+      parent.appendChild(table.table());
     }
 
-    parent.appendChild(table.table());
   });
 };

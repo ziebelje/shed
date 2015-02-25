@@ -67,7 +67,7 @@ shed.view.mod_manager.prototype.decorate_ = function(parent) {
 shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   var self = this;
 
-  var table = new jex.table({'rows': this.mods_.length + 1, 'columns': 5, 'header': true});
+  var table = new jex.table({'rows': this.mods_.length + 1, 'columns': 6, 'header': true});
   table.table()
     .style({
       'margin': 'auto',
@@ -77,10 +77,11 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
 
   table.td(1, 0).style('width', '80px');
   table.td(2, 0).style('width', '150px');
-  table.td(3, 0).style('width', '150px');
-  table.td(4, 0).style('width', '150px');
+  table.td(3, 0).style('width', '65px');
+  table.td(4, 0).style('width', '125px');
+  table.td(5, 0).style('width', '150px');
 
-  table.fill_row(0, [null, 'SMOD', 'Unpacked', 'Enabled']);
+  table.fill_row(0, [null, 'SMOD', 'Unpacked', 'Enabled', 'Loaded']);
 
   for (var i = 0; i < this.mods_.length; ++i) {
     table.td(0, i + 1)
@@ -123,6 +124,19 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
       enabled_checkbox.checked(true);
     }
 
+    var loaded_radio = $.createElement('input')
+      .setAttribute({'type': 'radio', 'name': 'loaded'})
+      .addClass(['radio', 'loaded_radio'])
+      .dataset('mod_id', i);
+
+    table.td(4, i + 1)
+      .style('text-align', 'center')
+      .appendChild(loaded_radio);
+
+    if (this.mods_[i].get_name() === localStorage.mod) {
+      loaded_radio.checked(true);
+    }
+
     var pack_button = $.createElement('button')
       .innerHTML('SMOD')
       .style('margin-right', '5px')
@@ -135,8 +149,8 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
       .addClass('unpack_button');
 
 
-    table.td(4, i + 1).style('text-align', 'right').appendChild(pack_button);
-    table.td(4, i + 1).style('text-align', 'right').appendChild(unpack_button);
+    table.td(5, i + 1).style('text-align', 'right').appendChild(pack_button);
+    table.td(5, i + 1).style('text-align', 'right').appendChild(unpack_button);
   }
 
   table.table().live('.enabled_checkbox', 'change', function() {
@@ -148,6 +162,12 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
     else {
       self.mods_[mod_id].disable();
     }
+  });
+
+  table.table().live('.loaded_radio', 'change', function() {
+    var loaded_radio = $(this);
+    var mod_id = loaded_radio.dataset('mod_id');
+    localStorage.mod = self.mods_[mod_id].get_name();
   });
 
   table.table().live('.pack_button', 'click', function() {

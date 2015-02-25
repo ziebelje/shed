@@ -9,18 +9,7 @@
  * @constructor
  */
 shed.view.effect_editor = function(effect) {
-  var self = this;
-
   this.effect_ = effect;
-
-
-
-  // TODO PUT THIS BACK?
-  // Toggle the emitter display any time the effect gets loaded.
-  // this.effect_.addEventListener('load', function() {
-  //   self.scene_toggle_emitter_(self.display_emitter_);
-  // });
-
   shed.view.apply(this, arguments);
 };
 $.inherits(shed.view.effect_editor, shed.view);
@@ -53,7 +42,7 @@ shed.view.effect_editor.prototype.webgl_;
  *
  * @private
  */
-shed.view.effect_editor.prototype.scene_terrain_;
+shed.view.effect_editor.prototype.terrain_;
 
 
 /**
@@ -63,17 +52,7 @@ shed.view.effect_editor.prototype.scene_terrain_;
  *
  * @private
  */
-shed.view.effect_editor.prototype.scene_axis_;
-
-
-/**
- * Whether or not to display the emitter on each cubemitter.
- *
- * @type {boolean}
- *
- * @private
- */
-shed.view.effect_editor.prototype.display_emitter_;
+shed.view.effect_editor.prototype.axis_;
 
 
 /**
@@ -89,7 +68,6 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
   this.effect_.reload();
 
   this.effect_.addEventListener('change', function() {
-    // debugger;
     self.rerender();
   });
 
@@ -122,27 +100,30 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
   // Well
   var well = $.createElement('div').addClass('well');
 
-  this.decorate_toolbar_(well);
-
-  well.appendChild(toolbar);
-
-  // Scene
   this.webgl_ = new shed.component.webgl({
     'width': 490,
     'height': 485,
     'update': this.update_.bind(this)
   });
+
+  // Toolbar
   this.webgl_.render(well);
+  this.decorate_toolbar_(well);
+
+  // Set camera position
+  if (localStorage.effect_editor_camera_position) {
+    var position = JSON.parse(localStorage.effect_editor_camera_position);
+    this.webgl_.get_camera().position.x = position.x;
+    this.webgl_.get_camera().position.y = position.y;
+    this.webgl_.get_camera().position.z = position.z;
+  }
+  else {
+    this.webgl_.get_camera().position.x = 12;
+    this.webgl_.get_camera().position.y = 7;
+    this.webgl_.get_camera().position.z = 12;
+  }
 
   this.effect_.render(this.webgl_.get_scene());
-
-  this.webgl_.get_camera().position.z = 12;
-  this.webgl_.get_camera().position.y = 7;
-  this.webgl_.get_camera().position.x = 12;
-
-  this.scene_toggle_terrain_(true);
-  this.scene_toggle_axis_(false);
-  this.scene_toggle_emitter_(false);
 
   // Canvas
   right.appendChild(well);
@@ -209,9 +190,12 @@ shed.view.effect_editor.prototype.decorate_tracks_ = function(parent) {
 shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var self = this;
 
+  var terrain = localStorage.effect_editor_terrain !== undefined ? (localStorage.effect_editor_terrain === 'true') : true;
+  var axis = localStorage.effect_editor_axis !== undefined ? (localStorage.effect_editor_axis === 'true') : false;
+  var emitter = localStorage.effect_editor_emitter !== undefined ? (localStorage.effect_editor_emitter === 'true') : false;
+
   // Toolbar
-  var toolbar = $.createElement('div')
-    .addClass('toolbar');
+  var toolbar = $.createElement('div').addClass('toolbar');
 
   // Toggle terrain
   var toggle_terrain_container = $.createElement('span')
@@ -220,7 +204,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_terrain = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_terrain')
-    .checked(true);
+    .checked(terrain);
   toggle_terrain.addEventListener('change', function() {
     self.scene_toggle_terrain_(toggle_terrain.checked());
   });
@@ -234,7 +218,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_axis = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_axis')
-    .checked(false);
+    .checked(axis);
   toggle_axis.addEventListener('change', function() {
     self.scene_toggle_axis_(toggle_axis.checked());
   });
@@ -248,56 +232,18 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_emitter = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_emitter')
-    .checked(false);
+    .checked(emitter);
   toggle_emitter.addEventListener('change', function() {
     self.scene_toggle_emitter_(toggle_emitter.checked());
   });
   toggle_emitter_container.appendChild(toggle_emitter);
   toolbar.appendChild(toggle_emitter_container);
 
+  toggle_terrain.dispatchEvent('change');
+  toggle_axis.dispatchEvent('change');
+  toggle_emitter.dispatchEvent('change');
+
   parent.appendChild(toolbar);
-};
-
-
-/**
- * Decorate the effect list.
- *
- * @param {rocket.Elements} parent
- *
- * @private
- */
-shed.view.effect_editor.prototype.decorate_list_ = function(parent) {
-  var self = this;
-
-  shed.effect.get_effects(function(effects) {
-    var table = new jex.table({'rows': 0, 'columns': 1});
-    table.table().addClass(['zebra', 'highlight'])
-      .style({'width': '100%', 'cursor': 'pointer'});
-
-    for (var i = 0; i < effects.length; i++) {
-      var j = table.add_row();
-      table.td(0, j).innerHTML(effects[i].get_name());
-
-      if (effects[i].is_supported() === true) {
-        (function(effect) {
-          table.td(0, j).addEventListener('click', function() {
-            if (self.effect_) {
-              self.effect_.dispose();
-            }
-            self.effect_ = effect;
-            effect.render(self.webgl_.get_scene());
-            self.scene_toggle_emitter_(self.display_emitter_); // Load up the new scene and apply the proper emitter display setting
-          });
-        })(effects[i]);
-      }
-      else {
-        table.td(0, j).addClass('unsupported');
-        table.td(0, j).appendChild($.createElement('div').innerHTML('No supported tracks'));
-      }
-    }
-
-    parent.appendChild(table.table());
-  });
 };
 
 
@@ -323,8 +269,8 @@ shed.view.effect_editor.prototype.update_ = function(dt) {
  * @private
  */
 shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
-  if (!this.scene_terrain_) {
-    this.scene_terrain_ = new THREE.Object3D();
+  if (!this.terrain_) {
+    this.terrain_ = new THREE.Object3D();
 
     // Grass
     mesh = new THREE.Mesh(
@@ -332,7 +278,7 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
       new THREE.MeshBasicMaterial({'color': 0x80c47b })
     );
     mesh.position.y = -0.5;
-    this.scene_terrain_.add(mesh);
+    this.terrain_.add(mesh);
 
     // Dirt
     mesh = new THREE.Mesh(
@@ -340,26 +286,27 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
       new THREE.MeshBasicMaterial({'color': 0x48402b })
     );
     mesh.position.y = -2;
-    this.scene_terrain_.add(mesh);
+    this.terrain_.add(mesh);
 
     mesh = new THREE.Mesh(
       new THREE.BoxGeometry(10, 2, 10),
       new THREE.MeshBasicMaterial({'color': 0x403823 })
     );
     mesh.position.y = -4;
-    this.scene_terrain_.add(mesh);
+    this.terrain_.add(mesh);
 
     mesh = new THREE.Mesh(
       new THREE.BoxGeometry(10, 2, 10),
       new THREE.MeshBasicMaterial({'color': 0x48402b })
     );
     mesh.position.y = -6;
-    this.scene_terrain_.add(mesh);
+    this.terrain_.add(mesh);
 
-    this.webgl_.get_scene().add(this.scene_terrain_);
+    this.webgl_.get_scene().add(this.terrain_);
   }
 
-  this.scene_terrain_.visible = display;
+  this.terrain_.visible = display;
+  localStorage.effect_editor_terrain = display;
 };
 
 
@@ -371,8 +318,8 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
  * @private
  */
 shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
-  if (!this.scene_axis_) {
-    this.scene_axis_ = new THREE.Object3D();
+  if (!this.axis_) {
+    this.axis_ = new THREE.Object3D();
 
     var geometry, material, line, map, sprite;
 
@@ -382,14 +329,14 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
     geometry.vertices.push(new THREE.Vector3(6, 0, 0));
     material = new THREE.LineBasicMaterial({'color': 0xff0000});
     line = new THREE.Line(geometry, material);
-    this.scene_axis_.add(line);
+    this.axis_.add(line);
 
     map = THREE.ImageUtils.loadTexture('img/x.png');
     material = new THREE.SpriteMaterial({'map': map});
     sprite = new THREE.Sprite(material);
     sprite.scale.set(0.2, 0.2, 1);
     sprite.position.set(6.2, 0, 0);
-    this.scene_axis_.add(sprite);
+    this.axis_.add(sprite);
 
     // Y
     geometry = new THREE.Geometry();
@@ -397,14 +344,14 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
     geometry.vertices.push(new THREE.Vector3(0, 6, 0));
     material = new THREE.LineBasicMaterial({'color': 0x00ff00});
     line = new THREE.Line(geometry, material);
-    this.scene_axis_.add(line);
+    this.axis_.add(line);
 
     map = THREE.ImageUtils.loadTexture('img/y.png');
     material = new THREE.SpriteMaterial({'map': map});
     sprite = new THREE.Sprite(material);
     sprite.scale.set(0.2, 0.2, 1);
     sprite.position.set(0, 6.2, 0);
-    this.scene_axis_.add(sprite);
+    this.axis_.add(sprite);
 
     // Z
     geometry = new THREE.Geometry();
@@ -412,19 +359,20 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
     geometry.vertices.push(new THREE.Vector3(0, 0, 6));
     material = new THREE.LineBasicMaterial({'color': 0x0000ff});
     line = new THREE.Line(geometry, material);
-    this.scene_axis_.add(line);
+    this.axis_.add(line);
 
     map = THREE.ImageUtils.loadTexture('img/z.png');
     material = new THREE.SpriteMaterial({'map': map});
     sprite = new THREE.Sprite(material);
     sprite.scale.set(0.2, 0.2, 1);
     sprite.position.set(0, 0, 6.2);
-    this.scene_axis_.add(sprite);
+    this.axis_.add(sprite);
 
-    this.webgl_.get_scene().add(this.scene_axis_);
+    this.webgl_.get_scene().add(this.axis_);
   }
 
-  this.scene_axis_.visible = display;
+  this.axis_.visible = display;
+  localStorage.effect_editor_axis = display;
 };
 
 
@@ -436,7 +384,6 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
  * @private
  */
 shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
-  this.display_emitter_ = display;
   if (this.effect_) {
     var tracks = this.effect_.get_tracks();
     for (var i = 0; i < tracks.length; i++) {
@@ -445,6 +392,7 @@ shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
       }
     }
   }
+  localStorage.effect_editor_emitter = display;
 };
 
 
@@ -455,10 +403,17 @@ shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
  * @private
  */
 shed.view.effect_editor.prototype.dispose_ = function() {
+  // Save a few settings
+  localStorage.effect_editor_camera_position = JSON.stringify({
+    'x': this.webgl_.get_camera().position.x,
+    'y': this.webgl_.get_camera().position.y,
+    'z': this.webgl_.get_camera().position.z
+  });
+
   this.webgl_.stop();
   this.effect_.dispose();
 
   // Delete these so they can be recreated if rerendering.
-  delete this.scene_terrain_;
-  delete this.scene_axis_;
+  delete this.terrain_;
+  delete this.axis_;
 };

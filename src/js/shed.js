@@ -4,9 +4,10 @@ $.ready(function() {
   // Should catch all errors.
   process.on('uncaughtException', function(error) {
     console.error(error);
-    // (new shed.view.error(error)).render();
+    (new shed.view.error(error)).render();
   });
 
+  // (new shed.view.mod_manager()).render();
   (new shed.view.main()).render();
 });
 
@@ -47,7 +48,6 @@ shed.read_file = function(file) {
 shed.watch_file = function(file, callback) {
   var fs = require('fs');
   return fs.watch(file, {}, $.debounce(200, function() {
-    console.log('watch_file triggered');
     callback();
   }));
 };

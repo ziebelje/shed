@@ -91,7 +91,7 @@ shed.component.webgl.prototype.update_;
  *
  * @private
  */
-shed.component.webgl.prototype.fps_ = 30;
+shed.component.webgl.prototype.fps_ = 60;
 
 
 /**
@@ -101,7 +101,7 @@ shed.component.webgl.prototype.fps_ = 30;
  *
  * @private
  */
-shed.component.webgl.prototype.skip_milliseconds_ = 1000 / 30;
+shed.component.webgl.prototype.skip_milliseconds_ = 1000 / 60;
 
 
 /**
@@ -146,6 +146,7 @@ shed.component.webgl.prototype.decorate_ = function(parent) {
   this.scene_ = new THREE.Scene();
 
   this.camera_ = new THREE.PerspectiveCamera(75, this.width_ / this.height_, 0.1, 100);
+  c = this.camera_;
 
   if (this.webgl_supported_() === true) {
     this.renderer_ = new THREE.WebGLRenderer({

@@ -18,26 +18,28 @@ textarea {
   color: #fff;
 }
 
-.checkbox {
+.checkbox, .radio {
+  @extend .cursor_pointer;
   outline: none;
   -webkit-appearance: none;
   background-image: url('../img/button.png');
   width: 50px;
   height: 50px;
+  margin: 0;
 }
 
-.checkbox:hover {
+.checkbox:hover, .radio:hover {
   background: url('../img/button_hover.png');
 }
 
-.checkbox:checked {
+.checkbox:checked, .radio:checked {
   background: url('../img/ok_check.png'), url('../img/button_green.png');
   background-repeat: no-repeat, no-repeat;
   background-position: 14px 12px, 0px 0px;
 }
 
 
-.checkbox:checked:hover {
+.checkbox:checked:hover, .radio:checked:hover {
   background: url('../img/ok_check.png'), url('../img/button_green_hover.png');
   background-repeat: no-repeat, no-repeat;
   background-position: 14px 12px, 0px 0px;

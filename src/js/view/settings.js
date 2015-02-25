@@ -53,7 +53,6 @@ shed.view.settings.prototype.decorate_ = function(parent) {
 
   path_input.addEventListener('blur', function() {
     localStorage.path = $(this).value();
-    localStorage.mod_path = $(this).value() + '\\mods\\stonehearth'; // TODO: For now...
     self.render();
   });
 
