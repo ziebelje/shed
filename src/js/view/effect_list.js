@@ -69,7 +69,7 @@ shed.view.effect_list.prototype.decorate_list_ = function(parent) {
   var self = this;
 
   shed.effect.get_effects(function(effects) {
-    if(effects.length === 0) {
+    if (effects.length === 0) {
       (new shed.component.none(
         'No effects found',
         'Make sure your effects are in the data/effects/ folder of your mod. (This will not be a requirement in the future)'

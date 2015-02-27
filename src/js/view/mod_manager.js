@@ -216,7 +216,7 @@ shed.view.mod_manager.prototype.decorate_path_ = function(parent) {
 
   var path_input = $.createElement('input')
     .style('width', '100%')
-    .value(localStorage.path + '\\mods')
+    .value(localStorage.path + 'mods')
     .setAttribute({'type': 'text', 'disabled': 'disabled'});
   path_table.td(0, 0).appendChild(path_input);
 
@@ -251,7 +251,7 @@ shed.view.mod_manager.prototype.get_mods_ = function() {
   // At this point we know where the mods folder is, so now get a list of
   // available mods.
   try {
-    var file_entries = fs.readdirSync(localStorage.path + '\\mods');
+    var file_entries = fs.readdirSync(localStorage.path + 'mods');
   }
   catch (e) {
     return [];

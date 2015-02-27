@@ -39,8 +39,8 @@ shed.mod.prototype.pack = function(callback) {
     throw 'disable this';
   }
 
-  var folder_name = localStorage.path + '\\mods\\' + this.name_;
-  var smod_name = localStorage.path + '\\mods\\' + this.name_ + '.smod';
+  var folder_name = localStorage.path + 'mods\\' + this.name_;
+  var smod_name = localStorage.path + 'mods\\' + this.name_ + '.smod';
 
   var spawn = require('child_process').spawn;
   var process = spawn(
@@ -75,8 +75,8 @@ shed.mod.prototype.unpack = function(callback) {
     throw 'disable this';
   }
 
-  var folder_name = localStorage.path + '\\mods\\';
-  var smod_name = localStorage.path + '\\mods\\' + this.name_ + '.smod';
+  var folder_name = localStorage.path + 'mods\\';
+  var smod_name = localStorage.path + 'mods\\' + this.name_ + '.smod';
 
   // Spawn will run an asynchronous process (using the same nw module) and
   // return a data stream. I'm not using the stream right now, but if I wanted
@@ -115,8 +115,8 @@ shed.mod.prototype.enable = function() {
 
   for (var i = 0; i < file_entries.length; i++) {
     if (file_entries[i].substr(-9) === '.disabled') {
-      var old_name = localStorage.path + '\\mods\\' + file_entries[i];
-      var new_name = localStorage.path + '\\mods\\' + file_entries[i].replace('.disabled', '');
+      var old_name = localStorage.path + 'mods\\' + file_entries[i];
+      var new_name = localStorage.path + 'mods\\' + file_entries[i].replace('.disabled', '');
       fs.renameSync(old_name, new_name);
     }
   }
@@ -133,8 +133,8 @@ shed.mod.prototype.disable = function() {
 
   for (var i = 0; i < file_entries.length; i++) {
     if (file_entries[i].substr(-9) !== '.disabled') {
-      var old_name = localStorage.path + '\\mods\\' + file_entries[i];
-      var new_name = localStorage.path + '\\mods\\' + file_entries[i] + '.disabled';
+      var old_name = localStorage.path + 'mods\\' + file_entries[i];
+      var new_name = localStorage.path + 'mods\\' + file_entries[i] + '.disabled';
       fs.renameSync(old_name, new_name);
     }
   }
@@ -183,7 +183,7 @@ shed.mod.prototype.has_directory = function() {
   var file_entries = this.get_file_entries_();
 
   for (var i = 0; i < file_entries.length; i++) {
-    var stat = fs.statSync(localStorage.path + '\\mods\\' + file_entries[i]);
+    var stat = fs.statSync(localStorage.path + 'mods\\' + file_entries[i]);
     if (stat.isDirectory() === true) {
       return true;
     }
@@ -203,7 +203,7 @@ shed.mod.prototype.has_smod = function() {
   var file_entries = this.get_file_entries_();
 
   for (var i = 0; i < file_entries.length; i++) {
-    var stat = fs.statSync(localStorage.path + '\\mods\\' + file_entries[i]);
+    var stat = fs.statSync(localStorage.path + 'mods\\' + file_entries[i]);
     if (stat.isFile() === true && file_entries[i].indexOf('.smod') !== -1) {
       return true;
     }
@@ -228,7 +228,7 @@ shed.mod.prototype.has_smod = function() {
  */
 shed.mod.prototype.get_file_entries_ = function() {
   var fs = require('fs');
-  var all_file_entries = fs.readdirSync(localStorage.path + '\\mods');
+  var all_file_entries = fs.readdirSync(localStorage.path + 'mods');
 
   var file_entries = [];
   for (var i = 0; i < all_file_entries.length; i++) {

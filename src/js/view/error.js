@@ -35,7 +35,11 @@ shed.view.error.prototype.decorate_ = function(parent) {
 
   var todo = $.createElement('div').addClass('error');
   todo.appendChild($.createElement('h1').innerHTML('Oops!'));
-  todo.appendChild($.createElement('textarea').setAttribute('readonly', 'readonly').value(this.error_.stack));
+  todo.appendChild(
+    $.createElement('textarea')
+      .setAttribute('readonly', 'readonly')
+      .value(this.error_.stack || this.error_)
+  );
 
   parent.appendChild(todo);
 };

@@ -88,8 +88,7 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
 
   var open = $.createElement('img').setAttribute('src', 'img/forward.png').addClass('effect_open');
   open.addEventListener('click', function() {
-    var gui = require('nw.gui');
-    gui.Shell.openItem(self.effect_.get_file());
+    self.effect_.get_file().open();
   });
   table.td(1, 0).style('text-align', 'right').appendChild(open);
 
@@ -162,15 +161,7 @@ shed.view.effect_editor.prototype.decorate_tracks_ = function(parent) {
 
       (function(file) {
         open.addEventListener('click', function() {
-          var gui = require('nw.gui');
-          gui.Shell.openItem(file);
-        });
-      })(tracks[i].object.get_file());
-
-      (function(file) {
-        open.addEventListener('click', function() {
-          var gui = require('nw.gui');
-          gui.Shell.openItem(file);
+          file.open();
         });
       })(tracks[i].object.get_file());
     }

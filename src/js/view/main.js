@@ -84,7 +84,7 @@ shed.view.main.prototype.guess_path_ = function() {
   for (var i = 0; i < possible_paths.length; i++) {
     try {
       fs.readdirSync(possible_paths[i]);
-      localStorage.path = possible_paths[i];
+      shed.set_path(possible_paths[i]);
       localStorage.mod = 'stonehearth';
       return;
     }

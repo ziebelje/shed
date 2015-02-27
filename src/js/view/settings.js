@@ -52,7 +52,8 @@ shed.view.settings.prototype.decorate_ = function(parent) {
   path_table.td(0, 0).appendChild(path_input);
 
   path_input.addEventListener('blur', function() {
-    localStorage.path = $(this).value();
+    shed.set_path($(this).value());
+    $(this).value(localStorage.path);
     self.render();
   });
 

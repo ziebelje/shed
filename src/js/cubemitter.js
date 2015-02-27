@@ -27,9 +27,9 @@ shed.cubemitter.cube_limit_ = 100;
 
 
 /**
- * The JSON file for this cubemitter.
+ * The file for this cubemitter.
  *
- * @type {string}
+ * @type {shed.file}
  *
  * @private
  */
@@ -44,16 +44,6 @@ shed.cubemitter.prototype.file_;
  * @private
  */
 shed.cubemitter.prototype.scene_;
-
-
-/**
- * File watcher
- *
- * @type {fs.FSWatcher}
- *
- * @private
- */
-shed.cubemitter.prototype.watcher_;
 
 
 /**
@@ -186,7 +176,7 @@ shed.cubemitter.prototype.update = function(dt) {
 /**
  * Get this file.
  *
- * @return {string}
+ * @return {shed.file}
  */
 shed.cubemitter.prototype.get_file = function() {
   return this.file_;
@@ -234,7 +224,7 @@ shed.cubemitter.prototype.load_ = function() {
   this.dt_system_ = 0;
   this.emit_ = true;
 
-  this.data_ = shed.read_file(this.file_);
+  this.data_ = this.file_.read();
 
   this.group_ = new THREE.Object3D();
   this.cubes_ = new THREE.Object3D();
@@ -382,15 +372,15 @@ shed.cubemitter.prototype.update_alter_ = function(dt) {
     if (this.data_.particle.rotation) {
       if (this.data_.particle.rotation.over_lifetime_x) {
         var rotation_x = this[this.data_.particle.rotation.over_lifetime_x.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_x.values, age_percent, this.cubes_.children[i].userData.random);
-        this.cubes_.children[i].rotation.x = rotation_x;
+        this.cubes_.children[i].rotation.x = rotation_x * Math.PI / 180;
       }
       if (this.data_.particle.rotation.over_lifetime_y) {
         var rotation_y = this[this.data_.particle.rotation.over_lifetime_y.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_y.values, age_percent, this.cubes_.children[i].userData.random);
-        this.cubes_.children[i].rotation.y = rotation_y;
+        this.cubes_.children[i].rotation.y = rotation_y * Math.PI / 180;
       }
       if (this.data_.particle.rotation.over_lifetime_z) {
         var rotation_z = this[this.data_.particle.rotation.over_lifetime_z.kind.toLowerCase() + '_']('particle.rotation', this.data_.particle.rotation.over_lifetime_z.values, age_percent, this.cubes_.children[i].userData.random);
-        this.cubes_.children[i].rotation.z = rotation_z;
+        this.cubes_.children[i].rotation.z = rotation_z * Math.PI / 180;
       }
     }
 
@@ -691,7 +681,7 @@ shed.cubemitter.prototype.evaluate_curve_ = function(curve, t) {
  */
 shed.cubemitter.prototype.watch_ = function() {
   var self = this;
-  this.watcher_ = shed.watch_file(this.file_, function() {
+  this.file_.watch(function() {
     self.dispatchEvent('change');
   });
 };
@@ -719,12 +709,9 @@ shed.cubemitter.prototype.dispose = function() {
   }
 
   // Stop watching file for changes (if watching at all)
-  if (this.watcher_) {
-    this.watcher_.close();
-  }
+  this.file_.stop_watch();
 
   delete this.scene_;
-  delete this.watcher_;
   delete this.data_;
   delete this.emitter_;
   delete this.cubes_;

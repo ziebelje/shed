@@ -6,7 +6,7 @@
  *
  * @constructor
  *
- * @param {string} file The file describing this effect.
+ * @param {shed.file} file The file describing this effect.
  */
 shed.effect = function(file) {
   this.file_ = file;
@@ -21,7 +21,7 @@ $.inherits(shed.effect, $.EventTarget);
  * @private
  */
 shed.effect.prototype.load_ = function() {
-  this.data_ = shed.read_file(this.file_);
+  this.data_ = this.file_.read();
 
   this.supported_ = false;
   this.tracks_ = [];
@@ -34,9 +34,8 @@ shed.effect.prototype.load_ = function() {
           'name': name,
           'attributes': this.data_.tracks[name],
           'object': new shed.cubemitter({
-            'file': localStorage.path + '\\mods\\' + localStorage.mod + '\\data\\horde\\' + this.data_.tracks[name].cubemitter,
+            'file': new shed.file(this.data_.tracks[name].cubemitter, this.file_),
             'transforms': this.data_.tracks[name].transforms
-            // TODO: Add event listener on the cubemitter to reload this effect when any cubemitter changes
           })
         });
       }
@@ -69,16 +68,14 @@ shed.effect.prototype.load_ = function() {
     return a_score;
   });
 
-  this.name_ = this.file_.substr(this.file_.lastIndexOf('\\') + 1).replace('.json', '');
-
   this.dispatchEvent('load');
 };
 
 
 /**
- * Path of the effect file.
+ * This effect file.
  *
- * @type {string}
+ * @type {shed.file}
  *
  * @private
  */
@@ -113,26 +110,6 @@ shed.effect.prototype.tracks_;
  * @private
  */
 shed.effect.prototype.data_;
-
-
-/**
- * The file watcher.
- *
- * @type {fs.FSWatcher}
- *
- * @private
- */
-shed.effect.prototype.watcher_;
-
-
-/**
- * The name of the effect.
- *
- * @type {string}
- *
- * @private
- */
-shed.effect.prototype.name_;
 
 
 /**
@@ -187,14 +164,14 @@ shed.effect.prototype.update = function(dt) {
  * @return {string}
  */
 shed.effect.prototype.get_name = function() {
-  return this.name_;
+  return this.file_.get_name();
 };
 
 
 /**
- * Get the filename.
+ * Get the file.
  *
- * @return {string}
+ * @return {shed.file}
  */
 shed.effect.prototype.get_file = function() {
   return this.file_;
@@ -267,16 +244,12 @@ shed.effect.prototype.dispose = function() {
   }
 
   // Stop watching file for changes (if watching at all)
-  if (this.watcher_) {
-    this.watcher_.close();
-  }
+  this.file_.stop_watch();
 
   // Delete some stuff
   delete this.scene_;
   delete this.tracks_;
   delete this.data_;
-  delete this.watcher_;
-  delete this.name_;
   delete this.dt_;
   delete this.supported_;
 };
@@ -291,7 +264,7 @@ shed.effect.prototype.dispose = function() {
  */
 shed.effect.prototype.watch_ = function() {
   var self = this;
-  this.watcher_ = shed.watch_file(this.file_, function() {
+  this.file_.watch(function() {
     self.dispatchEvent('change');
   });
 };
@@ -346,7 +319,7 @@ shed.effect.get_effects = function(callback) {
               }
             });
           } else {
-            effects.push(new shed.effect(file));
+            effects.push(new shed.effect(new shed.file(file)));
             if (!--pending) {
               callback();
             }
@@ -356,11 +329,7 @@ shed.effect.get_effects = function(callback) {
     });
   };
 
-  walk(localStorage.path + '\\mods\\' + localStorage.mod + '\\data\\effects', function(error) {
-    // if (error) {
-      // throw error;
-    // }
-
+  walk(localStorage.path + 'mods\\' + localStorage.mod + '\\data\\effects', function(error) {
     effects.sort(function(a, b) {
       var a_score = 0;
       if (a.is_supported() === false && b.is_supported() === true) {
