@@ -133,7 +133,7 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
       .style('text-align', 'center')
       .appendChild(loaded_radio);
 
-    if (this.mods_[i].get_name() === localStorage.mod) {
+    if (this.mods_[i].get_name() === shed.setting.get('mod')) {
       loaded_radio.checked(true);
     }
 
@@ -167,7 +167,7 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   table.table().live('.loaded_radio', 'change', function() {
     var loaded_radio = $(this);
     var mod_id = loaded_radio.dataset('mod_id');
-    localStorage.mod = self.mods_[mod_id].get_name();
+    shed.setting.set('mod', self.mods_[mod_id].get_name());
   });
 
   table.table().live('.pack_button', 'click', function() {
@@ -216,7 +216,7 @@ shed.view.mod_manager.prototype.decorate_path_ = function(parent) {
 
   var path_input = $.createElement('input')
     .style('width', '100%')
-    .value(localStorage.path + 'mods')
+    .value(shed.setting.get('path') + 'mods')
     .setAttribute({'type': 'text', 'disabled': 'disabled'});
   path_table.td(0, 0).appendChild(path_input);
 
@@ -251,7 +251,7 @@ shed.view.mod_manager.prototype.get_mods_ = function() {
   // At this point we know where the mods folder is, so now get a list of
   // available mods.
   try {
-    var file_entries = fs.readdirSync(localStorage.path + 'mods');
+    var file_entries = fs.readdirSync(shed.setting.get('path') + 'mods');
   }
   catch (e) {
     return [];

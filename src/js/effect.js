@@ -329,7 +329,7 @@ shed.effect.get_effects = function(callback) {
     });
   };
 
-  walk(localStorage.path + 'mods\\' + localStorage.mod + '\\data\\effects', function(error) {
+  walk(shed.setting.get('path') + 'mods\\' + shed.setting.get('mod') + '\\data\\effects', function(error) {
     effects.sort(function(a, b) {
       var a_score = 0;
       if (a.is_supported() === false && b.is_supported() === true) {

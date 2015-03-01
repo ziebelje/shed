@@ -110,17 +110,10 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
   this.decorate_toolbar_(well);
 
   // Set camera position
-  if (localStorage.effect_editor_camera_position) {
-    var position = JSON.parse(localStorage.effect_editor_camera_position);
-    this.webgl_.get_camera().position.x = position.x;
-    this.webgl_.get_camera().position.y = position.y;
-    this.webgl_.get_camera().position.z = position.z;
-  }
-  else {
-    this.webgl_.get_camera().position.x = 12;
-    this.webgl_.get_camera().position.y = 7;
-    this.webgl_.get_camera().position.z = 12;
-  }
+  var position = shed.setting.get('effect_editor_camera_position');
+  this.webgl_.get_camera().position.x = position.x;
+  this.webgl_.get_camera().position.y = position.y;
+  this.webgl_.get_camera().position.z = position.z;
 
   this.effect_.render(this.webgl_.get_scene());
 
@@ -181,10 +174,6 @@ shed.view.effect_editor.prototype.decorate_tracks_ = function(parent) {
 shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var self = this;
 
-  var terrain = localStorage.effect_editor_terrain !== undefined ? (localStorage.effect_editor_terrain === 'true') : true;
-  var axis = localStorage.effect_editor_axis !== undefined ? (localStorage.effect_editor_axis === 'true') : false;
-  var emitter = localStorage.effect_editor_emitter !== undefined ? (localStorage.effect_editor_emitter === 'true') : false;
-
   // Toolbar
   var toolbar = $.createElement('div').addClass('toolbar');
 
@@ -195,7 +184,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_terrain = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_terrain')
-    .checked(terrain);
+    .checked(shed.setting.get('effect_editor_terrain'));
   toggle_terrain.addEventListener('change', function() {
     self.scene_toggle_terrain_(toggle_terrain.checked());
   });
@@ -209,7 +198,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_axis = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_axis')
-    .checked(axis);
+    .checked(shed.setting.get('effect_editor_axis'));
   toggle_axis.addEventListener('change', function() {
     self.scene_toggle_axis_(toggle_axis.checked());
   });
@@ -223,7 +212,7 @@ shed.view.effect_editor.prototype.decorate_toolbar_ = function(parent) {
   var toggle_emitter = $.createElement('input')
     .setAttribute('type', 'checkbox')
     .addClass('toggle_emitter')
-    .checked(emitter);
+    .checked(shed.setting.get('effect_editor_emitter'));
   toggle_emitter.addEventListener('change', function() {
     self.scene_toggle_emitter_(toggle_emitter.checked());
   });
@@ -297,7 +286,7 @@ shed.view.effect_editor.prototype.scene_toggle_terrain_ = function(display) {
   }
 
   this.terrain_.visible = display;
-  localStorage.effect_editor_terrain = display;
+  shed.setting.set('effect_editor_terrain', display);
 };
 
 
@@ -363,7 +352,7 @@ shed.view.effect_editor.prototype.scene_toggle_axis_ = function(display) {
   }
 
   this.axis_.visible = display;
-  localStorage.effect_editor_axis = display;
+  shed.setting.set('effect_editor_axis', display);
 };
 
 
@@ -383,7 +372,7 @@ shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
       }
     }
   }
-  localStorage.effect_editor_emitter = display;
+  shed.setting.set('effect_editor_emitter', display);
 };
 
 
@@ -395,11 +384,14 @@ shed.view.effect_editor.prototype.scene_toggle_emitter_ = function(display) {
  */
 shed.view.effect_editor.prototype.dispose_ = function() {
   // Save a few settings
-  localStorage.effect_editor_camera_position = JSON.stringify({
-    'x': this.webgl_.get_camera().position.x,
-    'y': this.webgl_.get_camera().position.y,
-    'z': this.webgl_.get_camera().position.z
-  });
+  shed.setting.set(
+    'effect_editor_camera_position',
+    {
+      'x': this.webgl_.get_camera().position.x,
+      'y': this.webgl_.get_camera().position.y,
+      'z': this.webgl_.get_camera().position.z
+    }
+  );
 
   this.webgl_.stop();
   this.effect_.dispose();

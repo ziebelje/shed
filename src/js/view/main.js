@@ -20,7 +20,7 @@ $.inherits(shed.view.main, shed.view);
  * @private
  */
 shed.view.main.prototype.decorate_ = function(parent) {
-  if (localStorage.path === undefined || $.trim(localStorage.path) === '') {
+  if (shed.setting.get('path') === null || $.trim(shed.setting.get('path')) === '') {
     this.guess_path_();
   }
 
@@ -85,7 +85,7 @@ shed.view.main.prototype.guess_path_ = function() {
     try {
       fs.readdirSync(possible_paths[i]);
       shed.set_path(possible_paths[i]);
-      localStorage.mod = 'stonehearth';
+      shed.setting.set('mod', 'stonehearth');
       return;
     }
     catch (e) {}

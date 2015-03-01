@@ -179,10 +179,10 @@ shed.file.prototype.set_system_path_ = function() {
     // nothing is done in this case.
   }
   else if (this.system_path_.substr(0, 1) === '\\') { // Stonehearth absolute (starts with slash)
-    this.system_path_ = localStorage.path + 'mods' + this.system_path_;
+    this.system_path_ = shed.setting.get('path') + 'mods' + this.system_path_;
   }
   else if (horde_folders.indexOf(this.system_path_.substr(0, this.system_path_.indexOf('\\'))) !== -1) { // Horde relative (special)
-    this.system_path_ = localStorage.path + 'mods\\' + localStorage.mod + '\\data\\horde\\' + this.system_path_;
+    this.system_path_ = shed.setting.get('path') + 'mods\\' + shed.setting.get('mod') + '\\data\\horde\\' + this.system_path_;
   }
   else { // Relative
     this.system_path_ = this.context_.get_folder_() + this.system_path_;

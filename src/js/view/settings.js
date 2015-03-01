@@ -40,7 +40,7 @@ shed.view.settings.prototype.decorate_ = function(parent) {
 
   var path_input = $.createElement('input')
     .addClass('settings_path')
-    .value(localStorage.path)
+    .value(shed.setting.get('path'))
     .setAttribute('type', 'text');
   if (this.path_is_valid_() === true) {
     path_input.addClass('settings_path_valid');
@@ -53,7 +53,7 @@ shed.view.settings.prototype.decorate_ = function(parent) {
 
   path_input.addEventListener('blur', function() {
     shed.set_path($(this).value());
-    $(this).value(localStorage.path);
+    $(this).value(shed.setting.get('path'));
     self.render();
   });
 
@@ -84,7 +84,7 @@ shed.view.settings.prototype.decorate_ = function(parent) {
 shed.view.settings.prototype.path_is_valid_ = function() {
   try {
     var fs = require('fs');
-    var files = fs.readdirSync(localStorage.path);
+    var files = fs.readdirSync(shed.setting.get('path'));
     if ($.indexOf(files, 'Stonehearth.exe') === -1) {
       // Stonehearth.exe does not exist inside directory
       return false;
