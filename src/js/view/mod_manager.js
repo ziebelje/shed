@@ -48,7 +48,10 @@ shed.view.mod_manager.prototype.decorate_ = function(parent) {
     this.decorate_mods_table_(mods_table);
   }
   else {
-    this.decorate_empty_mods_table_(mods_table);
+    (new shed.component.none(
+      'No mods found',
+      'Make sure your Stonehearth installation directory is set properly in settings.'
+    )).render(mods_table);
   }
 
   parent.appendChild(mods_table);
@@ -183,23 +186,6 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   });
 
   parent.appendChild(table.table());
-};
-
-
-/**
- * Decorate list of mods if there are none.
- *
- * @param {rocket.Elements} parent
- *
- * @private
- */
-shed.view.mod_manager.prototype.decorate_empty_mods_table_ = function(parent) {
-  var container = $.createElement('div').style('text-align', 'center');
-  var none_icon = $.createElement('img')
-    .setAttribute('src', 'img/none.png');
-  container.appendChild(none_icon);
-  container.appendChild($.createElement('h2').innerHTML('No mods found'));
-  parent.appendChild(container);
 };
 
 
