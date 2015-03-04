@@ -77,7 +77,7 @@ frame.view.prototype.rerender = function() {
 
 
 /**
- * Dispose the layer on the top of the stack and render the next one down.
+ * Dispose the view on the top of the stack and render the next one down.
  */
 frame.view.render_previous = function() {
   frame.view.stack_.pop().dispose_();

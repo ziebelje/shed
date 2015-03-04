@@ -18,6 +18,16 @@ $.inherits(shed.component.title_bar, shed.component);
 
 
 /**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.component.title_bar.prototype.chain_ = 'component.title_bar';
+
+
+/**
  * Decorate
  *
  * @param {rocket.Elements} parent

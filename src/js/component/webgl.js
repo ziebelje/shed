@@ -20,6 +20,16 @@ $.inherits(shed.component.webgl, shed.component);
 
 
 /**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.component.webgl.prototype.chain_ = 'component.webgl';
+
+
+/**
  * The width of the scene.
  *
  * @type {number}

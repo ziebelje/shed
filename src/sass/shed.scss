@@ -17,11 +17,18 @@ $non_content_height: 98px; // How much space to subtract from 100vh to basically
 @import "global/cursor";
 @import "global/small";
 
-@import "layer/error";
-@import "layer/mod_manager";
-@import "layer/settings";
-@import "layer/effect_list";
-@import "layer/effect_editor";
+.view {
+  .main { @import "view/main"; }
+  .error { @import "view/error"; }
+  .mod_manager { @import "view/mod_manager"; }
+  .settings { @import "view/settings"; }
+  .effect_list { @import "view/effect_list"; }
+  .effect_editor { @import "view/effect_editor"; }
+}
 
-@import "component/title_bar";
-@import "component/tip";
+.component {
+  .none { @import "component/none"; }
+  .tip { @import "component/tip"; }
+  .title_bar { @import "component/title_bar"; }
+  .tip { @import "component/tip"; }
+}

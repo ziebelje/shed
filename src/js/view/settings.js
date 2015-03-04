@@ -13,6 +13,16 @@ $.inherits(shed.view.settings, shed.view);
 
 
 /**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.view.settings.prototype.chain_ = 'view.settings';
+
+
+/**
  * View title.
  *
  * @type {string}

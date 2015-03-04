@@ -13,6 +13,16 @@ $.inherits(shed.view.main, shed.view);
 
 
 /**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.view.main.prototype.chain_ = 'view.main';
+
+
+/**
  * Decorate.
  *
  * @param {rocket.Elements} parent

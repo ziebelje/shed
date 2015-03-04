@@ -16,6 +16,16 @@ $.inherits(shed.component.tip, shed.component);
 
 
 /**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.component.tip.prototype.chain_ = 'component.tip';
+
+
+/**
  * The tip text
  *
  * @type {string}
@@ -33,13 +43,9 @@ shed.component.tip.prototype.text_;
  * @private
  */
 shed.component.tip.prototype.decorate_ = function(parent) {
-  var todo = $.createElement('div').addClass('tip'); // TODO: This is for the sass namespace. I will be able to remove this once the frame is automatically adding this.
-
   var icon = $.createElement('img').setAttribute('src', 'img/tip.png');
   var text = $.createElement('h3').innerHTML(this.text_);
 
-  todo.appendChild(icon);
-  todo.appendChild(text);
-
-  parent.appendChild(todo);
+  parent.appendChild(icon);
+  parent.appendChild(text);
 };

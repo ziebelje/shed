@@ -16,6 +16,16 @@ $.inherits(shed.view.effect_editor, shed.view);
 
 
 /**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.view.effect_editor.prototype.chain_ = 'view.effect_editor';
+
+
+/**
  * Title of this view.
  *
  * @type {string}
@@ -73,8 +83,6 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
 
   var self = this;
 
-  var todo = $.createElement('div').addClass('effect_editor'); // todo sass namespacing
-
   var grid_row = $.createElement('div').addClass('grid_row');
   var left = $.createElement('div').addClass(['list', 'left', 'grid_column_5']);
   var right = $.createElement('div').addClass('grid_column_7');
@@ -122,9 +130,7 @@ shed.view.effect_editor.prototype.decorate_ = function(parent) {
 
   grid_row.appendChild(left);
   grid_row.appendChild(right);
-  todo.appendChild(grid_row);
-
-  parent.appendChild(todo);
+  parent.appendChild(grid_row);
 };
 
 

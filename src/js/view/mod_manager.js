@@ -13,6 +13,16 @@ $.inherits(shed.view.mod_manager, shed.view);
 
 
 /**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.view.mod_manager.prototype.chain_ = 'view.mod_manager';
+
+
+/**
  * Mod list
  *
  * @private

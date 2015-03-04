@@ -5,6 +5,8 @@
  * If there was nothing found of something, use this.
  *
  * @param {string} text The text of the none.
+ * @param {string=} opt_subtext Optional smaller text to display under the
+ * main text.
  *
  * @constructor
  */
@@ -14,6 +16,16 @@ shed.component.none = function(text, opt_subtext) {
   shed.component.apply(this, arguments);
 };
 $.inherits(shed.component.none, shed.component);
+
+
+/**
+ * Can't figure out an elegant way to do this dynamically in JavaScript.
+ *
+ * @type {string}
+ *
+ * @private
+ */
+shed.component.none.prototype.chain_ = 'component.none';
 
 
 /**
@@ -44,16 +56,12 @@ shed.component.none.prototype.subtext_;
  * @private
  */
 shed.component.none.prototype.decorate_ = function(parent) {
-  var todo = $.createElement('div').addClass('none'); // TODO: This is for the sass namespace. I will be able to remove this once the frame is automatically adding this.
-
   var container = $.createElement('div').style('text-align', 'center');
   var none_icon = $.createElement('img')
     .setAttribute('src', 'img/none.png');
   container.appendChild(none_icon);
   container.appendChild($.createElement('h2').innerHTML(this.text_));
   container.appendChild($.createElement('p').innerHTML(this.subtext_));
-  todo.appendChild(container);
-
-  parent.appendChild(todo);
+  parent.appendChild(container);
 };
 
