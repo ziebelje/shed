@@ -1,8 +1,6 @@
-.error {
-  textarea {
-    width: 100%;
-    height: calc(100vh - #{$non_content_height} - 40px); // Extra bit to cover the header text
-    resize: none;
-    font-family: Consolas;
-  }
+textarea {
+  width: 100%;
+  height: calc(100vh - #{$non_content_height} - 40px); // Extra bit to cover the header text
+  resize: none;
+  font-family: Consolas;
 }
