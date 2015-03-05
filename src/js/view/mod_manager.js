@@ -92,9 +92,8 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   table.td(2, 0).style('width', '150px');
   table.td(3, 0).style('width', '100px');
   table.td(4, 0).style('width', '150px');
-  // table.td(5, 0).style('width', '150px');
 
-  table.fill_row(0, [null, 'SMOD', 'Unpacked', /*'Enabled',*/ 'Loaded']);
+  table.fill_row(0, [null, 'SMOD', 'Unpacked', 'Loaded']);
 
   for (var i = 0; i < this.mods_.length; ++i) {
     table.td(0, i + 1)
@@ -124,19 +123,6 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
 
     }
 
-    // var enabled_checkbox = $.createElement('input')
-    //   .setAttribute('type', 'checkbox')
-    //   .addClass(['checkbox', 'enabled_checkbox'])
-    //   .dataset('mod_id', i);
-
-    // table.td(3, i + 1)
-    //   .style('text-align', 'center')
-    //   .appendChild(enabled_checkbox);
-
-    // if (this.mods_[i].is_enabled() === true) {
-    //   enabled_checkbox.checked(true);
-    // }
-
     var loaded_radio = $.createElement('input')
       .setAttribute({'type': 'radio', 'name': 'loaded'})
       .addClass(['radio', 'loaded_radio'])
@@ -165,17 +151,6 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
     table.td(4, i + 1).style('text-align', 'right').appendChild(pack_button);
     table.td(4, i + 1).style('text-align', 'right').appendChild(unpack_button);
   }
-
-  // table.table().live('.enabled_checkbox', 'change', function() {
-  //   var enabled_checkbox = $(this);
-  //   var mod_id = enabled_checkbox.dataset('mod_id');
-  //   if (enabled_checkbox.checked() === true) {
-  //     self.mods_[mod_id].enable();
-  //   }
-  //   else {
-  //     self.mods_[mod_id].disable();
-  //   }
-  // });
 
   table.table().live('.loaded_radio', 'change', function() {
     var loaded_radio = $(this);

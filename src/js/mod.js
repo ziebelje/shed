@@ -35,10 +35,6 @@ shed.mod.prototype.get_name = function() {
  * @param {Function} callback
  */
 shed.mod.prototype.pack = function(callback) {
-  // if (this.is_disabled() === true) {
-  //   throw 'disable this';
-  // }
-
   var folder_name = shed.setting.get('path') + 'mods\\' + this.name_;
   var smod_name = shed.setting.get('path') + 'mods\\' + this.name_ + '.smod';
 
@@ -71,10 +67,6 @@ shed.mod.prototype.pack = function(callback) {
  * @param {Function} callback
  */
 shed.mod.prototype.unpack = function(callback) {
-  // if (this.is_disabled() === true) {
-  //   throw 'disable this';
-  // }
-
   var folder_name = shed.setting.get('path') + 'mods\\';
   var smod_name = shed.setting.get('path') + 'mods\\' + this.name_ + '.smod';
 
@@ -103,74 +95,6 @@ shed.mod.prototype.unpack = function(callback) {
     callback();
   });
 };
-
-
-/**
- * Enable a mod by removing ".disabled" to the end of it's directories or smod
- * packages.
- */
-// shed.mod.prototype.enable = function() {
-//   var fs = require('fs');
-//   var file_entries = this.get_file_entries_();
-
-//   for (var i = 0; i < file_entries.length; i++) {
-//     if (file_entries[i].substr(-9) === '.disabled') {
-//       var old_name = shed.setting.get('path') + 'mods\\' + file_entries[i];
-//       var new_name = shed.setting.get('path') + 'mods\\' + file_entries[i].replace('.disabled', '');
-//       fs.renameSync(old_name, new_name);
-//     }
-//   }
-// };
-
-
-/**
- * Disable a mod by appending ".disabled" to the end of it's directories or smod
- * packages.
- */
-// shed.mod.prototype.disable = function() {
-//   var fs = require('fs');
-//   var file_entries = this.get_file_entries_();
-
-//   for (var i = 0; i < file_entries.length; i++) {
-//     if (file_entries[i].substr(-9) !== '.disabled') {
-//       var old_name = shed.setting.get('path') + 'mods\\' + file_entries[i];
-//       var new_name = shed.setting.get('path') + 'mods\\' + file_entries[i] + '.disabled';
-//       fs.renameSync(old_name, new_name);
-//     }
-//   }
-// };
-
-
-/**
- * Check to see whether or not this mod is disabled. This looks at both
- * directories and smods and looks for them to end with .disabled. Note that
- * if you name something "stonehearth.whatever", it won't be returned in the
- * file entries array anyways so that still counts as disabled.
- *
- * @return {Boolean}
- */
-// shed.mod.prototype.is_disabled = function() {
-//   var file_entries = this.get_file_entries_();
-
-//   for (var i = 0; i < file_entries.length; i++) {
-//     if (file_entries[i].substr(-9) !== '.disabled') {
-//       return false;
-//     }
-//   }
-
-//   return true;
-// };
-
-
-/**
- * Check to see whether or not this mod is enabled. See shed.mod.is_disabled()
- * for more info.
- *
- * @return {Boolean} [description]
- */
-// shed.mod.prototype.is_enabled = function() {
-//   return !this.is_disabled();
-// };
 
 
 /**
@@ -232,9 +156,7 @@ shed.mod.prototype.get_file_entries_ = function() {
   for (var i = 0; i < all_file_entries.length; i++) {
     if (
       all_file_entries[i] === this.name_ ||
-      // all_file_entries[i] === this.name_ + '.disabled' ||
       all_file_entries[i] === this.name_ + '.smod'
-      // all_file_entries[i] === this.name_ + '.smod.disabled'
     ) {
       file_entries.push(all_file_entries[i]);
     }
@@ -263,7 +185,6 @@ shed.mod.get_mods = function() {
     return [];
   }
   for (var i = 0; i < file_entries.length; i++) {
-    // mod_names.push(file_entries[i].replace('.smod', '').replace('.disabled', ''));
     mod_names.push(file_entries[i].replace('.smod', ''));
   }
   mod_names = $.unique(mod_names);
