@@ -35,9 +35,9 @@ shed.mod.prototype.get_name = function() {
  * @param {Function} callback
  */
 shed.mod.prototype.pack = function(callback) {
-  if (this.is_disabled() === true) {
-    throw 'disable this';
-  }
+  // if (this.is_disabled() === true) {
+  //   throw 'disable this';
+  // }
 
   var folder_name = shed.setting.get('path') + 'mods\\' + this.name_;
   var smod_name = shed.setting.get('path') + 'mods\\' + this.name_ + '.smod';
@@ -71,9 +71,9 @@ shed.mod.prototype.pack = function(callback) {
  * @param {Function} callback
  */
 shed.mod.prototype.unpack = function(callback) {
-  if (this.is_disabled() === true) {
-    throw 'disable this';
-  }
+  // if (this.is_disabled() === true) {
+  //   throw 'disable this';
+  // }
 
   var folder_name = shed.setting.get('path') + 'mods\\';
   var smod_name = shed.setting.get('path') + 'mods\\' + this.name_ + '.smod';
@@ -109,36 +109,36 @@ shed.mod.prototype.unpack = function(callback) {
  * Enable a mod by removing ".disabled" to the end of it's directories or smod
  * packages.
  */
-shed.mod.prototype.enable = function() {
-  var fs = require('fs');
-  var file_entries = this.get_file_entries_();
+// shed.mod.prototype.enable = function() {
+//   var fs = require('fs');
+//   var file_entries = this.get_file_entries_();
 
-  for (var i = 0; i < file_entries.length; i++) {
-    if (file_entries[i].substr(-9) === '.disabled') {
-      var old_name = shed.setting.get('path') + 'mods\\' + file_entries[i];
-      var new_name = shed.setting.get('path') + 'mods\\' + file_entries[i].replace('.disabled', '');
-      fs.renameSync(old_name, new_name);
-    }
-  }
-};
+//   for (var i = 0; i < file_entries.length; i++) {
+//     if (file_entries[i].substr(-9) === '.disabled') {
+//       var old_name = shed.setting.get('path') + 'mods\\' + file_entries[i];
+//       var new_name = shed.setting.get('path') + 'mods\\' + file_entries[i].replace('.disabled', '');
+//       fs.renameSync(old_name, new_name);
+//     }
+//   }
+// };
 
 
 /**
  * Disable a mod by appending ".disabled" to the end of it's directories or smod
  * packages.
  */
-shed.mod.prototype.disable = function() {
-  var fs = require('fs');
-  var file_entries = this.get_file_entries_();
+// shed.mod.prototype.disable = function() {
+//   var fs = require('fs');
+//   var file_entries = this.get_file_entries_();
 
-  for (var i = 0; i < file_entries.length; i++) {
-    if (file_entries[i].substr(-9) !== '.disabled') {
-      var old_name = shed.setting.get('path') + 'mods\\' + file_entries[i];
-      var new_name = shed.setting.get('path') + 'mods\\' + file_entries[i] + '.disabled';
-      fs.renameSync(old_name, new_name);
-    }
-  }
-};
+//   for (var i = 0; i < file_entries.length; i++) {
+//     if (file_entries[i].substr(-9) !== '.disabled') {
+//       var old_name = shed.setting.get('path') + 'mods\\' + file_entries[i];
+//       var new_name = shed.setting.get('path') + 'mods\\' + file_entries[i] + '.disabled';
+//       fs.renameSync(old_name, new_name);
+//     }
+//   }
+// };
 
 
 /**
@@ -149,17 +149,17 @@ shed.mod.prototype.disable = function() {
  *
  * @return {Boolean}
  */
-shed.mod.prototype.is_disabled = function() {
-  var file_entries = this.get_file_entries_();
+// shed.mod.prototype.is_disabled = function() {
+//   var file_entries = this.get_file_entries_();
 
-  for (var i = 0; i < file_entries.length; i++) {
-    if (file_entries[i].substr(-9) !== '.disabled') {
-      return false;
-    }
-  }
+//   for (var i = 0; i < file_entries.length; i++) {
+//     if (file_entries[i].substr(-9) !== '.disabled') {
+//       return false;
+//     }
+//   }
 
-  return true;
-};
+//   return true;
+// };
 
 
 /**
@@ -168,15 +168,15 @@ shed.mod.prototype.is_disabled = function() {
  *
  * @return {Boolean} [description]
  */
-shed.mod.prototype.is_enabled = function() {
-  return !this.is_disabled();
-};
+// shed.mod.prototype.is_enabled = function() {
+//   return !this.is_disabled();
+// };
 
 
 /**
- * Determine if this mod has a directory package.
+ * Determine if this mod has a directory.
  *
- * @return {Boolean}
+ * @return {boolean}
  */
 shed.mod.prototype.has_directory = function() {
   var fs = require('fs');
@@ -196,7 +196,7 @@ shed.mod.prototype.has_directory = function() {
 /**
  * Determine if this mod has an .smod package.
  *
- * @return {Boolean}
+ * @return {boolean}
  */
 shed.mod.prototype.has_smod = function() {
   var fs = require('fs');
@@ -218,9 +218,7 @@ shed.mod.prototype.has_smod = function() {
  * mod object. This is allowing for the following:
  *
  * mod/
- * mod.disabled/
  * mod.smod
- * mod.smod.disabled
  *
  * @private
  *
@@ -234,13 +232,59 @@ shed.mod.prototype.get_file_entries_ = function() {
   for (var i = 0; i < all_file_entries.length; i++) {
     if (
       all_file_entries[i] === this.name_ ||
-      all_file_entries[i] === this.name_ + '.disabled' ||
-      all_file_entries[i] === this.name_ + '.smod' ||
-      all_file_entries[i] === this.name_ + '.smod.disabled'
+      // all_file_entries[i] === this.name_ + '.disabled' ||
+      all_file_entries[i] === this.name_ + '.smod'
+      // all_file_entries[i] === this.name_ + '.smod.disabled'
     ) {
       file_entries.push(all_file_entries[i]);
     }
   }
 
   return file_entries;
+};
+
+
+/**
+ * Get a list of mods currently available in the mods folder.
+ *
+ * @return {Array.<shed.mod>}
+ */
+shed.mod.get_mods = function() {
+  var fs = require('fs');
+
+  var mod_names = [];
+  var mods = [];
+  // At this point we know where the mods folder is, so now get a list of
+  // available mods.
+  try {
+    var file_entries = fs.readdirSync(shed.setting.get('path') + 'mods');
+  }
+  catch (e) {
+    return [];
+  }
+  for (var i = 0; i < file_entries.length; i++) {
+    // mod_names.push(file_entries[i].replace('.smod', '').replace('.disabled', ''));
+    mod_names.push(file_entries[i].replace('.smod', ''));
+  }
+  mod_names = $.unique(mod_names);
+
+  for (var i = 0; i < mod_names.length; ++i) {
+    var mod = new shed.mod(mod_names[i]);
+    mods.push(mod);
+  }
+
+  // Sort the mods and stick stonehearth/radiant up top.
+  mods.sort(function(a, b) {
+    if (b.get_name() === 'stonehearth') {
+      return 3;
+    }
+    else if (b.get_name() === 'radiant') {
+      return 2;
+    }
+    else {
+      return a.get_name().toLowerCase() > b.get_name().toLowerCase();
+    }
+  });
+
+  return mods;
 };

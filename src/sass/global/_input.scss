@@ -18,6 +18,16 @@ textarea {
   color: #fff;
 }
 
+select {
+  border: 2px solid #000;
+  background-color: #1c1b1b;
+  padding: 6px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #fff;
+}
+
 .checkbox, .radio {
   @extend .cursor_pointer;
   outline: none;

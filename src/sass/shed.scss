@@ -1,4 +1,9 @@
-$non_content_height: 98px; // How much space to subtract from 100vh to basically get an element to vertically fill up the space.
+// How much space to subtract from 100vh to basically get an element to vertically fill up the space.
+$title_bar_height: 59px;
+$status_bar_height: 35px;
+$gutter_height: 39px;
+$non_content_height: $title_bar_height + $status_bar_height + $gutter_height;
+// $non_content_height: 200px;
 
 @import "partial/clearfix";
 @import "partial/grid";
@@ -30,5 +35,6 @@ $non_content_height: 98px; // How much space to subtract from 100vh to basically
   .none { @import "component/none"; }
   .tip { @import "component/tip"; }
   .title_bar { @import "component/title_bar"; }
+  .status_bar { @import "component/status_bar"; }
   .tip { @import "component/tip"; }
 }

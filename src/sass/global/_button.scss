@@ -19,31 +19,6 @@ button:hover {
   background: #9E9E82;
 }
 
-.button_main {
-  border-image-source: url('../img/button_main.png');
-  background: #591F1F;
-
-  font-size: 32px;
-  color: #ffc000;
-
-  height: 80px;
-
-  width: 500px;
-  text-align: center;
-
-  @include text_shadow();
-
-  display: block;
-  margin: auto;
-
-  margin-bottom: -4px;
-}
-
-.button_main:hover {
-  border-image-source: url('../img/button_main_hover.png');
-  background: #5C2222;
-}
-
 .button_red {
   border-image-source: url('../img/button_red.png');
   background: #b33131;

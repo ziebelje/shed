@@ -6,8 +6,8 @@
     "frame": false,
     "toolbar": false,
     "icon": "shed.png",
-    "width": 900,
-    "height": 600,
+    "width": 950,
+    "height": 650,
     "resizable": false
   }
 }
