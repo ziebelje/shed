@@ -196,14 +196,15 @@ shed.mod.get_mods = function() {
 
   // Sort the mods and stick stonehearth/radiant up top.
   mods.sort(function(a, b) {
-    if (b.get_name() === 'stonehearth') {
-      return 3;
-    }
-    else if (b.get_name() === 'radiant') {
-      return 2;
+    var order = ['radiant', 'stonehearth']; // Inverted, but both of these will sort to the top.
+    var a_index = order.indexOf(a.get_name());
+    var b_index = order.indexOf(b.get_name());
+
+    if (a_index === -1 && b_index === -1) {
+      return a.get_name().toLowerCase() > b.get_name().toLowerCase();
     }
     else {
-      return a.get_name().toLowerCase() > b.get_name().toLowerCase();
+      return a_index < b_index;
     }
   });
 
