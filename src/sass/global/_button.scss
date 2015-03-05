@@ -11,20 +11,14 @@ button {
 
   font-family: "Grobold";
 
-  @extend .cursor_pointer;
+  @include cursor_pointer;
 }
 
 button:hover {
-  border-image-source: url('../img/button_hover.png');
-  background: #9E9E82;
+  @include highlight();
 }
 
 .button_red {
   border-image-source: url('../img/button_red.png');
   background: #b33131;
-}
-
-.button_red:hover {
-  border-image-source: url('../img/button_red_hover.png');
-  background: #f93030;
 }

@@ -15,5 +15,5 @@ th {
 
 .highlight tbody tr:hover {
   background: #464339;
-  @extend .cursor_pointer;
+  @include cursor_pointer;
 }

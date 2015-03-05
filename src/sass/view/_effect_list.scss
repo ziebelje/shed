@@ -5,7 +5,7 @@
 }
 
 .unsupported {
-  @extend .cursor_not-allowed;
+  @include cursor_not-allowed;
   opacity: 0.3;
 }
 

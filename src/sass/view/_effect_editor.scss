@@ -12,12 +12,12 @@
 }
 
 .effect_open {
-  @extend .cursor_pointer;
+  @include cursor_pointer;
 }
 
 .cubemitter_open {
   height: 20px;
-  @extend .cursor_pointer;
+  @include cursor_pointer;
 }
 
 .well {
@@ -27,7 +27,7 @@
 }
 
 .unsupported {
-  @extend .cursor_not-allowed;
+  @include cursor_not-allowed;
   opacity: 0.3;
 }
 
@@ -45,7 +45,7 @@ small {
   input { // Toolbar items are checkbox inputs
     outline: none;
     -webkit-appearance: none;
-    @extend .cursor_pointer;
+    @include cursor_pointer;
     background-repeat: no-repeat;
     background-size: 42px 42px;
     width: 42px;

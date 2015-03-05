@@ -3,11 +3,12 @@ $title_bar_height: 59px;
 $status_bar_height: 35px;
 $gutter_height: 39px;
 $non_content_height: $title_bar_height + $status_bar_height + $gutter_height;
-// $non_content_height: 200px;
 
 @import "partial/clearfix";
 @import "partial/grid";
 @import "partial/text_shadow";
+@import "partial/cursor";
+@import "partial/highlight";
 
 @import "global/border_box";
 @import "global/tooltip";
@@ -19,7 +20,6 @@ $non_content_height: $title_bar_height + $status_bar_height + $gutter_height;
 @import "global/button";
 @import "global/input";
 @import "global/table";
-@import "global/cursor";
 @import "global/small";
 
 .view {

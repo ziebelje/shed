@@ -1,24 +1,19 @@
 .button_main {
+  display: block;
+  margin: 0 auto 10px auto;
+
+  width: 500px;
+  height: 80px;
+
   border-image-source: url('../img/button_main.png');
   background: #591F1F;
 
+  @include text_shadow();
+  text-align: center;
   font-size: 32px;
   color: #ffc000;
-
-  height: 80px;
-
-  width: 500px;
-  text-align: center;
-
-  @include text_shadow();
-
-  display: block;
-  margin: auto;
-
-  margin-bottom: -4px;
 }
 
 .button_main:hover {
-  border-image-source: url('../img/button_main_hover.png');
-  background: #5C2222;
+  @include highlight();
 }

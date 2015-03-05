@@ -29,7 +29,7 @@ select {
 }
 
 .checkbox, .radio {
-  @extend .cursor_pointer;
+  @include cursor_pointer;
   outline: none;
   -webkit-appearance: none;
   background-image: url('../img/button.png');
@@ -39,7 +39,8 @@ select {
 }
 
 .checkbox:hover, .radio:hover {
-  background: url('../img/button_hover.png');
+  @include highlight();
+  // background: url('../img/button_hover.png');
 }
 
 .checkbox:checked, .radio:checked {
@@ -50,8 +51,9 @@ select {
 
 
 .checkbox:checked:hover, .radio:checked:hover {
-  background: url('../img/ok_check.png'), url('../img/button_green_hover.png');
-  background-repeat: no-repeat, no-repeat;
-  background-position: 14px 12px, 0px 0px;
+  @include highlight();
+  // background: url('../img/ok_check.png'), url('../img/button_green_hover.png');
+  // background-repeat: no-repeat, no-repeat;
+  // background-position: 14px 12px, 0px 0px;
   /*input[type='checkbox']:not(:disabled):active*/
 }

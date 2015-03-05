@@ -1,6 +1,6 @@
 .title_bar {
   // TODO: Get new cursor up here. The drag region doesn't like it being overridden I guess. Can maybe fix with a container element?
-  // @extend .cursor_default;
+  // @include cursor_default;
   -webkit-app-region: drag;
   color: #fff;
   padding-left: 5px;
@@ -30,6 +30,6 @@
 .title_bar_back {
   height: 25px;
   margin-top: 3px;
-  @extend .cursor_pointer;
+  @include cursor_pointer;
   -webkit-app-region: no-drag;
 }
