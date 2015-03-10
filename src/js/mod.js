@@ -11,12 +11,37 @@
 shed.mod = function(name) {
   this.name_ = name;
 };
+$.inherits(shed.mod, $.EventTarget);
 
 
 /**
  * The name of the mod.
+ *
+ * @type {string}
+ *
+ * @private
  */
 shed.mod.prototype.name_;
+
+
+/**
+ * Pack progress, from 0 to 100.
+ *
+ * @type {number}
+ *
+ * @private
+ */
+shed.mod.prototype.pack_progress_;
+
+
+/**
+ * Unpack progress, from 0 to 100.
+ *
+ * @type {number}
+ *
+ * @private
+ */
+shed.mod.prototype.unpack_progress_;
 
 
 /**
@@ -30,70 +55,252 @@ shed.mod.prototype.get_name = function() {
 
 
 /**
- * Zip up a mod folder. http://stackoverflow.com/a/16099450
+ * Get the path to the mod folder (whether or not it exists).
+ *
+ * @private
+ *
+ * @return {string}
+ */
+shed.mod.prototype.get_directory_path_ = function() {
+  return shed.setting.get('path') + 'mods\\' + this.name_;
+};
+
+
+/**
+ * Get the path to the smod file (whether or not it exists).
+ *
+ * @private
+ *
+ * @return {string}
+ */
+shed.mod.prototype.get_smod_path_ = function() {
+  return shed.setting.get('path') + 'mods\\' + this.name_ + '.smod';
+};
+
+
+/**
+ * Get the number of files in the mod to be unpacked.
  *
  * @param {Function} callback
+ *
+ * @private
  */
-shed.mod.prototype.pack = function(callback) {
-  var folder_name = shed.setting.get('path') + 'mods\\' + this.name_;
-  var smod_name = shed.setting.get('path') + 'mods\\' + this.name_ + '.smod';
-
+shed.mod.prototype.get_unpack_count_ = function(callback) {
   var spawn = require('child_process').spawn;
   var process = spawn(
     'tool/7z/7z.exe',
     [
-      'a',
-      '-tzip',
-      smod_name,
-      folder_name
+      'l',
+      this.get_smod_path_()
     ]
   );
 
   process.stderr.setEncoding('utf8');
   process.stderr.on('data', function(data) {}); // Prevents buffer overflow
 
+  var output_string;
   process.stdout.setEncoding('utf8');
-  process.stdout.on('data', function(data) {}); // Prevents buffer overflow
+  process.stdout.on('data', function(data) {
+    output_string = data;
+  });
 
   process.on('close', function(code) {
-    callback();
+    var matches = output_string.match(/(\d+) files, (\d+) folders/);
+    callback(parseInt(matches[1]) + parseInt(matches[2]));
   });
 };
 
 
 /**
- * Unzip a smod archive. http://stackoverflow.com/a/16099450
+ * Get the number of files in the folder to be packed. This is only
+ * asynchronous because get_unpack_count_ has to be.
+ *
+ * @param {Function} callback
+ *
+ * @private
+ */
+shed.mod.prototype.get_pack_count_ = function(callback) {
+  var pack_count = 0;
+
+  // TODO: Switch this to the async walker for speed improvement.
+
+  shed.walk(
+    this.get_directory_path_(),
+    function(path) {
+      pack_count++;
+    },
+    function(path) {
+      pack_count++;
+    }
+  );
+
+  callback(pack_count);
+};
+
+
+/**
+ * Delete the mod directory. The node-way of recursing over the folder works
+ * fine except that it's blocking and stops the UI from drawing the progress
+ * bar while it works. I could do the delete asynchronously, but it would
+ * require looping over everything, deleting all the files, then doing it all
+ * again and deleting all the folders. This method would still be reasonably
+ * quick. If I ever want to support not-windows I would need to do that.
+ *
+ * @param {Function} callback
+ *
+ * @private
+ */
+shed.mod.prototype.delete_directory_ = function(callback) {
+  var exec = require('child_process').exec;
+  var process = exec(
+    'cmd /C rmdir /Q /S "' + this.get_directory_path_() + '"',
+    function(error, stdout, stderr) {
+      callback();
+    }
+  );
+
+  /* Keeping this for future reference.
+  var fs = require('fs');
+  shed.walk(
+    this.get_directory_path_(),
+    function(path) {
+      fs.unlinkSync(path);
+    },
+    function(path) {
+      fs.rmdirSync(path);
+    }
+  );
+  fs.rmdirSync(this.get_directory_path_());
+  */
+};
+
+
+/**
+ * Delete the .smod file for this mod. This is only asynchronous because
+ * delete_directory_ has to be.
+ *
+ * @param {Function} callback
+ *
+ * @private
+ */
+shed.mod.prototype.delete_smod_ = function(callback) {
+  var fs = require('fs');
+  fs.unlink(this.get_smod_path_(), callback.bind(this));
+};
+
+
+/**
+ * Zip up a mod folder. http://stackoverflow.com/a/16099450
+ *
+ * @param {Function} callback
+ */
+shed.mod.prototype.pack = function(callback) {
+  var self = this;
+
+  var pack = function() {
+    self.get_pack_count_(function(pack_count) {
+      var spawn = require('child_process').spawn;
+      var process = spawn(
+        'tool/7z/7z.exe',
+        [
+          'a',
+          '-tzip',
+          self.get_smod_path_(),
+          self.get_directory_path_()
+        ]
+      );
+
+      var packed = 0;
+
+      var error = null;
+      process.stderr.setEncoding('utf8');
+      process.stderr.on('data', function(data) {}); // Prevents buffer overflow
+
+      process.stdout.setEncoding('utf8');
+      process.stdout.on('data', function(data) {
+        // Check for errors
+        var matches = data.match(/^7-Zip.*?\r?\n\r?\n\r?\nError:\r?\n(.*)$/m);
+        if (matches !== null) {
+          error = matches[1];
+        }
+
+        packed += (data.match(/Compressing  /g) || []).length;
+        self.pack_progress_ = packed / pack_count * 100;
+        self.dispatchEvent('pack_progress');
+      });
+
+      process.on('close', function(code) {
+        callback(error);
+      });
+    });
+  };
+
+  if (this.has_smod() === true) {
+    this.delete_smod_(pack);
+  }
+  else {
+    pack();
+  }
+};
+
+
+/**
+ * Unzip an smod archive. http://stackoverflow.com/a/16099450
  *
  * @param {Function} callback
  */
 shed.mod.prototype.unpack = function(callback) {
-  var folder_name = shed.setting.get('path') + 'mods\\';
-  var smod_name = shed.setting.get('path') + 'mods\\' + this.name_ + '.smod';
+  var self = this;
 
-  // Spawn will run an asynchronous process (using the same nw module) and
-  // return a data stream. I'm not using the stream right now, but if I wanted
-  // to display live output from 7zip as it extracts then I could do so. I am
-  // calling the stderr and stdout functions here because it seems to overflow
-  // the buffer when operating on stonehearth.smod otherwise.
-  var spawn = require('child_process').spawn;
-  var process = spawn(
-    'tool/7z/7z.exe',
-    [
-      'x',
-      smod_name,
-      '-o' + folder_name
-    ]
-  );
+  var unpack = function() {
+    self.get_unpack_count_(function(unpack_count) {
+      var spawn = require('child_process').spawn;
+      var process = spawn(
+        'tool/7z/7z.exe',
+        [
+          'x',
+          self.get_smod_path_(),
+          '-o' + shed.setting.get('path') + 'mods\\'
+        ]
+      );
 
-  process.stderr.setEncoding('utf8');
-  process.stderr.on('data', function(data) {}); // Prevents buffer overflow
+      process.stderr.setEncoding('utf8');
+      process.stderr.on('data', function(data) {}); // Prevents buffer overflow
 
-  process.stdout.setEncoding('utf8');
-  process.stdout.on('data', function(data) {}); // Prevents buffer overflow
+      var unpacked = 0;
 
-  process.on('close', function(code) {
-    callback();
-  });
+      var error = null;
+      process.stdout.setEncoding('utf8');
+      process.stdout.on('data', function(data) {
+        // Check for errors
+        var matches = data.match(/^7-Zip.*?\r?\n\r?\n\r?\nError:\r?\n(.*)$/m);
+        if (matches !== null) {
+          error = matches[1];
+        }
+
+        unpacked += (data.match(/Extracting  /g) || []).length;
+        self.unpack_progress_ = Math.max(5, (unpacked / unpack_count * 100));
+        self.dispatchEvent('unpack_progress');
+      });
+
+      process.on('close', function(code) {
+        callback(error);
+      });
+    });
+  };
+
+  // Just start this at 5% done. The delete is pretty quick, even for the huge
+  // stonehearth mod (~3-4 seconds on a decent PC) so we'll call this good for
+  // now.
+  this.unpack_progress_ = 5;
+  this.dispatchEvent('unpack_progress');
+
+  if (this.has_directory() === true) {
+    this.delete_directory_(unpack);
+  }
+  else {
+    unpack();
+  }
 };
 
 
@@ -134,6 +341,26 @@ shed.mod.prototype.has_smod = function() {
   }
 
   return false;
+};
+
+
+/**
+ * Get pack progress.
+ *
+ * @return {number}
+ */
+shed.mod.prototype.get_pack_progress = function() {
+  return this.pack_progress_;
+};
+
+
+/**
+ * Get unpack progress.
+ *
+ * @return {number}
+ */
+shed.mod.prototype.get_unpack_progress = function() {
+  return this.unpack_progress_;
 };
 
 

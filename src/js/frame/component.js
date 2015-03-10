@@ -1,5 +1,10 @@
+
+
+
 /**
  * A group of elements that serves a specific purpose.
+ *
+ * @constructor
  */
 frame.component = function() {};
 $.inherits(frame.component, rocket.EventTarget);
@@ -19,7 +24,7 @@ frame.component.prototype.container_;
  * @param {rocket.Elements} parent The parent element render into.
  */
 frame.component.prototype.render = function(parent) {
-  var container = $.createElement('div');
+  var container = $.createElement('div').style('position', 'relative');
   this.container_ = container;
   this.decorate_(container);
   parent.appendChild(container);
@@ -29,7 +34,7 @@ frame.component.prototype.render = function(parent) {
 /**
  * Re-render the component.
  */
-frame.component.prototype.render_replace = function() {
+frame.component.prototype.rerender = function() {
   var parent = this.container_.parentNode();
   var old_container = this.container_;
   var new_container = $.createElement('div');

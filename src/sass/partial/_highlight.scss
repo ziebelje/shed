@@ -1,3 +1,5 @@
 @mixin highlight {
+  transition: all 0.2s ease;
   -webkit-filter: brightness(1.1);
+  -webkit-transform: translateZ(0);
 }

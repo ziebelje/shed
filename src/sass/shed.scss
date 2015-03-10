@@ -1,8 +1,8 @@
 // How much space to subtract from 100vh to basically get an element to vertically fill up the space.
-$title_bar_height: 59px;
+$title_height: 59px;
 $status_bar_height: 35px;
 $gutter_height: 39px;
-$non_content_height: $title_bar_height + $status_bar_height + $gutter_height;
+$non_content_height: $title_height + $status_bar_height + $gutter_height;
 
 @import "partial/clearfix";
 @import "partial/grid";
@@ -21,6 +21,7 @@ $non_content_height: $title_bar_height + $status_bar_height + $gutter_height;
 @import "global/input";
 @import "global/table";
 @import "global/small";
+@import "global/title";
 
 .view {
   .main { @import "view/main"; }
@@ -37,4 +38,6 @@ $non_content_height: $title_bar_height + $status_bar_height + $gutter_height;
   .title_bar { @import "component/title_bar"; }
   .status_bar { @import "component/status_bar"; }
   .tip { @import "component/tip"; }
+  .progress { @import "component/progress"; }
+  .modal { @import "component/modal"; }
 }

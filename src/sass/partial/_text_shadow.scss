@@ -1,11 +1,11 @@
-@mixin text_shadow() {
+@mixin text_shadow($color: #000) {
   text-shadow:
-    2px 2px #000,
-    -2px 2px #000,
-    2px -2px #000,
-    -2px -2px #000,
-    2px 0px #000,
-    0px 2px #000,
-    -2px 0px #000,
-    0px -2px #000;
+    2px 2px $color,
+    -2px 2px $color,
+    2px -2px $color,
+    -2px -2px $color,
+    2px 0px $color,
+    0px 2px $color,
+    -2px 0px $color,
+    0px -2px $color;
 }

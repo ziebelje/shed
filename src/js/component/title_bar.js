@@ -41,22 +41,22 @@ shed.component.title_bar.prototype.decorate_ = function(parent) {
   var gui = require('nw.gui');
   var win = gui.Window.get();
 
-  var refresh = $.createElement('button').innerHTML('R').addClass('title_bar_button');
+  var refresh = $.createElement('button').innerHTML('R');
   refresh.addEventListener('click', function() {
     window.location.reload();
   });
 
-  var dev_tools = $.createElement('button').innerHTML('D').addClass('title_bar_button');
+  var dev_tools = $.createElement('button').innerHTML('D');
   dev_tools.addEventListener('click', function() {
     win.showDevTools();
   });
 
-  var minimize = $.createElement('button').innerHTML('_').addClass('title_bar_button');
+  var minimize = $.createElement('button').innerHTML('_');
   minimize.addEventListener('click', function() {
     win.minimize();
   });
 
-  var close = $.createElement('button').innerHTML('X').addClass(['title_bar_button', 'button_red']);
+  var close = $.createElement('button').innerHTML('X').addClass('button_red');
   close.addEventListener('click', function() {
     win.close();
   });
@@ -64,7 +64,7 @@ shed.component.title_bar.prototype.decorate_ = function(parent) {
   if (frame.view.get_stack().length > 1) {
     var back = $.createElement('img')
       .setAttribute('src', 'img/arrow_left.png')
-      .addClass('title_bar_back');
+      .addClass('back');
     back.addEventListener('click', function() {
       frame.view.render_previous();
     });
@@ -76,12 +76,12 @@ shed.component.title_bar.prototype.decorate_ = function(parent) {
   table.td(1, 0).appendChild(title);
 
   table.td(2, 0).style('text-align', 'right');
-  table.td(2, 0).appendChild(refresh);
-  table.td(2, 0).appendChild(dev_tools);
-  table.td(2, 0).appendChild(minimize);
   table.td(2, 0).appendChild(close);
+  table.td(2, 0).appendChild(minimize);
+  table.td(2, 0).appendChild(dev_tools);
+  table.td(2, 0).appendChild(refresh);
 
-  var title_bar = $.createElement('div').addClass('title_bar');
-  title_bar.appendChild(table.table());
-  parent.appendChild(title_bar);
+  var title = $.createElement('div').addClass('title');
+  title.appendChild(table.table());
+  parent.appendChild(title);
 };

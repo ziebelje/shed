@@ -159,15 +159,99 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   });
 
   table.table().live('.pack_button', 'click', function() {
-    self.mods_[$(this).dataset('mod_id')].pack(function() {
-      self.render();
-    });
+    var callback = function() {
+      if (modal !== undefined) {
+        modal.dispose();
+      }
+
+      var progress = new shed.component.progress();
+      progress.set_text('Creating SMOD...');
+      progress.render($('.view'));
+
+      mod.addEventListener('pack_progress', function() {
+        progress.set_progress(mod.get_pack_progress());
+      });
+      mod.pack(function(error) {
+        if (error !== null) {
+          throw 'SMOD creation failed: ' + error;
+        }
+        else {
+          progress.set_progress(100, self.rerender.bind(self));
+        }
+      });
+    };
+
+    // TODO: get rid of the mod_id stuff
+    var mod = self.mods_[$(this).dataset('mod_id')];
+
+    if (mod.has_smod() === true) {
+      var modal = new shed.component.modal(
+        'Are you sure?',
+        'This SMOD file already exists. Overwrite?',
+        [
+          {
+            'text': 'Cancel',
+            'callback': function() { modal.dispose(); }
+          },
+          {
+            'text': 'Yes, overwrite',
+            'callback': callback.bind(this)
+          }
+        ]
+      );
+      modal.render($('.view'));
+    }
+    else {
+      callback();
+    }
   });
 
   table.table().live('.unpack_button', 'click', function() {
-    self.mods_[$(this).dataset('mod_id')].unpack(function() {
-      self.render();
-    });
+    var callback = function() {
+      if (modal !== undefined) {
+        modal.dispose();
+      }
+
+      var progress = new shed.component.progress();
+      progress.set_text('Unpacking...');
+      progress.render($('.view'));
+
+      mod.addEventListener('unpack_progress', function() {
+        progress.set_progress(mod.get_unpack_progress());
+      });
+      mod.unpack(function(error) {
+        if (error !== null) {
+          throw 'Unpack failed: ' + error;
+        }
+        else {
+          progress.set_progress(100, self.rerender.bind(self));
+        }
+      });
+    };
+
+    // TODO: get rid of the mod_id stuff
+    var mod = self.mods_[$(this).dataset('mod_id')];
+
+    if (mod.has_directory() === true) {
+      var modal = new shed.component.modal(
+        'Are you sure?',
+        'This mod has already been unpacked. Overwrite?',
+        [
+          {
+            'text': 'Cancel',
+            'callback': function() { modal.dispose(); }
+          },
+          {
+            'text': 'Yes, overwrite',
+            'callback': callback.bind(this)
+          }
+        ]
+      );
+      modal.render($('.view'));
+    }
+    else {
+      callback();
+    }
   });
 
   parent.appendChild(table.table());

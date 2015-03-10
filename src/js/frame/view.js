@@ -21,6 +21,14 @@ frame.view.stack_ = [];
 
 
 /**
+ * The rendered container for this view.
+ *
+ * @type {rocket.Elements}
+ */
+frame.view.prototype.container_;
+
+
+/**
  * Create a container for the view and attach it to the body, replacing (if it
  * exists) the current view.
  *
@@ -45,12 +53,16 @@ frame.view.prototype.render = function(opt_parent) {
   // decorating the view into it.
   // var container = attach_to_body ? attach_to_body : $.createElement('div');
   var parent = opt_parent ? opt_parent : $.createElement('div');
+  parent.style('position', 'relative');
+  this.container_ = parent;
   this.decorate_(parent);
+
 
   var attach_to_body = parent;
   while (attach_to_body.parentNode().length !== 0) {
     attach_to_body = attach_to_body.parentNode();
   }
+
 
   var body = $('body');
   var first_element_child = body.firstElementChild();

@@ -17,7 +17,6 @@ $.inherits(shed.component, frame.component);
  * @param {rocket.Elements} parent
  */
 shed.component.prototype.render = function(parent) {
-  // View
   var chain = this.chain_.split('.');
   var containers = [];
   for (var i = 0; i < chain.length; i++) {

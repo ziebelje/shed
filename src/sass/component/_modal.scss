@@ -1,0 +1,30 @@
+$container_width: 500px;
+.container {
+  border-image-source: url('../img/modal_background.png');
+  border-image-slice: 8 8 13 8;
+  border-width: 8px 8px 13px 8px;
+  background: #312f2f;
+
+  position: absolute;
+  top: 200px;
+  left: 50%;
+  margin-left: -$container_width / 2;
+
+  width: $container_width;
+
+  z-index: 1001;
+}
+
+.text {
+  margin: 10px;
+  @include text_shadow();
+}
+
+.buttons {
+  margin: 10px;
+  text-align: right;
+}
+
+button {
+  margin-left: 10px;
+}

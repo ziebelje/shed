@@ -12,6 +12,7 @@ button {
   font-family: "Grobold";
 
   @include cursor_pointer;
+  @include text_shadow(rgba(255, 255, 255, 0.1));
 }
 
 button:hover {

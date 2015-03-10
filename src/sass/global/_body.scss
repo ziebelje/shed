@@ -1,11 +1,11 @@
 body {
+  @include cursor_default;
   color: #fff;
   font-family: "Autour One";
   margin: 0;
   padding: 0;
   overflow: hidden;
   font-size: 13px;
-  @include cursor_default;
 }
 
 .global {
@@ -14,8 +14,27 @@ body {
   border-width: 6px 6px 10px 6px;
   background: #403c33;
   color: #fff;
-  padding: 10px;
   width: 100%;
   height: 100vh;
   overflow: hidden;
+}
+
+.view {
+  // The only thing that should ever need this is a modal window. Everything
+  // else should be attached to it's own component/view element which is also
+  // relatively positioned.
+  position: relative;
+  height: calc(100vh - #{$title_height});
+  padding: 10px;
+}
+
+.mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 1000;
+  opacity: 0.5;
 }
