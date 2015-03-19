@@ -38,3 +38,15 @@ body {
   z-index: 1000;
   opacity: 0.5;
 }
+
+.mask2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ff0000;
+  z-index: 1000;
+  opacity: 0.5;
+  // transition: opacity .25s ease-in-out;
+}

@@ -94,14 +94,7 @@ shed.file.prototype.open = function() {
  * @return {Object|Buffer}
  */
 shed.file.prototype.read = function() {
-  var fs = require('fs');
-
-  try {
-    var contents = fs.readFileSync(this.system_path_);
-  }
-  catch (e) {
-    throw 'File not found: ' + this.system_path_;
-  }
+  var contents = shed.filesystem.read(this.system_path_);
 
   if (this.system_path_.substr(-5) === '.json') {
     contents = JSON.parse(contents);
@@ -118,10 +111,7 @@ shed.file.prototype.read = function() {
  * @param {Function} callback The callback function.
  */
 shed.file.prototype.watch = function(callback) {
-  var fs = require('fs');
-  this.watcher_ = fs.watch(this.system_path_, {}, $.debounce(200, function() {
-    callback();
-  }));
+  this.watcher_ = shed.filesystem.watch(this.system_path_, callback);
 };
 
 

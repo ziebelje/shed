@@ -80,8 +80,6 @@ shed.view.main.prototype.decorate_ = function(parent) {
  * @private
  */
 shed.view.main.prototype.guess_path_ = function() {
-  var fs = require('fs');
-
   // Default steam and non-steam install locations.
   var possible_paths = [
     process.env['ProgramFiles'] + '\\Steam\\SteamApps\\common\\Stonehearth',
@@ -92,12 +90,10 @@ shed.view.main.prototype.guess_path_ = function() {
 
   // Pick the first detected path.
   for (var i = 0; i < possible_paths.length; i++) {
-    try {
-      fs.readdirSync(possible_paths[i]);
+    if (shed.filesystem.exists(possible_paths[i]) === true) {
       shed.set_path(possible_paths[i]);
       shed.setting.set('mod', 'stonehearth');
       return;
     }
-    catch (e) {}
   }
 };

@@ -93,8 +93,7 @@ shed.view.settings.prototype.decorate_ = function(parent) {
  */
 shed.view.settings.prototype.path_is_valid_ = function() {
   try {
-    var fs = require('fs');
-    var files = fs.readdirSync(shed.setting.get('path'));
+    var files = shed.filesystem.list(shed.setting.get('path'));
     if ($.indexOf(files, 'Stonehearth.exe') === -1) {
       // Stonehearth.exe does not exist inside directory
       return false;

@@ -64,6 +64,16 @@ shed.component.progress.prototype.step_interval_;
 
 
 /**
+ * Current progress from 0 to 100.
+ *
+ * @type {number}
+ *
+ * @private
+ */
+shed.component.progress.prototype.percent_ = 0;
+
+
+/**
  * Decorate
  *
  * @param {rocket.Elements} parent
@@ -97,20 +107,28 @@ shed.component.progress.prototype.set_text = function(text) {
 
 
 /**
- * Set the percentage complete.
+ * Set the percentage complete. This forces a minimum interval of 5% before it
+ * will update. This helps prevent things which update the progress bar very
+ * frequently from constantly clearing the interval before the progress bar
+ * even gets a chance to move.
  *
  * @param {number} percent Between 0 and 100.
- * @param {Function=} opt_callback Function to call when the step function completes.
+ * @param {Function=} opt_callback Function to call when the step function
+ * completes.
  */
 shed.component.progress.prototype.set_progress = function(percent, opt_callback) {
-  var self = this;
+  if (percent - this.percent_ > 5 || percent === 100) {
+    var self = this;
 
-  var total_width = 377;
-  var current_width = parseInt(this.meter_.style('width')) || 0;
-  var new_width = Math.min(total_width, total_width * percent / 100);
+    this.percent_ = percent;
 
-  clearInterval(this.step_interval_);
-  this.step_interval_ = $.step(function(percentage, sine) {
-    self.meter_.style('width', (current_width + ((new_width - current_width) * sine)) + 'px');
-  }, 1000, opt_callback, 60);
+    var total_width = 377;
+    var current_width = parseInt(this.meter_.style('width')) || 0;
+    var new_width = Math.min(total_width, total_width * percent / 100);
+
+    clearInterval(this.step_interval_);
+    this.step_interval_ = $.step(function(percentage, sine) {
+      self.meter_.style('width', (current_width + ((new_width - current_width) * sine)) + 'px');
+    }, 750, opt_callback, 60);
+  }
 };

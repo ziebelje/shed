@@ -66,6 +66,8 @@ shed.view.mod_manager.prototype.decorate_ = function(parent) {
 
   parent.appendChild(mods_table);
 
+  this.add_drag_handlers_();
+
   this.decorate_path_(parent);
 };
 
@@ -288,4 +290,155 @@ shed.view.mod_manager.prototype.decorate_path_ = function(parent) {
   });
 
   parent.appendChild(path_table.table());
+};
+
+
+/**
+ * Add the drag handlers for uploading dragging and dropping mods.
+ *
+ * @private
+ */
+shed.view.mod_manager.prototype.add_drag_handlers_ = function() {
+  var self = this;
+
+  var mask = $.createElement('div').addClass('mask');
+
+  var body_dragover = function(e) {
+    $('.view').appendChild(mask);
+    $('body').removeEventListener('dragover');
+    mask.addEventListener('dragover', mask_dragover);
+
+    e.preventDefault();
+    return false;
+  };
+
+  var mask_dragover = function(e) {
+    // This doesn't do anything other than actually enable the drag/drop
+    // functionality in the browser.
+    e.preventDefault();
+    return false;
+  };
+
+  var dragleave = function(e) {
+    $('.view').removeChild(mask);
+
+    // The dragover event will fire on the body even when I drag onto the
+    // border. There might be a more elegant solution for this, but removing the
+    // listener and only re-adding it after the user has had time to move their
+    // mouse past the border works decently well.
+    setTimeout(function() {
+      $('body').addEventListener('dragover', body_dragover);
+    }, 200);
+
+    e.preventDefault();
+    return false;
+  };
+
+  var drop = function(e) {
+    $('.view').removeChild(mask);
+    $('body').addEventListener('dragover', body_dragover);
+
+    if (e.originalEvent.dataTransfer.files.length > 1) {
+      var modal = new shed.component.modal(
+        'Error',
+        'Only one mod may be installed at a time.',
+        [
+          {
+            'text': 'Oops, sorry!',
+            'callback': function() { modal.dispose(); }
+          }
+        ]
+      );
+      modal.render($('.view'));
+    }
+    else {
+      self.upload_mod_(e.originalEvent.dataTransfer.files[0]);
+    }
+
+    e.preventDefault();
+    return false;
+  };
+
+  $('body').addEventListener('dragover', body_dragover);
+  mask.addEventListener('dragleave', dragleave);
+  mask.addEventListener('drop', drop);
+};
+
+
+/**
+ * Upload a mod to the SH mods folder.
+ *
+ * @param {Object} file File to copy from the drop event handler.
+ *
+ * @private
+ */
+shed.view.mod_manager.prototype.upload_mod_ = function(file) {
+  var self = this;
+
+  var bytes_to_copy = 0;
+  var bytes_copied = 0;
+
+  var progress = new shed.component.progress();
+
+  var update_progress = function() {
+    progress.set_progress(bytes_copied / bytes_to_copy * 100);
+    if (bytes_copied === bytes_to_copy) {
+      progress.set_progress(100, self.rerender.bind(self));
+    }
+  };
+
+  var copy = function() {
+    if (modal !== undefined) {
+      modal.dispose();
+    }
+
+    progress.set_text('Preparing...');
+    progress.render($('.view'));
+
+    // Get the size of the files/folders to copy and start the copy when that's
+    // done.
+    shed.filesystem.get_size_asynchronous(
+      file.path,
+      function(size) {
+        bytes_to_copy += size;
+        progress.set_text('Installing...');
+        shed.filesystem.copy(
+          file.path,
+          shed.setting.get('path') + 'mods',
+          function(bytes) {
+            bytes_copied += bytes;
+            update_progress();
+          }
+        );
+      }
+    );
+  };
+
+  var name = file.path.substring(
+    file.path.lastIndexOf('\\') + 1,
+    file.path.length
+  );
+
+  var destination = shed.setting.get('path') + 'mods\\' + name;
+
+  if (shed.filesystem.exists(destination) === true) {
+    var modal = new shed.component.modal(
+      'Are you sure?',
+      'You already have a mod installed named ' + name + '. Overwrite?',
+      [
+        {
+          'text': 'Cancel',
+          'callback': function() { modal.dispose(); }
+        },
+        {
+          'text': 'Yes, overwrite',
+          'callback': copy.bind(this)
+        }
+      ]
+    );
+    modal.render($('.view'));
+  }
+  else {
+    copy();
+  }
 };

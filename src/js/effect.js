@@ -295,58 +295,34 @@ shed.effect.prototype.reload = function() {
  * @link http://stackoverflow.com/a/5827895
  */
 shed.effect.get_effects = function(callback) {
-  var effects = [];
-
-  var fs = require('fs');
-  var walk = function(directory, callback) {
-    fs.readdir(directory, function(error, list) {
-      if (error) {
-        return callback(error);
+  shed.filesystem.list_recursive(
+    shed.setting.get('path') + 'mods\\' + shed.setting.get('mod') + '\\data\\effects',
+    function(paths) {
+      var effects = [];
+      for (var i = 0; i < paths.length; i++) {
+        if (shed.filesystem.is_file(paths[i]) === true) {
+          effects.push(new shed.effect(new shed.file(paths[i])));
+        }
       }
 
-      var pending = list.length;
-      if (!pending) {
-        return callback();
-      }
-
-      list.forEach(function(file) {
-        file = directory + '\\' + file;
-        fs.stat(file, function(error, stat) {
-          if (stat && stat.isDirectory()) {
-            walk(file, function(error, result) {
-              if (!--pending) {
-                callback();
-              }
-            });
-          } else {
-            effects.push(new shed.effect(new shed.file(file)));
-            if (!--pending) {
-              callback();
-            }
-          }
-        });
+      effects.sort(function(a, b) {
+        var a_score = 0;
+        if (a.is_supported() === false && b.is_supported() === true) {
+          a_score += 10;
+        }
+        if (a.is_supported() === true && b.is_supported() === false) {
+          a_score -= 10;
+        }
+        if (a.get_name() > b.get_name()) {
+          a_score += 1;
+        }
+        if (a.get_name() < b.get_name()) {
+          a_score -= 1;
+        }
+        return a_score;
       });
-    });
-  };
 
-  walk(shed.setting.get('path') + 'mods\\' + shed.setting.get('mod') + '\\data\\effects', function(error) {
-    effects.sort(function(a, b) {
-      var a_score = 0;
-      if (a.is_supported() === false && b.is_supported() === true) {
-        a_score += 10;
-      }
-      if (a.is_supported() === true && b.is_supported() === false) {
-        a_score -= 10;
-      }
-      if (a.get_name() > b.get_name()) {
-        a_score += 1;
-      }
-      if (a.get_name() < b.get_name()) {
-        a_score -= 1;
-      }
-      return a_score;
-    });
-
-    callback(effects);
-  });
+      callback(effects);
+    }
+  );
 };

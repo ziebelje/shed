@@ -112,66 +112,26 @@ shed.mod.prototype.get_unpack_count_ = function(callback) {
 
 
 /**
- * Get the number of files in the folder to be packed. This is only
- * asynchronous because get_unpack_count_ has to be.
+ * Get the number of files in the folder to be packed.
  *
  * @param {Function} callback
  *
  * @private
  */
 shed.mod.prototype.get_pack_count_ = function(callback) {
-  var pack_count = 0;
-
-  // TODO: Switch this to the async walker for speed improvement.
-
-  shed.walk(
-    this.get_directory_path_(),
-    function(path) {
-      pack_count++;
-    },
-    function(path) {
-      pack_count++;
-    }
-  );
-
-  callback(pack_count);
+  shed.filesystem.count(this.get_directory_path_(), callback, true, true);
 };
 
 
 /**
- * Delete the mod directory. The node-way of recursing over the folder works
- * fine except that it's blocking and stops the UI from drawing the progress
- * bar while it works. I could do the delete asynchronously, but it would
- * require looping over everything, deleting all the files, then doing it all
- * again and deleting all the folders. This method would still be reasonably
- * quick. If I ever want to support not-windows I would need to do that.
+ * Delete the mod directory.
  *
  * @param {Function} callback
  *
  * @private
  */
 shed.mod.prototype.delete_directory_ = function(callback) {
-  var exec = require('child_process').exec;
-  var process = exec(
-    'cmd /C rmdir /Q /S "' + this.get_directory_path_() + '"',
-    function(error, stdout, stderr) {
-      callback();
-    }
-  );
-
-  /* Keeping this for future reference.
-  var fs = require('fs');
-  shed.walk(
-    this.get_directory_path_(),
-    function(path) {
-      fs.unlinkSync(path);
-    },
-    function(path) {
-      fs.rmdirSync(path);
-    }
-  );
-  fs.rmdirSync(this.get_directory_path_());
-  */
+  shed.filesystem.delete_asynchronous(this.get_directory_path_(), callback);
 };
 
 
@@ -184,8 +144,7 @@ shed.mod.prototype.delete_directory_ = function(callback) {
  * @private
  */
 shed.mod.prototype.delete_smod_ = function(callback) {
-  var fs = require('fs');
-  fs.unlink(this.get_smod_path_(), callback.bind(this));
+  shed.filesystem.delete_asynchronous(this.get_smod_path_(), callback);
 };
 
 
@@ -310,12 +269,10 @@ shed.mod.prototype.unpack = function(callback) {
  * @return {boolean}
  */
 shed.mod.prototype.has_directory = function() {
-  var fs = require('fs');
   var file_entries = this.get_file_entries_();
 
   for (var i = 0; i < file_entries.length; i++) {
-    var stat = fs.statSync(shed.setting.get('path') + 'mods\\' + file_entries[i]);
-    if (stat.isDirectory() === true) {
+    if (shed.filesystem.is_directory(shed.setting.get('path') + 'mods\\' + file_entries[i]) === true) {
       return true;
     }
   }
@@ -330,12 +287,13 @@ shed.mod.prototype.has_directory = function() {
  * @return {boolean}
  */
 shed.mod.prototype.has_smod = function() {
-  var fs = require('fs');
   var file_entries = this.get_file_entries_();
 
   for (var i = 0; i < file_entries.length; i++) {
-    var stat = fs.statSync(shed.setting.get('path') + 'mods\\' + file_entries[i]);
-    if (stat.isFile() === true && file_entries[i].indexOf('.smod') !== -1) {
+    if (
+      shed.filesystem.is_file(shed.setting.get('path') + 'mods\\' + file_entries[i]) === true &&
+      file_entries[i].indexOf('.smod') !== -1
+    ) {
       return true;
     }
   }
@@ -376,8 +334,7 @@ shed.mod.prototype.get_unpack_progress = function() {
  * @return {Array.<string>}
  */
 shed.mod.prototype.get_file_entries_ = function() {
-  var fs = require('fs');
-  var all_file_entries = fs.readdirSync(shed.setting.get('path') + 'mods');
+  var all_file_entries = shed.filesystem.list(shed.setting.get('path') + 'mods');
 
   var file_entries = [];
   for (var i = 0; i < all_file_entries.length; i++) {
@@ -399,14 +356,12 @@ shed.mod.prototype.get_file_entries_ = function() {
  * @return {Array.<shed.mod>}
  */
 shed.mod.get_mods = function() {
-  var fs = require('fs');
-
   var mod_names = [];
   var mods = [];
   // At this point we know where the mods folder is, so now get a list of
   // available mods.
   try {
-    var file_entries = fs.readdirSync(shed.setting.get('path') + 'mods');
+    var file_entries = shed.filesystem.list(shed.setting.get('path') + 'mods');
   }
   catch (e) {
     return [];
