@@ -357,7 +357,10 @@ shed.mod.prototype.get_file_entries_ = function() {
  */
 shed.mod.get_mods = function() {
   var mod_names = [];
+  var reserved_mod_names = ['radiant', 'stonehearth'];
+
   var mods = [];
+  var reserved_mods = [];
   // At this point we know where the mods folder is, so now get a list of
   // available mods.
   try {
@@ -373,22 +376,18 @@ shed.mod.get_mods = function() {
 
   for (var i = 0; i < mod_names.length; ++i) {
     var mod = new shed.mod(mod_names[i]);
-    mods.push(mod);
-  }
-
-  // Sort the mods and stick stonehearth/radiant up top.
-  mods.sort(function(a, b) {
-    var order = ['radiant', 'stonehearth']; // Inverted, but both of these will sort to the top.
-    var a_index = order.indexOf(a.get_name());
-    var b_index = order.indexOf(b.get_name());
-
-    if (a_index === -1 && b_index === -1) {
-      return a.get_name().toLowerCase() > b.get_name().toLowerCase();
+    if (reserved_mod_names.indexOf(mod_names[i]) !== -1) {
+      reserved_mods.push(mod);
     }
     else {
-      return a_index < b_index;
+      mods.push(mod);
     }
+  }
+
+  // TODO WART WAITING ON ROCKET TO IMPLEMENT THIS.
+  mods.sort(function(a, b) {
+    return alphanumCase(a.get_name(), b.get_name());
   });
 
-  return mods;
+  return reserved_mods.concat(mods);
 };

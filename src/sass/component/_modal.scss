@@ -1,9 +1,6 @@
 $container_width: 500px;
 .container {
-  border-image-source: url('../img/modal_background.png');
-  border-image-slice: 8 8 13 8;
-  border-width: 8px 8px 13px 8px;
-  background: #312f2f;
+  @include border_image('../img/modal_background.png', '8px 8px 13px 8px');
 
   position: absolute;
   top: 200px;

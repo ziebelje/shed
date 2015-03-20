@@ -1,15 +1,9 @@
 button {
+  @include border_image('../img/button.png', '8px 8px 13px 8px');
+
   outline: none;
-
-  background: #7E8994;
-
-  border-image-source: url('../img/button.png');
-  border-image-slice: 8 8 13 8;
-  border-width: 8px 8px 13px 8px;
-
   height: 50px;
-
-  font-family: "Grobold";
+  font-family: 'Grobold';
 
   @include cursor_pointer;
   @include text_shadow(rgba(255, 255, 255, 0.1));
@@ -21,5 +15,19 @@ button:hover {
 
 .button_red {
   border-image-source: url('../img/button_red.png');
-  background: #b33131;
+}
+
+.button_main {
+  display: block;
+  margin: 0 auto 10px auto;
+
+  width: 500px;
+  height: 80px;
+
+  border-image-source: url('../img/button_main.png');
+
+  @include text_shadow();
+  text-align: center;
+  font-size: 32px;
+  color: #ffc000;
 }

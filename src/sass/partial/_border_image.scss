@@ -1,0 +1,5 @@
+@mixin border_image($image, $slice) {
+  border-image-source: url($image);
+  border-image-slice: unquote(str_replace($slice, 'px', '')) fill;
+  border-width: unquote($slice);
+}

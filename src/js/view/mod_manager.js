@@ -301,7 +301,15 @@ shed.view.mod_manager.prototype.decorate_path_ = function(parent) {
 shed.view.mod_manager.prototype.add_drag_handlers_ = function() {
   var self = this;
 
-  var mask = $.createElement('div').addClass('mask');
+  var mask = $.createElement('div')
+    .addClass('mask')
+    .style({
+      'font-family': 'Grobold',
+      'text-align': 'center',
+      'padding-top': '250px',
+      'font-size': '22px'
+    })
+    .innerHTML('Drop mod here to install');
 
   var body_dragover = function(e) {
     $('.view').appendChild(mask);

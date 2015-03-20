@@ -1,8 +1,6 @@
 .well {
-  border-image-source: url('../img/well_background.png');
-  border-image-slice: 11 6 6 6;
-  border-width: 11px 6px 6px 6px;
-  background: #1f1e1e;
+  @include border_image('../img/well_background.png', '11px 6px 6px 6px');
+
   color: #fff;
   padding: 10px;
 }

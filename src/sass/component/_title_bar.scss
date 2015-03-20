@@ -1,6 +1,4 @@
 .title {
-  // TODO: Get new cursor up here. The drag region doesn't like it being overridden I guess. Can maybe fix with a container element?
-  // @include cursor_default;
   -webkit-app-region: drag;
 }
 
@@ -14,7 +12,7 @@ button {
 
 .back {
   @include cursor_pointer;
-  height: 25px;
-  margin-top: 3px;
+  height: 26px;
+  float: left;
   -webkit-app-region: no-drag;
 }

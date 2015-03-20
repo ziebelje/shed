@@ -16,17 +16,14 @@ $frame_height: 93px;
 }
 
 .meter {
+  @include border_image('../img/progress_meter.png', '5px 5px 10px 5px');
+
   position: absolute;
   top: 12px;
   left: 0;
 
   margin-left: 11px;
   height: 48px;
-
-  border-image-source: url('../img/progress_meter.png');
-  border-image-slice: 5 5 10 5;
-  border-width: 5px 5px 10px 5px;
-  background: #3c51bc;
 
   z-index: 1002;
 }

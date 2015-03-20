@@ -1,7 +1,7 @@
 body {
   @include cursor_default;
   color: #fff;
-  font-family: "Autour One";
+  font-family: 'Autour One';
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -9,10 +9,7 @@ body {
 }
 
 .global {
-  border-image-source: url('../img/background.png');
-  border-image-slice: 6 6 10 6;
-  border-width: 6px 6px 10px 6px;
-  background: #403c33;
+  @include border_image('../img/background.png', '6px 6px 9px 6px');
   color: #fff;
   width: 100%;
   height: 100vh;
@@ -34,19 +31,6 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #000;
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  opacity: 0.5;
-}
-
-.mask2 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ff0000;
-  z-index: 1000;
-  opacity: 0.5;
-  // transition: opacity .25s ease-in-out;
 }

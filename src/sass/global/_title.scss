@@ -1,14 +1,12 @@
 .title {
+  @include border_image('../img/title_background.png', '8px 8px 11px 8px');
+
   height: $title_height;
   line-height: $title_height - 19px;
-  border-image-source: url('../img/title_background.png');
-  border-image-slice: 8 8 11 8;
-  border-width: 8px 8px 11px 8px;
-  background: #6c6045;
 
   color: #ffc000;
   font-size: 18px;
-  font-family: "Grobold";
+  font-family: 'Grobold';
   font-weight: normal;
   padding-left: 10px;
   @include text_shadow();

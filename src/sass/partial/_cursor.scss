@@ -1,11 +1,11 @@
-@mixin cursor_default {
+@mixin cursor_default() {
   cursor: url('../cursor/default.cur'), default;
 }
 
-@mixin cursor_pointer {
+@mixin cursor_pointer() {
   cursor: url('../cursor/pointer.cur'), default;
 }
 
-@mixin cursor_not-allowed {
+@mixin cursor_not-allowed() {
   cursor: url('../cursor/not-allowed.cur'), default;
 }

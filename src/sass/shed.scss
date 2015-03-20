@@ -4,40 +4,42 @@ $status_bar_height: 35px;
 $gutter_height: 39px;
 $non_content_height: $title_height + $status_bar_height + $gutter_height;
 
-@import "partial/clearfix";
-@import "partial/grid";
-@import "partial/text_shadow";
-@import "partial/cursor";
-@import "partial/highlight";
+@import 'partial/clearfix';
+@import 'partial/grid';
+@import 'partial/str_replace';
+@import 'partial/text_shadow';
+@import 'partial/cursor';
+@import 'partial/highlight';
+@import 'partial/border_image';
 
-@import "global/border_box";
-@import "global/tooltip";
-@import "global/body";
-@import "global/scrollbar";
-@import "global/heading";
-@import "global/font";
-@import "global/well";
-@import "global/button";
-@import "global/input";
-@import "global/table";
-@import "global/small";
-@import "global/title";
+@import 'global/border_box';
+@import 'global/tooltip';
+@import 'global/body';
+@import 'global/scrollbar';
+@import 'global/heading';
+@import 'global/font';
+@import 'global/well';
+@import 'global/button';
+@import 'global/input';
+@import 'global/table';
+@import 'global/small';
+@import 'global/title';
 
 .view {
-  .main { @import "view/main"; }
-  .error { @import "view/error"; }
-  .mod_manager { @import "view/mod_manager"; }
-  .settings { @import "view/settings"; }
-  .effect_list { @import "view/effect_list"; }
-  .effect_editor { @import "view/effect_editor"; }
+  .main { @import 'view/main'; }
+  .error { @import 'view/error'; }
+  .mod_manager { @import 'view/mod_manager'; }
+  .settings { @import 'view/settings'; }
+  .effect_list { @import 'view/effect_list'; }
+  .effect_editor { @import 'view/effect_editor'; }
 }
 
 .component {
-  .none { @import "component/none"; }
-  .tip { @import "component/tip"; }
-  .title_bar { @import "component/title_bar"; }
-  .status_bar { @import "component/status_bar"; }
-  .tip { @import "component/tip"; }
-  .progress { @import "component/progress"; }
-  .modal { @import "component/modal"; }
+  .none { @import 'component/none'; }
+  .tip { @import 'component/tip'; }
+  .title_bar { @import 'component/title_bar'; }
+  .status_bar { @import 'component/status_bar'; }
+  .tip { @import 'component/tip'; }
+  .progress { @import 'component/progress'; }
+  .modal { @import 'component/modal'; }
 }
