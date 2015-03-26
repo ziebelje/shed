@@ -50,23 +50,28 @@ shed.effect.prototype.load_ = function() {
     }
   }
 
-  // Sort the tracks
-  this.tracks_.sort(function(a, b) {
-    var a_score = 0;
-    if (a.object === null && b.object !== null) {
-      a_score += 10;
+  // Sort the tracks. All supported tracks (ones with objects) go first. After
+  // that, they are sorted by name.
+  var supported_tracks = [];
+  var unsupported_tracks = [];
+
+  for (var i = 0; i < this.tracks_.length; i++) {
+    if (this.tracks_[i].object !== null) {
+      supported_tracks.push(this.tracks_[i]);
     }
-    if (a.object !== null && b.object === null) {
-      a_score -= 10;
+    else {
+      unsupported_tracks.push(this.tracks_[i]);
     }
-    if (a.name > b.name) {
-      a_score += 1;
-    }
-    if (a.name < b.name) {
-      a_score -= 1;
-    }
-    return a_score;
+  }
+
+  supported_tracks.sort(function(a, b) {
+    return a.name - b.name;
   });
+  unsupported_tracks.sort(function(a, b) {
+    return a.name - b.name;
+  });
+
+  this.tracks_ = supported_tracks.concat(unsupported_tracks);
 
   this.dispatchEvent('load');
 };
@@ -305,22 +310,27 @@ shed.effect.get_effects = function(callback) {
         }
       }
 
-      effects.sort(function(a, b) {
-        var a_score = 0;
-        if (a.is_supported() === false && b.is_supported() === true) {
-          a_score += 10;
+      // Sort with supported effects up top.
+      var supported_effects = [];
+      var unsupported_effects = [];
+
+      for (var i = 0; i < effects.length; i++) {
+        if (effects[i].is_supported() === true) {
+          supported_effects.push(effects[i]);
         }
-        if (a.is_supported() === true && b.is_supported() === false) {
-          a_score -= 10;
+        else {
+          unsupported_effects.push(effects[i]);
         }
-        if (a.get_name() > b.get_name()) {
-          a_score += 1;
-        }
-        if (a.get_name() < b.get_name()) {
-          a_score -= 1;
-        }
-        return a_score;
+      }
+
+      supported_effects.sort(function(a, b) {
+        return a.name - b.name;
       });
+      unsupported_effects.sort(function(a, b) {
+        return a.name - b.name;
+      });
+
+      effects = supported_effects.concat(unsupported_effects);
 
       callback(effects);
     }

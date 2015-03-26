@@ -74,6 +74,16 @@ shed.component.progress.prototype.percent_ = 0;
 
 
 /**
+ * A container around the progress bar frame.
+ *
+ * @type {rocket.Elements}
+ *
+ * @private
+ */
+// shed.component.progress.prototype.frame_;
+
+
+/**
  * Decorate
  *
  * @param {rocket.Elements} parent
@@ -81,18 +91,37 @@ shed.component.progress.prototype.percent_ = 0;
  * @private
  */
 shed.component.progress.prototype.decorate_ = function(parent) {
+  var self = this;
+
   // Bypasses the relative positioning of the component parent so this can cover
   // the entire parent properly.
   parent.style('position', '');
 
-  var mask = $.createElement('div').addClass('mask');
-  var frame = $.createElement('div').addClass('frame');
+  var mask = new shed.component.mask();
+  mask.render(parent);
 
+  this.progress_ = $.createElement('div');
+
+  this.frame_container_ = $.createElement('div').addClass('frame_container');
+
+  var frame = $.createElement('div').addClass('frame');
   frame.appendChild(this.meter_);
   frame.appendChild(this.text_);
 
-  parent.appendChild(mask);
-  parent.appendChild(frame);
+  this.frame_container_.appendChild(frame);
+
+  this.slide_amount_ = -25;
+
+  frame.style({'opacity': '0', 'margin-top': this.slide_amount_ + 'px'});
+
+  parent.appendChild(this.frame_container_);
+
+  $.step(function(percentage, sine) {
+    frame.style({
+      'opacity': sine,
+      'margin-top': (self.slide_amount_ + self.slide_amount_ * sine * -1) + 'px'
+    });
+  }, 250, null, 60);
 };
 
 

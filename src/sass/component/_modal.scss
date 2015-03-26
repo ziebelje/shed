@@ -3,7 +3,7 @@ $container_width: 500px;
   @include border_image('../img/modal_background.png', '8px 8px 13px 8px');
 
   position: absolute;
-  top: 200px;
+  top: 150px;
   left: 50%;
   margin-left: -$container_width / 2;
 

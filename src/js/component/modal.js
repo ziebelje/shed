@@ -31,6 +31,36 @@ shed.component.modal.prototype.chain_ = 'component.modal';
 
 
 /**
+ * The actual modal window.
+ *
+ * @type {rocket.ELements}
+ *
+ * @private
+ */
+shed.component.modal.prototype.modal_;
+
+
+/**
+ * Effect slide amount.
+ *
+ * @type {rocket.ELements}
+ *
+ * @private
+ */
+shed.component.modal.prototype.slide_amount_ = -25;
+
+
+/**
+ * The mask component that sits behind the modal.
+ *
+ * @type {shed.component.mask}
+ *
+ * @private
+ */
+shed.component.modal.mask_;
+
+
+/**
  * Title.
  *
  * @type {string}
@@ -68,13 +98,13 @@ shed.component.modal.prototype.buttons_;
  * @private
  */
 shed.component.modal.prototype.decorate_ = function(parent) {
+  var self = this;
+
   // Bypasses the relative positioning of the component parent so this can cover
   // the entire parent properly.
   parent.style('position', '');
 
-  var mask = $.createElement('div').addClass('mask');
-
-  var container = $.createElement('div').addClass('container');
+  this.modal_ = $.createElement('div').addClass('container');
   var title = $.createElement('div').addClass('title').innerHTML(this.title_);
   var text = $.createElement('div').addClass('text').innerHTML(this.text_);
 
@@ -84,43 +114,46 @@ shed.component.modal.prototype.decorate_ = function(parent) {
       .innerHTML(this.buttons_[i].text)
       .addEventListener('click', this.buttons_[i].callback);
     buttons.appendChild(button);
-
   }
 
-  container.appendChild(title);
-  container.appendChild(text);
-  container.appendChild(buttons);
+  this.modal_.appendChild(title);
+  this.modal_.appendChild(text);
+  this.modal_.appendChild(buttons);
 
-  parent.appendChild(mask);
-  parent.appendChild(container);
+  this.mask_ = new shed.component.mask();
+  this.mask_.render(parent);
+
+  this.modal_.style({'opacity': '0', 'margin-top': this.slide_amount_ + 'px'});
+  parent.appendChild(this.modal_);
+
+  $.step(function(percentage, sine) {
+    self.modal_.style({
+      'opacity': sine,
+      'margin-top': (self.slide_amount_ + self.slide_amount_ * sine * -1) + 'px'
+    });
+  }, 250, null, 60);
 };
 
 
 /**
- * Set the text.
- *
- * @param {string} text
+ * Dispose of the modal by fading it back up and out.
  */
-// shed.component.modal.prototype.set_text = function(text) {
-//   this.text_.innerHTML(text);
-// };
+shed.component.modal.prototype.dispose = function() {
+  var self = this;
 
+  this.mask_.dispose();
 
-/**
- * Set the percentage complete.
- *
- * @param {number} percent Between 0 and 100.
- * @param {Function=} opt_callback Function to call when the step function completes.
- */
-// shed.component.modal.prototype.set_progress = function(percent, opt_callback) {
-//   var self = this;
-
-//   var total_width = 377;
-//   var current_width = parseInt(this.meter_.style('width')) || 0;
-//   var new_width = Math.min(total_width, total_width * percent / 100);
-
-//   clearInterval(this.step_interval_);
-//   this.step_interval_ = $.step(function(percentage, sine) {
-//     self.meter_.style('width', (current_width + ((new_width - current_width) * sine)) + 'px');
-//   }, 1000, opt_callback, 60);
-// };
+  $.step(
+    function(percentage, sine) {
+      self.modal_.style({
+        'opacity': (1 - sine),
+        'margin-top': (self.slide_amount_ + self.slide_amount_ * (1 - sine) * -1) + 'px'
+      });
+    },
+    250,
+    function() {
+      shed.component.prototype.dispose.call(self);
+    },
+    60
+  );
+};

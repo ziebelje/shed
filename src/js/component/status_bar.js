@@ -47,8 +47,7 @@ shed.component.status_bar.prototype.decorate_ = function(parent) {
     // TODO: Make this open a modal with a list of profiles. That will also
     // serve as the confirm box. This could get annoying during testing, so
     // maybe add an option to always launch with a certain default profile.
-    // require('nw.gui').Shell.openItem(shed.setting.get('path') + 'stonehearth.exe');
-    alert('launched...');
+    require('nw.gui').Shell.openItem(shed.setting.get('path') + 'stonehearth.exe');
   });
   table.td(0, 0).appendChild(launch);
 
@@ -56,14 +55,14 @@ shed.component.status_bar.prototype.decorate_ = function(parent) {
   // var profile_select = $.createElement('select');
   // profile_select.appendChild($.createElement('option').innerHTML('Profile 1'));
   // profile_select.appendChild($.createElement('option').innerHTML('Profile 2'));
-  table.td(0, 0).style({'width': '660px', 'padding-left': '55px'});
+  table.td(0, 0).style({'width': '560px', 'padding-left': '55px'});
   table.td(0, 0).appendChild($.createElement('span').innerHTML('Launch Stonehearth'));
 
   table.td(1, 0).style({'width': '110px'});
-  // table.td(1, 0).innerHTML('Current Mod');
+  table.td(1, 0).innerHTML('Current Mod');
 
   var mods = shed.mod.get_mods();
-  var mod_select = $.createElement('select');
+  var mod_select = $.createElement('select').addClass('mod_select');
   for (var i = 0; i < mods.length; i++) {
     var option = $.createElement('option')
       .value(mods[i].get_name())
@@ -80,7 +79,7 @@ shed.component.status_bar.prototype.decorate_ = function(parent) {
     shed.view.rerender();
     // TODO: Rerendering certain views (like viewing an effect) is no good
   });
-  // table.td(2, 0).appendChild(mod_select);
+  table.td(2, 0).appendChild(mod_select);
 
   status_bar.appendChild(table.table());
 

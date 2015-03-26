@@ -50,6 +50,8 @@ shed.view.mod_manager.prototype.title_ = 'Manage Mods';
 shed.view.mod_manager.prototype.decorate_ = function(parent) {
   var self = this;
 
+  parent.appendChild($.createElement('p').innerHTML('Drag & drop mods in this window to install. Use buttons in listing to manage mods.'));
+
   this.mods_ = shed.mod.get_mods();
 
   var mods_table = $.createElement('div').addClass('mods_table');
@@ -82,7 +84,7 @@ shed.view.mod_manager.prototype.decorate_ = function(parent) {
 shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
   var self = this;
 
-  var table = new jex.table({'rows': this.mods_.length + 1, 'columns': 5, 'header': true});
+  var table = new jex.table({'rows': this.mods_.length + 1, 'columns': 4, 'header': true});
   table.table()
     .style({
       'margin': 'auto',
@@ -92,10 +94,9 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
 
   table.td(1, 0).style('width', '80px');
   table.td(2, 0).style('width', '150px');
-  table.td(3, 0).style('width', '100px');
-  table.td(4, 0).style('width', '150px');
+  table.td(3, 0).style('width', '250px');
 
-  table.fill_row(0, [null, 'SMOD', 'Unpacked', 'Loaded']);
+  table.fill_row(0, [null, 'SMOD', 'Unpacked']);
 
   for (var i = 0; i < this.mods_.length; ++i) {
     table.td(0, i + 1)
@@ -125,40 +126,23 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
 
     }
 
-    var loaded_radio = $.createElement('input')
-      .setAttribute({'type': 'radio', 'name': 'loaded'})
-      .addClass(['radio', 'loaded_radio'])
-      .dataset('mod_id', i);
-
-    table.td(3, i + 1)
-      .style('text-align', 'center')
-      .appendChild(loaded_radio);
-
-    if (this.mods_[i].get_name() === shed.setting.get('mod')) {
-      loaded_radio.checked(true);
-    }
-
     var pack_button = $.createElement('button')
       .innerHTML('SMOD')
       .style('margin-right', '5px')
       .addClass('pack_button')
-      .dataset('mod_id', i);
+      .dataset('mod_id', i)
+      .disabled(this.mods_[i].has_directory() === false);
 
     var unpack_button = $.createElement('button')
       .innerHTML('Unpack')
       .dataset('mod_id', i)
-      .addClass('unpack_button');
+      .addClass('unpack_button')
+      .disabled(this.mods_[i].has_smod() === false);
 
 
-    table.td(4, i + 1).style('text-align', 'right').appendChild(pack_button);
-    table.td(4, i + 1).style('text-align', 'right').appendChild(unpack_button);
+    table.td(3, i + 1).style('text-align', 'right').appendChild(pack_button);
+    table.td(3, i + 1).style('text-align', 'right').appendChild(unpack_button);
   }
-
-  table.table().live('.loaded_radio', 'change', function() {
-    var loaded_radio = $(this);
-    var mod_id = loaded_radio.dataset('mod_id');
-    shed.setting.set('mod', self.mods_[mod_id].get_name());
-  });
 
   table.table().live('.pack_button', 'click', function() {
     var callback = function() {
@@ -302,12 +286,18 @@ shed.view.mod_manager.prototype.add_drag_handlers_ = function() {
   var self = this;
 
   var mask = $.createElement('div')
-    .addClass('mask')
     .style({
       'font-family': 'Grobold',
       'text-align': 'center',
       'padding-top': '250px',
-      'font-size': '22px'
+      'font-size': '22px', // These styles will get cleaned up when I switch this over to the mask component.
+      'position': 'absolute',
+      'top': '0',
+      'left': '0',
+      'width': '100%',
+      'height': '100%',
+      'background': 'rgba(0, 0, 0, 0.5)',
+      'z-index': '1000'
     })
     .innerHTML('Drop mod here to install');
 

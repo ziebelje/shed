@@ -78,8 +78,8 @@ shed.component.title_bar.prototype.decorate_ = function(parent) {
   table.td(2, 0).style('text-align', 'right');
   table.td(2, 0).appendChild(close);
   table.td(2, 0).appendChild(minimize);
-  table.td(2, 0).appendChild(dev_tools);
-  table.td(2, 0).appendChild(refresh);
+  // table.td(2, 0).appendChild(dev_tools);
+  // table.td(2, 0).appendChild(refresh);
 
   var title = $.createElement('div').addClass('title');
   title.appendChild(table.table());

@@ -1,14 +1,10 @@
 .status_bar {
   background: #322F27;
-  // background: #111;
-  // background: #1c1b1b;
   position: absolute;
   bottom: 17px;
-  // left: 6px;
   width: 938px;
   height: $status_bar_height;
   line-height: $status_bar_height;
-  // border-top: 4px solid #111;
 }
 
 .launch {
@@ -21,4 +17,8 @@
 
 .launch:hover {
   @include highlight();
+}
+
+.mod_select {
+  width: 95%;
 }

@@ -13,6 +13,13 @@ button:hover {
   @include highlight();
 }
 
+button:disabled {
+  @include cursor_not-allowed;
+  color: #000;
+  -webkit-filter: brightness(0.5);
+  -webkit-transform: none; // To override the transform on button:hover
+}
+
 .button_red {
   border-image-source: url('../img/button_red.png');
 }

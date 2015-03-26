@@ -2,16 +2,15 @@ var $ = rocket.extend(rocket.$, rocket);
 
 $.ready(function() {
   // Should catch all errors.
-  // process.on('uncaughtException', function(error) {
-  //   try {
-  //     console.error(error);
-  //     (new shed.view.error(error)).render();
-  //   }
-  //   catch (e) {}
-  // });
+  process.on('uncaughtException', function(error) {
+    try {
+      console.error(error);
+      (new shed.view.error(error)).render();
+    }
+    catch (e) {}
+  });
 
   (new shed.view.main()).render();
-  (new shed.view.mod_manager()).render();
 });
 
 var shed = {};

@@ -42,4 +42,5 @@ $non_content_height: $title_height + $status_bar_height + $gutter_height;
   .tip { @import 'component/tip'; }
   .progress { @import 'component/progress'; }
   .modal { @import 'component/modal'; }
+  .mask { @import 'component/mask'; }
 }
