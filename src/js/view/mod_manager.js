@@ -159,7 +159,7 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
       });
       mod.pack(function(error) {
         if (error !== null) {
-          throw 'SMOD creation failed: ' + error;
+          throw new Error('SMOD creation failed: ' + error);
         }
         else {
           progress.set_progress(100, self.rerender.bind(self));
@@ -207,7 +207,7 @@ shed.view.mod_manager.prototype.decorate_mods_table_ = function(parent) {
       });
       mod.unpack(function(error) {
         if (error !== null) {
-          throw 'Unpack failed: ' + error;
+          throw new Error('Unpack failed: ' + error);
         }
         else {
           progress.set_progress(100, self.rerender.bind(self));

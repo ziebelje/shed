@@ -445,7 +445,7 @@ shed.cubemitter.prototype.constant_ = function(type, values) {
       return values[0];
     break;
     default:
-      throw 'CONSTANT not supported for ' + type;
+      throw new Error('CONSTANT not supported for ' + type);
     break;
   }
 };
@@ -483,7 +483,7 @@ shed.cubemitter.prototype.random_between_ = function(type, values) {
       return Math.random() * (values[0] - values[1]) + values[1];
     break;
     default:
-      throw 'RANDOM_BETWEEN not supported for ' + type;
+      throw new Error('RANDOM_BETWEEN not supported for ' + type);
     break;
   }
 };
@@ -514,7 +514,7 @@ shed.cubemitter.prototype.curve_ = function(type, values, t) {
       return this.evaluate_curve_(values, t);
     break;
     default:
-      throw 'CURVE not supported for ' + type;
+      throw new Error('CURVE not supported for ' + type);
     break;
   }
 };
@@ -550,7 +550,7 @@ shed.cubemitter.prototype.random_between_curves_ = function(type, values, t, ran
       return random * (a - b) + b;
     break;
     default:
-      throw 'RANDOM_BETWEEN_CURVES not supported for ' + type;
+      throw new Error('RANDOM_BETWEEN_CURVES not supported for ' + type);
     break;
   }
 };
@@ -616,7 +616,7 @@ shed.cubemitter.prototype.rectangle_ = function(type, values) {
       };
     break;
     default:
-      throw 'RECTANGLE not supported for ' + type;
+      throw new Error('RECTANGLE not supported for ' + type);
     break;
   }
 };

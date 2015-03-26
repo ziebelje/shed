@@ -42,7 +42,12 @@ shed.setting.get = function(key) {
     }
   }
   else {
-    return JSON.parse(localStorage[key]);
+    try {
+      return JSON.parse(localStorage[key]);
+    }
+    catch (e) {
+      throw new Error('Failed to parse setting [' + key + ']: "' + localStorage[key] + '"');
+    }
   }
 };
 

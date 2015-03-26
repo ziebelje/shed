@@ -41,13 +41,18 @@ shed.view.error.prototype.error_;
  * @private
  */
 shed.view.error.prototype.decorate_ = function(parent) {
-  console.error(this.error_);
+  var message = this.error_ || 'No message';
+  // var stack = this.error_.stack || new Error().stack;
+  var stack = this.error_.stack;
+  var local_storage = JSON.stringify(localStorage);
+
+  console.error(message);
 
   parent.appendChild($.createElement('h1').innerHTML('Oops!'));
   parent.appendChild(
     $.createElement('textarea')
       .setAttribute('readonly', 'readonly')
-      .value(this.error_.stack || this.error_)
+      .value('Error\n-----\n' + message + '\n\nStack\n-----\n' + stack + '\n\nLocal storage\n-----\n' + local_storage)
   );
 };
 

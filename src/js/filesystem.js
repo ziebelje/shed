@@ -418,7 +418,7 @@ shed.filesystem.read = function(file) {
     return require('fs').readFileSync(file);
   }
   catch (e) {
-    throw 'File not found: ' + file;
+    throw new Error('File not found: ' + file);
   }
 };
 
