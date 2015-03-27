@@ -30,10 +30,6 @@ shed.view.main.prototype.chain_ = 'view.main';
  * @private
  */
 shed.view.main.prototype.decorate_ = function(parent) {
-  if (shed.setting.get('path') === null || $.trim(shed.setting.get('path')) === '') {
-    this.guess_path_();
-  }
-
   var stonehearth_logo = $.createElement('img')
     .setAttribute('src', 'img/stonehearth_logo.png')
     .style({
@@ -70,30 +66,4 @@ shed.view.main.prototype.decorate_ = function(parent) {
   settings_button.addEventListener('click', function() {
     (new shed.view.settings()).render();
   });
-};
-
-
-/**
- * Try and guess where the Stonehearth folder is at. If this cannot be
- * guessed, the user will have to manually enter this value in.
- *
- * @private
- */
-shed.view.main.prototype.guess_path_ = function() {
-  // Default steam and non-steam install locations.
-  var possible_paths = [
-    process.env['ProgramFiles'] + '\\Steam\\SteamApps\\common\\Stonehearth',
-    process.env['ProgramFiles(x86)'] + '\\Steam\\SteamApps\\common\\Stonehearth',
-    process.env['ProgramFiles'] + '\\Stonehearth',
-    process.env['ProgramFiles(x86)'] + '\\Stonehearth'
-  ];
-
-  // Pick the first detected path.
-  for (var i = 0; i < possible_paths.length; i++) {
-    if (shed.filesystem.exists(possible_paths[i]) === true) {
-      shed.set_path(possible_paths[i]);
-      shed.setting.set('mod', 'stonehearth');
-      return;
-    }
-  }
 };

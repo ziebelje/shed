@@ -20,7 +20,8 @@ shed.setting.defaults_ = {
   'effect_editor_terrain': true,
   'effect_editor_emitter': false,
   'effect_editor_axis': false,
-  'effect_editor_camera_position': {'x': 12, 'y': 7, 'z': 12}
+  'effect_editor_camera_position': {'x': 12, 'y': 7, 'z': 12},
+  'mod': 'stonehearth'
 };
 
 
@@ -33,6 +34,11 @@ shed.setting.defaults_ = {
  * @return {*} The setting
  */
 shed.setting.get = function(key) {
+  // Path default can be a number of different values.
+  if (key === 'path' && localStorage[key] === undefined) {
+    shed.setting.set('path', shed.setting.guess_path_());
+  }
+
   if (localStorage[key] === undefined) {
     if (shed.setting.defaults_[key] !== undefined) {
       return shed.setting.defaults_[key];
@@ -46,7 +52,10 @@ shed.setting.get = function(key) {
       return JSON.parse(localStorage[key]);
     }
     catch (e) {
-      throw new Error('Failed to parse setting [' + key + ']: "' + localStorage[key] + '"');
+      delete localStorage[key];
+      return shed.setting.get(key);
+
+      // throw new Error('Failed to parse setting [' + key + ']: "' + localStorage[key] + '"');
     }
   }
 };
@@ -70,4 +79,32 @@ shed.setting.set = function(key, value) {
  */
 shed.setting.del = function(key) {
   delete localStorage[key];
+};
+
+
+/**
+ * Try and guess where the Stonehearth folder is at. If this cannot be
+ * guessed, the user will have to manually enter this value in.
+ *
+ * @private
+ *
+ * @return {string} The detected install path or null if not found.
+ */
+shed.setting.guess_path_ = function() {
+  // Default steam and non-steam install locations.
+  var possible_paths = [
+    process.env['ProgramFiles'] + '\\Steam\\SteamApps\\common\\Stonehearth\\',
+    process.env['ProgramFiles(x86)'] + '\\Steam\\SteamApps\\common\\Stonehearth\\',
+    process.env['ProgramFiles'] + '\\Stonehearth\\',
+    process.env['ProgramFiles(x86)'] + '\\Stonehearth\\'
+  ];
+
+  // Pick the first detected path.
+  for (var i = 0; i < possible_paths.length; i++) {
+    if (shed.filesystem.exists(possible_paths[i]) === true) {
+      return possible_paths[i];
+    }
+  }
+
+  return null;
 };
