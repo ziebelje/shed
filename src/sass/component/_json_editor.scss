@@ -1,0 +1,44 @@
+.key { // This is just a div with contentEditable = "true"
+  @include cursor_text();
+  background: #7E8994;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: 'Consolas';
+  font-size: 14px;
+  padding: 4px;
+  outline: 0;
+}
+
+.key.obj, .key.array {
+  background: #3D9CD2;
+}
+
+.value { // This is just a div with contentEditable = "true"
+  @include cursor_text();
+  background: #322F27;
+  opacity: 0.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Consolas';
+  font-size: 14px;
+  padding: 4px;
+  outline: 0;
+}
+
+.value:focus {
+  opacity: 1;
+  white-space: normal;
+}
+
+.toggle_children {
+  @include cursor_pointer();
+  @include text_shadow();
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.radio {
+  width: 27px;
+  height: 30px;
+}

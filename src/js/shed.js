@@ -10,24 +10,18 @@ $.ready(function() {
     catch (e) {}
   });
 
-  (new shed.view.main()).render();
+  switch (window.location.hash) {
+    case '#cubemitter_editor':
+      (new shed.view.cubemitter_editor()).render();
+    break;
+    default:
+      // (new shed.view.cubemitter_editor()).render();
+      (new shed.view.main()).render();
+    break;
+  }
 });
 
 var shed = {};
-
-
-/**
- * Set the path to the SH installation folder.
- *
- * @param {string} path The path.
- */
-shed.set_path = function(path) {
-  var path = path.replace(/\//g, '\\');
-  if (path.slice(-1) !== '\\') {
-    path = path + '\\';
-  }
-  shed.setting.set('path', path);
-};
 
 
 // TODO WART WAITING ON ROCKET TO IMPLEMENT THIS.

@@ -43,4 +43,5 @@ $non_content_height: $title_height + $status_bar_height + $gutter_height;
   .progress { @import 'component/progress'; }
   .modal { @import 'component/modal'; }
   .mask { @import 'component/mask'; }
+  .json_editor { @import 'component/json_editor'; }
 }

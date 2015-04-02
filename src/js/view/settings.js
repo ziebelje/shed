@@ -62,7 +62,7 @@ shed.view.settings.prototype.decorate_ = function(parent) {
   path_table.td(0, 0).appendChild(path_input);
 
   path_input.addEventListener('blur', function() {
-    shed.set_path($(this).value());
+    self.set_path_($(this).value());
     $(this).value(shed.setting.get('path'));
     self.render();
   });
@@ -106,4 +106,20 @@ shed.view.settings.prototype.path_is_valid_ = function() {
     // Could not read directory
     return false;
   }
+};
+
+
+/**
+ * Set the path to the SH installation folder.
+ *
+ * @param {string} path The path.
+ *
+ * @private
+ */
+shed.view.settings.prototype.set_path_ = function(path) {
+  var path = path.replace(/\//g, '\\');
+  if (path.slice(-1) !== '\\') {
+    path = path + '\\';
+  }
+  shed.setting.set('path', path);
 };

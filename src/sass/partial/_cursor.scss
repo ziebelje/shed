@@ -9,3 +9,7 @@
 @mixin cursor_not-allowed() {
   cursor: url('../cursor/not-allowed.cur'), default;
 }
+
+@mixin cursor_text() {
+  cursor: text;
+}
